@@ -38,4 +38,6 @@ apt-get install -qy \
   virtualenvwrapper \
   wget
 
+pip3 install boto3
+
 echo -e "\n\nSoftware Pre-reqs Installation Complete!\n\n"

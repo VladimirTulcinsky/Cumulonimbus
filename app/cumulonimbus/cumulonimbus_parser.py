@@ -150,10 +150,14 @@ class CumulonimbusParser:
 
     def parse_args(self, args=None):
         args = self.parser.parse_args(args)
+        if args is None:
+            print('No arguments provided, try -h or --help to get additional information')
+            return 1
 
         # Cannot simply use required for backward compatibility
         if not args.provider:
-            self.parser.error('You need to input a provider')
+            self.parser.error(
+                'You need to input a provider, try -h or --help to get additional information')
 
         # If local analysis, overwrite results
         if args.__dict__.get('fetch_local'):
@@ -163,6 +167,13 @@ class CumulonimbusParser:
         v = vars(args)
         # AWS
         if v.get('provider') == 'aws':
+            if not v.get('command'):
+                self.parser.error(
+                    'You need to input a command, try -h or --help to get additional information')
+            if v.get('command') == 'authenticate':
+                if not (v.get('aws_access_key_id') and v.get('aws_secret_access_key')):
+                    self.parser.error(
+                        'You need to provide an Access Key ID and Secret Access Key to authenticate')
             if v.get('aws_access_keys') and not (v.get('aws_access_key_id') or v.get('aws_secret_access_key')):
                 self.parser.error('When running with --access-keys, you must provide an Access Key ID '
                                   'and Secret Access Key.')
@@ -182,3 +193,5 @@ class CumulonimbusParser:
                 print("Arguments from Group 1")
             elif v.get('mode') == 'user':
                 print("Arguments from Group 2")
+
+        return args
