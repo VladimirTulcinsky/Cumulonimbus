@@ -9,8 +9,11 @@ def run_from_cli():
     parser = CumulonimbusParser()
     args = parser.parse_args()
 
-    # Get the dictionary to get None instead of a crash
-    args = args.__dict__
+    if args is None:
+        print('No arguments provided, try --help to get additional information')
+        return 1
+    else:
+        args = args.__dict__
 
     try:
         run(provider=args.get('provider'),

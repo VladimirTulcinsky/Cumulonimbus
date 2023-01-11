@@ -59,7 +59,7 @@ class CumulonimbusParser:
         aws_creation_params.add_argument('--app-id', action='store', choices=global_variables.aws_app_list, required=True,
                                          default="ec2_ssrf",
                                          dest='vulnerable_app_id',
-                                         help='Cumulonimbus vulnerable application id')
+                                         help='Cumulonimbus vulnerable AWS application id')
 
         aws_additional_parser = aws_parser.add_argument_group(
             'Additional arguments')
@@ -88,6 +88,7 @@ class CumulonimbusParser:
         azure_auth_modes = azure_cmd_auth_parser.add_mutually_exclusive_group(
             required=True)
 
+        # Authentication parameters
         # username/password authentication
         azure_auth_modes.add_argument('--user-account',
                                       action='store_true',
@@ -138,6 +139,14 @@ class CumulonimbusParser:
                                  dest='subscription_id',
                                  help='IDs (separated by spaces) of the Azure subscription(s) to scan. '
                                       'By default, only the default subscription will be scanned.') """
+
+        # Vulnerable application creation parameters
+        azure_creation_params = azure_cmd_create_parser.add_argument_group(
+            'Creation parameters')
+        azure_creation_params.add_argument('--app-id', action='store', choices=global_variables.azure_app_list, required=True,
+                                           default="vm_prt",
+                                           dest='vulnerable_app_id',
+                                           help='Cumulonimbus vulnerable Azure application id')
 
     def parse_args(self, args=None):
         args = self.parser.parse_args(args)
