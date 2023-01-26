@@ -1,4 +1,8 @@
 #!/usr/bin/env python3
+import cumulonimbus.global_variables as global_variables
+import os
+
+
 def get_caller_identity(session):
     sts_client = session.client("sts")
     identity = sts_client.get_caller_identity()
@@ -40,3 +44,13 @@ def format_arn(partition, service, region, account_id, resource_id, resource_typ
         print('Failed to parse a resource ARN: {}'.format(e))
         return None
     return arn
+
+
+def get_path_to_aws_app(app_id):
+    """
+    Get the path to the AWS application.
+
+    :param app_id:                      The application ID
+    :return:                            The path to the application
+    """
+    return os.path.join(global_variables.ROOT_DIR, "applications/aws/{}/terraform".format(app_id))

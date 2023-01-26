@@ -1,6 +1,7 @@
 import cumulonimbus.global_variables as global_variables
 from cumulonimbus.cumulonimbus_parser import CumulonimbusParser
 from cumulonimbus.providers.base.authentication_strategy_factory import get_authentication_strategy
+from cumulonimbus.providers.base.creation_strategy_factory import get_creation_strategy
 
 
 def run_from_cli():
@@ -25,7 +26,8 @@ def run_from_cli():
                          subscription_id=args.get('subscription_id'),
 
                          # General
-                         region=args.get('region')
+                         region=args.get('region'),
+                         save_credentials=True
                          )
             print('Authentication successful')
 
@@ -34,8 +36,8 @@ def run_from_cli():
             return 130
 
     elif args.get('command') == 'create':
-        print('Creating vulnerable application')
-        pass
+        create(provider=args.get('provider'),
+               app_id=args.get('vulnerable_app_id'))
 
 
 def authenticate(provider,
@@ -54,7 +56,8 @@ def authenticate(provider,
 
                  # General
                  region="",
-                 programmatic_execution=True):
+                 programmatic_execution=True,
+                 save_credentials=True,):
     """
     Run Cumulonimbus.
     """
@@ -73,10 +76,28 @@ def authenticate(provider,
                                                  client_id=client_id,
                                                  client_secret=client_secret,
                                                  username=username,
-                                                 password=password)
+                                                 password=password,
+                                                 save_credentials=True)
 
         if not credentials:
             return 101
+
     except Exception as e:
         print(f'Authentication failure: {e}')
+        return 101
+
+
+def create(provider, app_id):
+    try:
+        auth_strategy = get_authentication_strategy(provider)
+        credentials = auth_strategy.get_credentials()
+
+        if not credentials:
+            return 101
+
+        creation_strategy = get_creation_strategy(provider)
+        creation_strategy.create(app_id=app_id, credentials=credentials)
+
+    except Exception as e:
+        print(f'Creation failure: {e}')
         return 101

@@ -7,12 +7,12 @@ class CumulonimbusParser:
 
     def __init__(self):
         self.parser = argparse.ArgumentParser(
-            epilog='To get additional help on a specific provider run: {}.py <provider> -h'.format(global_variables.app_name))
+            epilog='To get additional help on a specific provider run: {}.py <provider> -h'.format(global_variables.APP_NAME))
 
         self.common_providers_args_parser = argparse.ArgumentParser(
             add_help=False)
 
-        self.subparsers = self.parser.add_subparsers(title="The provider you want to run {} against".format(global_variables.app_name),
+        self.subparsers = self.parser.add_subparsers(title="The provider you want to run {} against".format(global_variables.APP_NAME),
                                                      dest="provider")
 
         self._init_aws_parser()
@@ -22,16 +22,16 @@ class CumulonimbusParser:
         aws_parser = self.subparsers.add_parser("aws",
                                                 parents=[
                                                     self.common_providers_args_parser],
-                                                help="Run {} against an Amazon Web Services account".format(global_variables.app_name))
+                                                help="Run {} against an Amazon Web Services account".format(global_variables.APP_NAME))
 
         aws_cmd_parser = aws_parser.add_subparsers(title="The command you want to run",
                                                    dest="command")
 
         # Possible commands: authenticate, create
         aws_cmd_auth_parser = aws_cmd_parser.add_parser(
-            "authenticate", help="Authenticate {} against an Amazon Web Services account".format(global_variables.app_name))
+            "authenticate", help="Authenticate {} against an Amazon Web Services account".format(global_variables.APP_NAME))
         aws_cmd_create_parser = aws_cmd_parser.add_parser(
-            "create", help="Create a vulnerable application in an Amazon Web Services account".format(global_variables.app_name))
+            "create", help="Create a vulnerable application in an Amazon Web Services account".format(global_variables.APP_NAME))
 
         # Authentication parameters
         aws_auth_params = aws_cmd_auth_parser.add_argument_group(
@@ -56,7 +56,7 @@ class CumulonimbusParser:
         # Vulnerable application creation parameters
         aws_creation_params = aws_cmd_create_parser.add_argument_group(
             'Creation parameters')
-        aws_creation_params.add_argument('--app-id', action='store', choices=global_variables.aws_app_list, required=True,
+        aws_creation_params.add_argument('--app-id', action='store', choices=global_variables.AWS_APP_LIST, required=True,
                                          default="ec2_ssrf",
                                          dest='vulnerable_app_id',
                                          help='Cumulonimbus vulnerable AWS application id')
@@ -74,16 +74,16 @@ class CumulonimbusParser:
         azure_parser = self.subparsers.add_parser("azure",
                                                   parents=[
                                                       self.common_providers_args_parser],
-                                                  help="Run {} against a Microsoft Azure account".format(global_variables.app_name))
+                                                  help="Run {} against a Microsoft Azure account".format(global_variables.APP_NAME))
 
         azure_cmd_parser = azure_parser.add_subparsers(
             title="The command you want to run", dest="command", required=True, help="The command you want to run (authenticate, create, etc.)")
 
         # Possible commands: authenticate, create
         azure_cmd_auth_parser = azure_cmd_parser.add_parser(
-            "authenticate", help="Authenticate {} against an Azure account".format(global_variables.app_name))
+            "authenticate", help="Authenticate {} against an Azure account".format(global_variables.APP_NAME))
         azure_cmd_create_parser = azure_cmd_parser.add_parser(
-            "create", help="Create a vulnerable application in an Azure account".format(global_variables.app_name))
+            "create", help="Create a vulnerable application in an Azure account".format(global_variables.APP_NAME))
 
         azure_auth_modes = azure_cmd_auth_parser.add_mutually_exclusive_group(
             required=True)
@@ -97,7 +97,7 @@ class CumulonimbusParser:
         # Service Principal authentication
         azure_auth_modes.add_argument('--service-principal',
                                       action='store_true',
-                                      help='Run {} with an Azure Service Principal'.format(global_variables.app_name))
+                                      help='Run {} with an Azure Service Principal'.format(global_variables.APP_NAME))
 
         azure_auth_u_params = azure_cmd_auth_parser.add_argument_group(
             'Authentication parameters for User Account')
@@ -143,7 +143,7 @@ class CumulonimbusParser:
         # Vulnerable application creation parameters
         azure_creation_params = azure_cmd_create_parser.add_argument_group(
             'Creation parameters')
-        azure_creation_params.add_argument('--app-id', action='store', choices=global_variables.azure_app_list, required=True,
+        azure_creation_params.add_argument('--app-id', action='store', choices=global_variables.AZURE_APP_LIST, required=True,
                                            default="vm_prt",
                                            dest='vulnerable_app_id',
                                            help='Cumulonimbus vulnerable Azure application id')
@@ -174,9 +174,9 @@ class CumulonimbusParser:
                 if not (v.get('aws_access_key_id') and v.get('aws_secret_access_key')):
                     self.parser.error(
                         'You need to provide an Access Key ID and Secret Access Key to authenticate')
-            if v.get('aws_access_keys') and not (v.get('aws_access_key_id') or v.get('aws_secret_access_key')):
-                self.parser.error('When running with --access-keys, you must provide an Access Key ID '
-                                  'and Secret Access Key.')
+                if v.get('aws_access_keys') and not (v.get('aws_access_key_id') or v.get('aws_secret_access_key')):
+                    self.parser.error('When running with --access-keys, you must provide an Access Key ID '
+                                      'and Secret Access Key.')
         # Azure
         elif v.get('provider') == 'azure':
             if v.get('tenant_id') and not (v.get('service_principal') or v.get('user_account_browser') or v.get('user_account')):

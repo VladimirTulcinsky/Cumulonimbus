@@ -1,0 +1,1 @@
+shared_credentials_file = "${pathexpand("~/.aws/credentials")}"

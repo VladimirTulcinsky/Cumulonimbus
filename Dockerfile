@@ -21,6 +21,9 @@ RUN ["rm", "-rf", "/root/bin"]
 COPY ./app /app
 WORKDIR /app
 
+# Set path to credentials file
+ENV AWS_SHARED_CREDENTIALS_FILE=/root/.aws/credentials
+ENV AWS_CONFIG_FILE=/root/.aws/config
+
 # Command
-ENTRYPOINT [ "./cnimbus.py" ]
-CMD [ "-h" ]
+CMD ["/bin/bash"]

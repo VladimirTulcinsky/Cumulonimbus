@@ -39,5 +39,6 @@ apt-get install -qy \
   wget
 
 pip3 install boto3
+pip3 install python-terraform 
 
 echo -e "\n\nSoftware Pre-reqs Installation Complete!\n\n"

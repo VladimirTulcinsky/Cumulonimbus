@@ -15,11 +15,14 @@ def get_azure_vulnerable_apps():
 
 
 def init():
-    global app_name
-    app_name = "Cumulonimbus"
+    global APP_NAME
+    APP_NAME = "Cumulonimbus"
 
-    global aws_app_list
-    aws_app_list = get_aws_vulnerable_apps()
+    global AWS_APP_LIST
+    AWS_APP_LIST = get_aws_vulnerable_apps()
 
-    global azure_app_list
-    azure_app_list = get_azure_vulnerable_apps()
+    global AZURE_APP_LIST
+    AZURE_APP_LIST = get_azure_vulnerable_apps()
+
+    global ROOT_DIR
+    ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
