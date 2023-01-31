@@ -14,9 +14,9 @@ class AWSCredentials:
         self.aws_secret_access_key = aws_secret_access_key,
         self.aws_session_token = aws_session_token,
         self.aws_region = aws_region
-        self.path_to_aws_credentials = os.environ['AWS_SHARED_CREDENTIALS_FILE'] if 'AWS_SHARED_CREDENTIALS_FILE' in os.environ else os.path.expanduser(
+        self.path_to_aws_credentials = os.environ['AWS_SHARED_CREDENTIALS_FILES'] if 'AWS_SHARED_CREDENTIALS_FILES' in os.environ else os.path.expanduser(
             "~/.aws/credentials")
-        self.path_to_aws_config = os.environ['AWS_SHARED_CONFIG_FILE'] if 'AWS_SHARED_CONFIG_FILE' in os.environ else os.path.expanduser(
+        self.path_to_aws_config = os.environ['AWS_SHARED_CONFIG_FILES'] if 'AWS_SHARED_CONFIG_FILES' in os.environ else os.path.expanduser(
             "~/.aws/config")
 
 

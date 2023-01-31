@@ -22,8 +22,8 @@ COPY ./app /app
 WORKDIR /app
 
 # Set path to credentials file
-ENV AWS_SHARED_CREDENTIALS_FILE=/root/.aws/credentials
-ENV AWS_CONFIG_FILE=/root/.aws/config
+ENV AWS_SHARED_CREDENTIALS_FILES=/root/.aws/credentials
+ENV AWS_CONFIG_FILES=/root/.aws/config
 
 # Command
 CMD ["/bin/bash"]

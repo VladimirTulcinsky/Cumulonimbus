@@ -102,3 +102,6 @@ terraform.tfvars.json
 
 # Dev files
 set_env_vars.sh
+
+# Npm 
+node_modules
