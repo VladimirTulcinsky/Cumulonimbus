@@ -19,20 +19,26 @@ app.get('/recipe', function (req, res) {
   var target = req.query.url || 'https://vintagekitchennotes.com/homemade-frangipane-almond-cream/';
   axios.get(target)
     .then(function (response) {
-      res.send(`<html>
-        <head>
-          <title>SSRF</title>
-        </head>
-        <body>
-          <h1>SSRF</h1>
-          <div>${response.data}</div>
-        </body>
-      </html>`);
+      if (response.headers['Content-Type'] !== 'text/html') {
+        res.send(JSON.stringify(response.data));
+      } else {
+        res.send(`
+          <html>
+            <head>
+              <title>SSRF</title>
+            </head>
+            <body>
+              <h1>SSRF</h1>
+              <div>${response.data}</div>
+            </body>
+          </html>`);
+      }
     })
     .catch(function (error) {
       res.status(500).send(error.message);
     });
 });
+
 
 app.get('*', function (req, res) {
   var url = 'https://vintagekitchennotes.com/homemade-frangipane-almond-cream/';
