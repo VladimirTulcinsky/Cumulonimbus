@@ -3,8 +3,8 @@ var axios = require('axios');
 var app = express();
 
 app.get('/', function (req, res) {
-    var url = 'https://vintagekitchennotes.com/homemade-frangipane-almond-cream/';
-    res.send(`<html>
+  var url = 'https://vintagekitchennotes.com/homemade-frangipane-almond-cream/';
+  res.send(`<html>
         <head>
           <title>SSRF</title>
         </head>
@@ -16,27 +16,27 @@ app.get('/', function (req, res) {
 });
 
 app.get('/recipe', function (req, res) {
-    var target = req.query.url || 'https://vintagekitchennotes.com/homemade-frangipane-almond-cream/';
-    axios.get(target)
-        .then(function (response) {
-            res.send(`<html>
+  var target = req.query.url || 'https://vintagekitchennotes.com/homemade-frangipane-almond-cream/';
+  axios.get(target)
+    .then(function (response) {
+      res.send(`<html>
         <head>
-          <title>SSRF Proxy</title>
+          <title>SSRF</title>
         </head>
         <body>
           <h1>SSRF</h1>
           <div>${response.data}</div>
         </body>
       </html>`);
-        })
-        .catch(function (error) {
-            res.status(500).send(error.message);
-        });
+    })
+    .catch(function (error) {
+      res.status(500).send(error.message);
+    });
 });
 
 app.get('*', function (req, res) {
-    var url = 'https://vintagekitchennotes.com/homemade-frangipane-almond-cream/';
-    res.send(`<html>
+  var url = 'https://vintagekitchennotes.com/homemade-frangipane-almond-cream/';
+  res.send(`<html>
         <head>
           <title>404</title>
         </head>
@@ -49,5 +49,5 @@ app.get('*', function (req, res) {
 
 
 app.listen(80, function () {
-    console.log('Example app listening on port 80!');
+  console.log('Example app listening on port 80!');
 });

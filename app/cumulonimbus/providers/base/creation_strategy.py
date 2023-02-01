@@ -3,7 +3,7 @@ from abc import ABCMeta, abstractmethod
 
 class CreationStrategy(metaclass=ABCMeta):
     """
-    This class represents an authentication strategy.
+    This class represents a Creation strategy.
     """
 
     @abstractmethod

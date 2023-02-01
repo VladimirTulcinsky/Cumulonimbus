@@ -72,15 +72,3 @@ def pretty_print_tf_output(app_id, output):
     print("[2] aws_secret_access_key:" +
           output["attacker_aws_secret_access_key"]["value"])
     print("These credentials are valid for the application: {}".format(app_id))
-
-
-def create_key_pair(app_id):
-    """
-    Create a key pair for the application.
-
-    :param app_id:                      The application ID
-    :return:                            The path to the key pair
-    """
-    key_pair_path = os.path.join(os.path.expanduser("~/.ssh/"), app_id)
-    os.system("ssh-keygen -t rsa -b 4096 -f {} -N ''".format(key_pair_path))
-    return key_pair_path
