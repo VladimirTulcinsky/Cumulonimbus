@@ -19,8 +19,8 @@ app.get('/recipe', function (req, res) {
   var target = req.query.url || 'https://vintagekitchennotes.com/homemade-frangipane-almond-cream/';
   axios.get(target)
     .then(function (response) {
-      if (response.headers['Content-Type'] !== 'text/html') {
-        res.send(JSON.stringify(response.data));
+      if (response.headers['Content-Type'] == 'text/plain') {
+        res.send(JSON.stringify(response.data, null, 2));
       } else {
         res.send(`
           <html>

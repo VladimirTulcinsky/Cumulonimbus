@@ -19,6 +19,6 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
         """
         key_pair_path = os.path.join(os.path.expanduser("~/.ssh/ec2_ssrf"))
         os.system("ssh-keygen -t rsa -b 4096 -f {} -N ''".format(key_pair_path))
-        print("Created key pair for ec2_ssrf at {}. The keys should only be used for debugging purposes.".format(
+        print("Key pair for ec2_ssrf located at {}. The keys should only be used for debugging purposes.".format(
             key_pair_path))
         return key_pair_path

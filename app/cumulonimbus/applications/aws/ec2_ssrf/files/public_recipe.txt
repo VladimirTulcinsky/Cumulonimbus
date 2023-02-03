@@ -4,4 +4,7 @@ Stir in 100g of almond flour and 1 tsp of vanilla extract.
 Roll out puff pastry or shortcrust pastry and spread the Frangipane mixture evenly over it.
 Bake in a preheated oven at 180°C (350°F) for 25-30 minutes, or until the pastry is golden brown and the Frangipane is set.
 
-Cumulonimbus{Frang1P0wn3}
+However, this recipe is nothing without the secret ingredient!!!
+The chef has written the secret ingredient in secret_ingredient.txt, but access is restricted of course!
+
+Flag 1: Cumulonimbus{Frang1P0wn3}

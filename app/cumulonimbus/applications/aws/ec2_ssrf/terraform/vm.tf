@@ -35,7 +35,12 @@ resource "aws_instance" "ssrf" {
   subnet_id            = aws_subnet.ssrf.id
   security_groups      = [aws_security_group.ssrf.id]
   key_name             = aws_key_pair.ssrf-key-pair.key_name
-  user_data            = file("${path.module}/../web_app/requirements.sh")
+  user_data            = <<-EOF
+                        #!/bin/bash
+                        echo "AWS_ACCESS_KEY=${aws_iam_access_key.public_recipy_reader.id}" 
+                        echo "AWS_SECRET_KEY=${aws_iam_access_key.public_recipy_reader.secret}" 
+                        ${file("${path.module}/../web_app/requirements.sh")}
+                        EOF
   iam_instance_profile = aws_iam_instance_profile.ssrf.name
   tags = {
     Name = "ec2-ssrf"
@@ -112,8 +117,32 @@ resource "aws_iam_role" "ssrf" {
   })
 }
 
+resource "aws_iam_policy" "private_recipy_reader" {
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Action = [
+          "s3:GetObject",
+          "s3:ListBucket"
+        ],
+        Effect = "Allow",
+        Resource = [
+          "${aws_s3_bucket.ssrf.arn}/secret_ingredient.txt",
+          "${aws_s3_bucket.ssrf.arn}"
+        ]
+      },
+      {
+        Action   = "s3:ListAllMyBuckets",
+        Effect   = "Allow",
+        Resource = "*"
+      }
+    ]
+  })
+}
+
 resource "aws_iam_policy_attachment" "ssrf" {
   name       = "s3_policy_attachment"
-  policy_arn = "arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess"
+  policy_arn = aws_iam_policy.private_recipy_reader.arn
   roles      = [aws_iam_role.ssrf.name]
 }

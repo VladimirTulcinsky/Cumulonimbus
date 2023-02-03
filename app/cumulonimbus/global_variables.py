@@ -17,6 +17,7 @@ def get_azure_vulnerable_apps():
 
 def get_public_ip():
     try:
+        print("Getting public IP for whitelisting...")
         response = requests.get("https://api.ipify.org")
         if response.status_code == 200:
             ip = response.text.strip()
@@ -24,12 +25,8 @@ def get_public_ip():
             return cidr
     except:
         pass
-
+    print("Could not get public IP. Whitelisting all IPs (0.0.0.0/0)")
     return "0.0.0.0/0"
-
-
-public_ip = get_public_ip()
-print(public_ip)
 
 
 def init():
