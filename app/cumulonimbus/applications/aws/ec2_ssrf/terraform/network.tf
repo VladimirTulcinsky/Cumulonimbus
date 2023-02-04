@@ -50,12 +50,12 @@ resource "aws_security_group" "ssrf" {
     protocol    = "tcp"
     cidr_blocks = [var.attacker_public_ip]
   }
-  ingress {
-    from_port   = 443
-    to_port     = 443
-    protocol    = "tcp"
-    cidr_blocks = [var.attacker_public_ip]
-  }
+  # ingress {
+  #   from_port   = 443
+  #   to_port     = 443
+  #   protocol    = "tcp"
+  #   cidr_blocks = [var.attacker_public_ip]
+  # }
   ingress {
     from_port   = 22
     to_port     = 22

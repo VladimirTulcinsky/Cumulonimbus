@@ -27,15 +27,15 @@ class AWSCreationStrategy(CreationStrategy):
             tf = Terraform(working_dir=cwd)
             # return_code, stdout, stderr = tf.init(capture_output=False)
             no_prompt = {"auto-approve": True}
-            return_code, stdout, stderr = tf.apply(skip_plan=True, **no_prompt, no_color=IsFlagged, capture_output=False, refresh=False,
-                                                   var={'shared_credentials_files': credentials.path_to_aws_credentials, 'shared_config_files': credentials.path_to_aws_config, 'attacker_public_ip': global_variables.ATTACKER_PUBLIC_IP})
+            # return_code, stdout, stderr = tf.apply(skip_plan=True, **no_prompt, no_color=IsFlagged, capture_output=False, refresh=False,
+            #                                        var={'shared_credentials_files': credentials.path_to_aws_credentials, 'shared_config_files': credentials.path_to_aws_config, 'attacker_public_ip': global_variables.ATTACKER_PUBLIC_IP})
             outputs = tf.output()
             pretty_print_tf_output(app_id, outputs)
 
             ####
             # # TODO: delete after test
-            # return_code, stdout, stderr = tf.destroy(
-            #     capture_output=False, **no_prompt, force=None, var={'shared_credentials_files': credentials.path_to_aws_credentials})
+            return_code, stdout, stderr = tf.destroy(
+                capture_output=False, **no_prompt, force=None, var={'shared_credentials_files': credentials.path_to_aws_credentials})
             ####
 
         except Exception as e:
