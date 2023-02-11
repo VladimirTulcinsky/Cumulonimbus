@@ -55,7 +55,6 @@ def get_path_to_aws_app(app_id):
     """
     return os.path.join(global_variables.ROOT_DIR, "applications/aws/{}/terraform".format(app_id))
 
-
 def pretty_print_tf_output(app_id, output):
     """
     Get the value of a Terraform output.

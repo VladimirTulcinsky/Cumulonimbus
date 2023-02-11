@@ -26,7 +26,7 @@ data "aws_ami" "ubuntu" {
 
 resource "aws_key_pair" "ssrf-key-pair" {
   key_name   = "ssrf-key-pair"
-  public_key = file(pathexpand("~/.ssh/${var.app_id}.pub"))
+  public_key = file("./../../../../.data/.ssh/${var.app_id}.pub")
 }
 
 resource "aws_instance" "ssrf" {
@@ -52,7 +52,7 @@ resource "aws_instance" "ssrf" {
     connection {
       type        = "ssh"
       user        = "ubuntu"
-      private_key = file(pathexpand("~/.ssh/${var.app_id}"))
+      private_key = file("./../../../../.data/.ssh/${var.app_id}")
       host        = self.public_ip
     }
   }

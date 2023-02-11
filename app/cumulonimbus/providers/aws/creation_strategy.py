@@ -28,14 +28,18 @@ class AWSCreationStrategy(CreationStrategy):
             # return_code, stdout, stderr = tf.init(capture_output=False)
             no_prompt = {"auto-approve": True}
             # return_code, stdout, stderr = tf.apply(skip_plan=True, **no_prompt, no_color=IsFlagged, capture_output=False, refresh=False,
-            #                                        var={'shared_credentials_files': credentials.path_to_aws_credentials, 'shared_config_files': credentials.path_to_aws_config, 'attacker_public_ip': global_variables.ATTACKER_PUBLIC_IP})
+            #                                        var={'shared_credentials_files': global_variables.PATH_TO_AWS_CREDENTIALS, 'shared_config_files': global_variables.PATH_TO_AWS_CREDENTIALS, 'attacker_public_ip': global_variables.ATTACKER_PUBLIC_IP})
+            # if stderr:
+            #     print("Are you sure you have the correct AWS credentials?")
+            #     raise CreationException(stderr)
+
             outputs = tf.output()
             pretty_print_tf_output(app_id, outputs)
 
             ####
-            # # TODO: delete after test
+            # # # TODO: delete after test
             return_code, stdout, stderr = tf.destroy(
-                capture_output=False, **no_prompt, force=None, var={'shared_credentials_files': credentials.path_to_aws_credentials})
+                capture_output=False, **no_prompt, force=None, var={'shared_credentials_files': global_variables.PATH_TO_AWS_CREDENTIALS})
             ####
 
         except Exception as e:

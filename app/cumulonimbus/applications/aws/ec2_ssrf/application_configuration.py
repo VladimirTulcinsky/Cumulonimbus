@@ -1,4 +1,5 @@
 from cumulonimbus.providers.base.application_configuration import ApplicationConfigurationAbstract
+import cumulonimbus.core.utils as utils
 import os
 
 
@@ -17,7 +18,7 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
         :param app_id:                      The application ID
         :return:                            The path to the key pair
         """
-        key_pair_path = os.path.join(os.path.expanduser("~/.ssh/ec2_ssrf"))
+        key_pair_path = utils.get_key_pair_path('ec2_ssrf')
         os.system("ssh-keygen -t rsa -b 4096 -f {} -N ''".format(key_pair_path))
         print("Key pair for ec2_ssrf located at {}. The keys should only be used for debugging purposes.".format(
             key_pair_path))

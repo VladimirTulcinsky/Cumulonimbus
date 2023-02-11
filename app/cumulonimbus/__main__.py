@@ -1,4 +1,5 @@
 import cumulonimbus.global_variables as global_variables
+import cumulonimbus.core.utils as cumulonimbus_utils
 from cumulonimbus.cumulonimbus_parser import CumulonimbusParser
 from cumulonimbus.providers.base.authentication_strategy_factory import get_authentication_strategy
 from cumulonimbus.providers.base.creation_strategy_factory import get_creation_strategy
@@ -8,6 +9,9 @@ def run_from_cli():
     parser = CumulonimbusParser()
     args = parser.parse_args()
     args = args.__dict__
+
+    # Create data directory structure
+    cumulonimbus_utils.create_data_directory()
 
     if args.get('command') == 'authenticate':
         try:
@@ -76,8 +80,7 @@ def authenticate(provider,
                                                  client_id=client_id,
                                                  client_secret=client_secret,
                                                  username=username,
-                                                 password=password,
-                                                 save_credentials=True)
+                                                 password=password)
 
         if not credentials:
             return 101
@@ -89,6 +92,7 @@ def authenticate(provider,
 
 def create(provider, app_id):
     try:
+
         auth_strategy = get_authentication_strategy(provider)
         credentials = auth_strategy.get_credentials()
 
