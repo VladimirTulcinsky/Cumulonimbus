@@ -88,32 +88,10 @@ class CumulonimbusParser:
         azure_auth_modes = azure_cmd_auth_parser.add_mutually_exclusive_group(
             required=True)
 
-        # Authentication parameters
-        # username/password authentication
-        azure_auth_modes.add_argument('--user-account',
-                                      action='store_true',
-                                      help='Run Cumulonimbus with user credentials')
-
         # Service Principal authentication
         azure_auth_modes.add_argument('--service-principal',
                                       action='store_true',
                                       help='Run {} with an Azure Service Principal'.format(global_variables.APP_NAME))
-
-        azure_auth_u_params = azure_cmd_auth_parser.add_argument_group(
-            'Authentication parameters for User Account')
-
-        azure_auth_u_params.add_argument('-u',
-                                         '--username',
-                                         action='store',
-                                         default=None,
-                                         dest='username',
-                                         help='Username of the Azure account')
-        azure_auth_u_params.add_argument('-p',
-                                         '--password',
-                                         action='store',
-                                         default=None,
-                                         dest='password',
-                                         help='Password of the Azure account')
 
         azure_auth_s_params = azure_cmd_auth_parser.add_argument_group(
             'Authentication parameters for Service Principal')
@@ -125,10 +103,14 @@ class CumulonimbusParser:
                                          action='store',
                                          dest='client_secret',
                                          help='Client of the service principal')
-        azure_auth_s_params.add_argument('--tenant',
+        azure_auth_s_params.add_argument('--tenant-id',
                                          action='store',
                                          dest='tenant_id',
                                          help='ID of the Tenant (Directory) to scan')
+        azure_auth_s_params.add_argument('--subscription-id',
+                                         action='store',
+                                         dest='subscription_id',
+                                         help='Subscription context to deploy resources')
 
         # Additional arguments
 
@@ -144,7 +126,7 @@ class CumulonimbusParser:
         azure_creation_params = azure_cmd_create_parser.add_argument_group(
             'Creation parameters')
         azure_creation_params.add_argument('--app-id', action='store', choices=global_variables.AZURE_APP_LIST, required=True,
-                                           default="vm_prt",
+                                           default="sa_public_access",
                                            dest='vulnerable_app_id',
                                            help='Cumulonimbus vulnerable Azure application id')
 
@@ -179,19 +161,8 @@ class CumulonimbusParser:
                                       'and Secret Access Key.')
         # Azure
         elif v.get('provider') == 'azure':
-            if v.get('tenant_id') and not (v.get('service_principal') or v.get('user_account_browser') or v.get('user_account')):
-                self.parser.error('--tenant can only be set when using --user-account-browser or --user-account or '
-                                  '--service-principal authentication')
-            if v.get('service_principal') and not v.get('tenant_id'):
+            if v.get('service_principal') and not v.get('tenant_id') and not v.get('subscription_id'):
                 self.parser.error(
-                    'You must provide --tenant when using --service-principal authentication')
-            if v.get('user_account') and not v.get('tenant_id'):
-                self.parser.error(
-                    'You must provide --tenant when using --user-account authentication')
-            # check the value of 'mode' argument and display the relevant group arguments
-            if v.get('mode') == 'sp':
-                print("Arguments from Group 1")
-            elif v.get('mode') == 'user':
-                print("Arguments from Group 2")
+                    'You must provide --tenant-id and --subscription-id when using --service-principal authentication')
 
         return args

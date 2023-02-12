@@ -4,10 +4,7 @@ export DEBIAN_FRONTEND=noninteractive
 # =====================================
 # install the AWS CLI Tools
 # =====================================
-
-WORKDIR=/root
 TMPDIR=/tmp
-AWSDIR=/root/.aws
 
 echo -e "\n\nAWS2 CLI Installation Starting...\n\n"
 
@@ -25,30 +22,4 @@ unzip awscliv2.zip
 rm ${TMPDIR}/awscliv2.zip
 rm -rf ${TMPDIR}/aws
 
-# =====================================
-# Setup AWS configuration templates
-# =====================================
 
-# if the aws config directory already exists
-# then we do nothing and leave it alone
-if [ ! -d ${AWSDIR} ]; then
-mkdir ${AWSDIR}
-
-# create the config template
-cat <<'EOF' >${AWSDIR}/config
-[default]
-region = us-east-1
-output = json
-EOF
-
-# create the credentials template
-cat <<'EOF' >${AWSDIR}/credentials
-[default]
-aws_access_key_id = <access-key>
-aws_secret_access_key = <secret key>
-EOF
-
-fi
-
-
-echo -e "\n\nAWS2 CLI Installation Complete!\n\n"

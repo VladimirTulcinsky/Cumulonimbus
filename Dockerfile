@@ -22,8 +22,11 @@ COPY ./app /app
 WORKDIR /app
 
 # Set path to credentials file
-ENV AWS_SHARED_CREDENTIALS_FILES=/root/.aws/credentials
-ENV AWS_CONFIG_FILES=/root/.aws/config
+ENV AWS_SHARED_CREDENTIALS_FILES=/cumulonimbus/.data/.aws/credentials
+ENV AWS_SHARED_CONFIG_FILES=/cumulonimbus/.data/.aws/config
+
+ENV AZURE_CREDENTIALS_FILES=/cumulonimbus/.data/.azure/credentials
+
 
 # Command
 CMD ["/bin/bash"]

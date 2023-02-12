@@ -2,6 +2,7 @@ import logging
 import os
 
 from azure.identity import ClientSecretCredential
+import cumulonimbus.global_variables as global_variables
 from cumulonimbus.providers.base.authentication_strategy import AuthenticationStrategy, AuthenticationException
 
 
@@ -9,14 +10,12 @@ class AzureCredentials:
 
     def __init__(self,
                  client_id=None, client_secret=None,
-                 tenant_id=None, subscription_context=None):
+                 tenant_id=None, subscription_id=None):
 
         self.client_id = client_id,
         self.client_secret = client_secret,
         self.tenant_id = tenant_id
-        self.subscription_context = subscription_context
-        self.path_to_azure_credentials = os.environ['AZURE_CREDENTIALS_FILE'] if 'AZURE_CREDENTIALS_FILE' in os.environ else os.path.expanduser(
-            "~/.azure/credentials")
+        self.subscription_context = subscription_id
 
 
 class AzureAuthenticationStrategy(AuthenticationStrategy):
@@ -24,7 +23,7 @@ class AzureAuthenticationStrategy(AuthenticationStrategy):
     def authenticate(self,
                      service_principal=None,
                      tenant_id=None,
-                     subscription_context=None,
+                     subscription_id=None,
                      client_id=None, client_secret=None,
                      **kargs):
         """
@@ -61,24 +60,37 @@ class AzureAuthenticationStrategy(AuthenticationStrategy):
             credentials.get_token(
                 "https://management.core.windows.net/.default")
 
-            return AzureCredentials(client_id, client_secret, tenant_id, subscription_context)
+            self.write_credentials_to_file(
+                client_id, client_secret, tenant_id, subscription_id)
+
+            return AzureCredentials(client_id, client_secret, tenant_id, subscription_id)
 
         except Exception as e:
             raise AuthenticationException(e)
 
-    # def write_credentials_to_file(self, aws_access_key_id, aws_secret_access_key, aws_session_token, region):
+    def get_credentials(self):
+        """
+        Returns the credentials object
+        """
 
-    #     f = open(self.path_to_aws_credentials, "w")
-    #     f.write("[default]\n")
-    #     f.write("aws_access_key_id = " +
-    #             str(aws_access_key_id or '') + "\n")
-    #     f.write("aws_secret_access_key = " +
-    #             str(aws_secret_access_key or '') + "\n")
-    #     if aws_session_token:
-    #         f.write("aws_session_token = " + aws_session_token + "\n")
-    #     f.close()
+        print("Getting credentials for Azure")
+        try:
+            client_id = os.environ["AZURE_CLIENT_ID"]
+            client_secret = os.environ["AZURE_CLIENT_SECRET"]
+            tenant_id = os.environ["AZURE_TENANT_ID"]
+            subscription_id = os.environ["AZURE_SUBSCRIPTION_ID"]
+            credentials = self.authenticate(service_principal=True,
+                                            client_id=client_id,
+                                            client_secret=client_secret,
+                                            tenant_id=tenant_id, subscription_id=subscription_id)
+            return credentials
+        except KeyError:
+            print("Are you sure you are authenticated to Azure and every parameter is set? (client_id, client_secret, tenant_id, subscription_id)")
 
-    #     f = open(self.path_to_aws_config, "w")
-    #     f.write("[default]\n")
-    #     f.write("region = " + region)
-    #     f.close()
+    def write_credentials_to_file(self, client_id, client_secret, tenant_id, subscription_id):
+        f = open(global_variables.PATH_TO_AZURE_CREDENTIALS, "w")
+        f.write("AZURE_CLIENT_ID=" + str(client_id or '') + "\n")
+        f.write("AZURE_CLIENT_SECRET=" + str(client_secret or '') + "\n")
+        f.write("AZURE_TENANT_ID=" + str(tenant_id or '') + "\n")
+        f.write("AZURE_SUBSCRIPTION_ID=" + str(subscription_id or '') + "\n")
+        f.close()

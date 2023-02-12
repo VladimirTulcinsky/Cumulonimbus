@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import os
 import requests
+from dotenv import load_dotenv
 
 
 def get_aws_vulnerable_apps():
@@ -17,7 +18,6 @@ def get_azure_vulnerable_apps():
 
 def get_public_ip():
     try:
-        print("Getting public IP for whitelisting...")
         response = requests.get("https://api.ipify.org")
         if response.status_code == 200:
             ip = response.text.strip()
@@ -25,7 +25,6 @@ def get_public_ip():
             return cidr
     except:
         pass
-    print("Could not get public IP. Whitelisting all IPs (0.0.0.0/0)")
     return "0.0.0.0/0"
 
 
@@ -58,6 +57,11 @@ def __init_aws():
 def __init_azure():
     global AZURE_APP_LIST
     AZURE_APP_LIST = get_azure_vulnerable_apps()
+
+    global PATH_TO_AZURE_CREDENTIALS
+    PATH_TO_AZURE_CREDENTIALS = os.path.join(ROOT_DIR, ".data/.env")
+
+    load_dotenv(PATH_TO_AZURE_CREDENTIALS)
 
 
 def init():

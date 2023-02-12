@@ -22,16 +22,13 @@ def run_from_cli():
                              'aws_secret_access_key'),
                          aws_session_token=args.get('aws_session_token'),
                          # Azure
-                         user_account=args.get('user_account'),
                          service_principal=args.get('service_principal'),
                          client_id=args.get('client_id'), client_secret=args.get('client_secret'),
-                         username=args.get('username'), password=args.get('password'),
                          tenant_id=args.get('tenant_id'),
                          subscription_id=args.get('subscription_id'),
 
                          # General
-                         region=args.get('region'),
-                         save_credentials=True
+                         region=args.get('region')
                          )
             print('Authentication successful')
 
@@ -51,17 +48,13 @@ def authenticate(provider,
                  aws_secret_access_key=None,
                  aws_session_token=None,
                  # Azure
-                 user_account=False,
                  service_principal=False,
                  client_id=None, client_secret=None,
-                 username=None, password=None,
                  tenant_id=None,
                  subscription_id=None,
 
                  # General
-                 region="",
-                 programmatic_execution=True,
-                 save_credentials=True,):
+                 region=""):
     """
     Run Cumulonimbus.
     """
@@ -74,13 +67,11 @@ def authenticate(provider,
                                                  aws_access_key_id=aws_access_key_id,
                                                  aws_secret_access_key=aws_secret_access_key,
                                                  aws_session_token=aws_session_token,
-                                                 user_account=user_account,
                                                  service_principal=service_principal,
                                                  tenant_id=tenant_id,
                                                  client_id=client_id,
                                                  client_secret=client_secret,
-                                                 username=username,
-                                                 password=password)
+                                                 subscription_id=subscription_id)
 
         if not credentials:
             return 101
