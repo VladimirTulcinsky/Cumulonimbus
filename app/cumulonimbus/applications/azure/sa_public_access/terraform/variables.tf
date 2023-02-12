@@ -33,3 +33,10 @@ variable "app_id" {
   description = "Name of the application, here: ec2_ssrf"
   default     = "ec2_ssrf"
 }
+
+
+variable "app_name" {
+  type        = string
+  description = "Name of the application that will be used in the resource names and complemented with a random number"
+  default     = "cumulonimbus"
+}

@@ -18,14 +18,13 @@ def get_azure_vulnerable_apps():
 
 def get_public_ip():
     try:
-        response = requests.get("https://api.ipify.org")
+        response = requests.get("https://api.ipify.org", timeout=5)
         if response.status_code == 200:
             ip = response.text.strip()
-            cidr = ip + "/32"
-            return cidr
+            return {"azure": ip, "aws": f"{ip}/32"}
     except:
         pass
-    return "0.0.0.0/0"
+    return {"azure": "0.0.0.0/0", "aws": "0.0.0.0/0"}
 
 
 def __init_general():

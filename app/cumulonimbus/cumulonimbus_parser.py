@@ -89,6 +89,7 @@ class CumulonimbusParser:
             required=True)
 
         # Service Principal authentication
+        # TODO: Add support for Managed Identity and other types of authentication
         azure_auth_modes.add_argument('--service-principal',
                                       action='store_true',
                                       help='Run {} with an Azure Service Principal'.format(global_variables.APP_NAME))

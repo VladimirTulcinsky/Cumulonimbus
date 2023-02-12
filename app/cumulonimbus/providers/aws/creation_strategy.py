@@ -27,8 +27,9 @@ class AWSCreationStrategy(CreationStrategy):
             tf = Terraform(working_dir=cwd)
             # return_code, stdout, stderr = tf.init(capture_output=False)
             no_prompt = {"auto-approve": True}
+
             # return_code, stdout, stderr = tf.apply(skip_plan=True, **no_prompt, no_color=IsFlagged, capture_output=False, refresh=False,
-            #                                        var={'shared_credentials_files': global_variables.PATH_TO_AWS_CREDENTIALS, 'shared_config_files': global_variables.PATH_TO_AWS_CREDENTIALS, 'attacker_public_ip': global_variables.ATTACKER_PUBLIC_IP})
+            #                                        var={'shared_credentials_files': global_variables.PATH_TO_AWS_CREDENTIALS, 'shared_config_files': global_variables.PATH_TO_AWS_CREDENTIALS, 'attacker_public_ip': global_variables.ATTACKER_PUBLIC_IP['aws']']})
             # if stderr:
             #     print("Are you sure you have the correct AWS credentials?")
             #     raise CreationException(stderr)
