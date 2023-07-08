@@ -23,3 +23,20 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
         print("Key pair for ec2_ssrf located at {}. The keys should only be used for debugging purposes.".format(
             key_pair_path))
         return key_pair_path
+
+    def pretty_print_tf_output(self, app_id, output):
+        """
+        Get the value of a Terraform output.
+
+        :param app_id:                      The application ID
+        :param output:                      The output name
+        :return:                            The output value
+        """
+        print("###############################################")
+        print("#             Attacker Credentials            #")
+        print("###############################################")
+        print("[1] aws_access_key_id:" +
+              output["attacker_aws_access_key_id"]["value"])
+        print("[2] aws_secret_access_key:" +
+              output["attacker_aws_secret_access_key"]["value"])
+        print("These credentials are valid for the application: {}".format(app_id))

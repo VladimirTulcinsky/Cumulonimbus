@@ -1,6 +1,6 @@
 from python_terraform import *
 import cumulonimbus.global_variables as global_variables
-from .utils import get_path_to_azure_app, pretty_print_tf_output
+from .utils import get_path_to_azure_app
 import os
 
 from cumulonimbus.providers.base.creation_strategy import CreationStrategy, CreationException
@@ -36,7 +36,7 @@ class AzureCreationStrategy(CreationStrategy):
                 raise CreationException(stderr)
 
             outputs = tf.output()
-            pretty_print_tf_output(app_id, outputs)
+            application_configuration.pretty_print_tf_output(app_id, outputs)
 
             ####
             # # # TODO: delete after test

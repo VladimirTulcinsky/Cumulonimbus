@@ -35,7 +35,7 @@ class AWSCreationStrategy(CreationStrategy):
             #     raise CreationException(stderr)
 
             outputs = tf.output()
-            pretty_print_tf_output(app_id, outputs)
+            application_configuration.pretty_print_tf_output(app_id, outputs)
 
             ####
             # # # TODO: delete after test

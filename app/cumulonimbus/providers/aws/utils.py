@@ -54,20 +54,3 @@ def get_path_to_aws_app(app_id):
     :return:                            The path to the application
     """
     return os.path.join(global_variables.ROOT_DIR, "applications/aws/{}/terraform".format(app_id))
-
-def pretty_print_tf_output(app_id, output):
-    """
-    Get the value of a Terraform output.
-
-    :param app_id:                      The application ID
-    :param output:                      The output name
-    :return:                            The output value
-    """
-    print("###############################################")
-    print("#             Attacker Credentials            #")
-    print("###############################################")
-    print("[1] aws_access_key_id:" +
-          output["attacker_aws_access_key_id"]["value"])
-    print("[2] aws_secret_access_key:" +
-          output["attacker_aws_secret_access_key"]["value"])
-    print("These credentials are valid for the application: {}".format(app_id))

@@ -14,6 +14,13 @@ class ApplicationConfigurationAbstract(metaclass=ABCMeta):
         """
         raise NotImplementedError()
 
+    @abstractmethod
+    def pretty_print_tf_output(self, **kwargs):
+        """
+        For each application, output information that is required for the user to run the application.
+        """
+        raise NotImplementedError()
+
 
 class ConfigurationException(Exception):
     def __init__(self, message, errors=None):

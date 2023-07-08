@@ -11,7 +11,7 @@ resource "azurerm_resource_group" "sa_public_access" {
 
 # Storage account to serve static content
 resource "azurerm_storage_account" "sa_public_access" {
-  name                     = "${var.app_name}dev${random_integer.sa_public_access.result}"
+  name                     = "${var.app_name}${random_integer.sa_public_access.result}dev"
   resource_group_name      = azurerm_resource_group.sa_public_access.name
   location                 = azurerm_resource_group.sa_public_access.location
   account_tier             = "Standard"
@@ -59,7 +59,7 @@ EOF
 
 # Storage account to scan with cloud-enum
 resource "azurerm_storage_account" "sa_private_access" {
-  name                     = "${var.app_name}prd${random_integer.sa_public_access.result}"
+  name                     = "${var.app_name}${random_integer.sa_public_access.result}prd"
   resource_group_name      = azurerm_resource_group.sa_public_access.name
   location                 = azurerm_resource_group.sa_public_access.location
   account_tier             = "Standard"
@@ -78,7 +78,7 @@ resource "azurerm_storage_account" "sa_private_access" {
 
 # Container with container access
 resource "azurerm_storage_container" "containeraccess" {
-  name                  = "containeraccess"
+  name                  = "website"
   storage_account_name  = azurerm_storage_account.sa_private_access.name
   container_access_type = "container"
 }
@@ -94,7 +94,19 @@ const app = express()
 const port = 3000
 
 app.get('/', (req, res) => {
-  res.send('Hello World!')
+  const fs = require('fs');
+
+  // Read configuration file
+  const config = JSON.parse(fs.readFileSync('config.cfg', 'utf8'));
+
+  // Get BLOB from environment variable
+  const blob = process.env.BLOB;
+
+  // Append "flag.txt" to BLOB
+  const blobWithFlag = blob + "flag.txt";
+
+  // Only allow blob access and not container access
+  console.log(blobWithFlag);
 })
 
 app.listen(port, () => {
@@ -111,7 +123,7 @@ resource "azurerm_storage_blob" "hinttoflagblob" {
   type                   = "Block"
   source_content         = <<EOF
 NODE_ENV=development
-BLOB=${azurerm_storage_blob.flag.id}
+BLOB=${azurerm_storage_container.flagcontainer.id}
 PORT=3000
 
 EOF
@@ -119,9 +131,10 @@ EOF
 
 # Container with blob-level access
 resource "azurerm_storage_container" "flagcontainer" {
-  name                  = "blobaccess"
+  name                  = "secrets"
   storage_account_name  = azurerm_storage_account.sa_private_access.name
   container_access_type = "blob"
+  
 }
 
 resource "azurerm_storage_blob" "flag" {
