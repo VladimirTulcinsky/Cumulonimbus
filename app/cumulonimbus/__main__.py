@@ -40,6 +40,10 @@ def run_from_cli():
         create(provider=args.get('provider'),
                app_id=args.get('vulnerable_app_id'))
 
+    elif args.get('command') == 'destroy':
+        destroy(provider=args.get('provider'),
+                app_id=args.get('vulnerable_app_id'))
+
 
 def authenticate(provider,
                  # AWS
@@ -95,4 +99,21 @@ def create(provider, app_id):
 
     except Exception as e:
         print(f'Creation failure: {e}')
+        return 101
+
+
+def destroy(provider, app_id):
+    try:
+
+        auth_strategy = get_authentication_strategy(provider)
+        credentials = auth_strategy.get_credentials()
+
+        if not credentials:
+            return 101
+
+        creation_strategy = get_creation_strategy(provider)
+        creation_strategy.destroy(app_id=app_id, credentials=credentials)
+
+    except Exception as e:
+        print(f'Destruction failure: {e}')
         return 101

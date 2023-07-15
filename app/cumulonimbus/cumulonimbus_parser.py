@@ -79,11 +79,13 @@ class CumulonimbusParser:
         azure_cmd_parser = azure_parser.add_subparsers(
             title="The command you want to run", dest="command", required=True, help="The command you want to run (authenticate, create, etc.)")
 
-        # Possible commands: authenticate, create
+        # Possible commands: authenticate, create, destroy
         azure_cmd_auth_parser = azure_cmd_parser.add_parser(
             "authenticate", help="Authenticate {} against an Azure account".format(global_variables.APP_NAME))
         azure_cmd_create_parser = azure_cmd_parser.add_parser(
             "create", help="Create a vulnerable application in an Azure account".format(global_variables.APP_NAME))
+        azure_cmd_destroy_parser = azure_cmd_parser.add_parser(
+            "destroy", help="Destroy a vulnerable application in an Azure account".format(global_variables.APP_NAME))
 
         azure_auth_modes = azure_cmd_auth_parser.add_mutually_exclusive_group(
             required=True)
@@ -130,6 +132,14 @@ class CumulonimbusParser:
                                            default="sa_public_access",
                                            dest='vulnerable_app_id',
                                            help='Cumulonimbus vulnerable Azure application id')
+
+        # Vulnerable application creation parameters
+        azure_destruction_params = azure_cmd_destroy_parser.add_argument_group(
+            'Destruction parameters')
+        azure_destruction_params.add_argument('--app-id', action='store', choices=global_variables.AZURE_APP_LIST, required=True,
+                                              default="sa_public_access",
+                                              dest='vulnerable_app_id',
+                                              help='Cumulonimbus vulnerable Azure application id')
 
     def parse_args(self, args=None):
         args = self.parser.parse_args(args)

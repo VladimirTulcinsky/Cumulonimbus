@@ -38,11 +38,33 @@ class AzureCreationStrategy(CreationStrategy):
             outputs = tf.output()
             application_configuration.pretty_print_tf_output(app_id, outputs)
 
-            ####
-            # # # TODO: delete after test
-            # return_code, stdout, stderr = tf.destroy(
-            #     capture_output=False, **no_prompt, force=None, var={'shared_credentials_files': global_variables.PATH_TO_AWS_CREDENTIALS})
-            ####
+        except Exception as e:
+            raise CreationException(e)
+
+# TEST (clean up as lot of duplicate code)
+    def destroy(self,
+                app_id,
+                credentials,
+                **kwargs):
+
+        try:
+            application_configuration = get_application_configuration(
+                'azure', app_id)
+            # # Get absolute path to the terraform directory
+            cwd = get_path_to_azure_app(app_id)
+            tf = Terraform(working_dir=cwd)
+            no_prompt = {"auto-approve": True}
+            return_code, stdout, stderr = tf.destroy(
+                capture_output=False, **no_prompt, force=None, var={'client_id': os.environ['AZURE_CLIENT_ID'], 'client_secret': os.environ['AZURE_CLIENT_SECRET'], 'tenant_id': os.environ['AZURE_TENANT_ID'], 'subscription_id': os.environ['AZURE_SUBSCRIPTION_ID']})
+
+            outputs = tf.output()
+            application_configuration.pretty_print_tf_output(app_id, outputs)
+
+            if stderr:
+                print("Are you sure you have the correct Azure credentials?")
+                raise CreationException(stderr)
 
         except Exception as e:
             raise CreationException(e)
+
+# TEST

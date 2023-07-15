@@ -31,9 +31,8 @@ variable "attacker_public_ip" {
 variable "app_id" {
   type        = string
   description = "Name of the application, here: sa_public_access"
-  default     = "sa_public_access"
+  default     = "iam_cs"
 }
-
 
 variable "app_name" {
   type        = string
