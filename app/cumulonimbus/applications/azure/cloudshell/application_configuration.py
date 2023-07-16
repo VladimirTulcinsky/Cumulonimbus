@@ -21,5 +21,9 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
         print("###############################################")
         print("#             Required Information            #")
         print("###############################################")
-        print("[1] This is your primary domain:" +
+        print("[1] This is your primary domain: " +
               output["domain_name"]["value"])
+        print("[2] Log in with this user: " +
+              output["user_name"]["value"])
+        print("[3] The password is: " +
+              output["user_password"]["value"])
