@@ -20,25 +20,40 @@ apt-get install -qy \
   apt-transport-https \
   apt-utils \
   ca-certificates \
-  cmake \
   curl \
-  dialog \
   gnupg \
-  groff \
   jq \
   less \
-  lsb-release \
   nano \
   python3 \
   python3-pip \
   tzdata \
-  unzip \
   vim \
-  virtualenv \
-  virtualenvwrapper \
-  wget
+  sqlite3 \
+  lsb-release \
 
-pip3 install boto3
-pip3 install python-terraform 
+apt-get update && apt-get install -y gnupg software-properties-common wget
+wget -qO - https://apt.releases.hashicorp.com/gpg | gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
+echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | tee /etc/apt/sources.list.d/hashicorp.list
+apt-get update
+apt-get install -y terraform
+
+
+  
+
+pip3 install boto3 \
+  python-terraform \
+  requests \
+  python-dotenv \
+  azure-identity
 
 echo -e "\n\nSoftware Pre-reqs Installation Complete!\n\n"
+
+#  unzip \
+#  virtualenv \
+#  virtualenvwrapper \
+#  cmake \
+
+#  groff \
+#  dialog \
+#  wget \
