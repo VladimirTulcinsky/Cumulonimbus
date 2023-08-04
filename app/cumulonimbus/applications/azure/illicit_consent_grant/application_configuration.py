@@ -26,10 +26,25 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
         print("!!! You might need to delete your msal_token_cache.json file !!!")
         print("[1] This is your primary domain: " +
               output["domain_name"]["value"])
-        print("""In this application you will have to simulate device code phishing.Instead of setting up an phishing application that will refresh the code to avoid the device code to expire we will directly use the code when our victim logs in""")
-        print("[2] run az login --use-device-code --allow-no-subscriptions, copy the code, go to https://microsoft.com/devicelogin and paste the code.")
-        print("[3] Log in with this user: " +
+        print("[2] This is the global admin that will be responsible for granting admin consent: " +
               output["user_name"]["value"])
-        print("[4] The password is: " +
+        print("[3] The password for the admin is: " +
               output["user_password"]["value"])
-        print("""Hint: The user that you phished can add users to groups. Now the goal is to escalate your privileges to global admin. Note that the group has no role assignments as this required a P1 license, in a real world scenario this is very likely to occur""")
+        print(
+            "[4] Run the following command: docker pull cumulonimbuscloud/o365-attack-toolkit")
+        print("[5] Run the following command: docker run --network='host' -v /tmp:/tmp -it --entrypoint /bin/bash cumulonimbuscloud/o365-attack-toolkit:latest")
+        print(
+            "[6] Run the following command in /go/src/o-365-toolkit: cat > template.conf")
+        print("""[7] Paste the following content in the file:
+            [server]
+            host = 127.0.0.1
+            externalport = 30662
+            internalport = 8080
+
+
+            [oauth]
+            clientid = "<Application ID of the application you just created>"
+            clientsecret = "<Secret of the application you just created>"
+            scope = "<The OAuth scopes you want to request to your victim e.g. offline_access contacts.read user.read mail.read mail.send files.readWrite.all files.read files.read.all openid profile AppRoleAssignment.ReadWrite.All>"
+            redirecturi = "http://localhost:30662/gettoken" 
+            """)

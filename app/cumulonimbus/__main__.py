@@ -92,6 +92,7 @@ def create(provider, app_id):
         credentials = auth_strategy.get_credentials()
 
         if not credentials:
+            print('No Credentials found. Please authenticate first')
             return 101
 
         creation_strategy = get_creation_strategy(provider)

@@ -9,7 +9,7 @@ def get_resource_group_name(id):
 
 def get_path_to_azure_app(app_id):
     """
-    Get the path to the AWS application.
+    Get the path to the Azure application.
 
     :param app_id:                      The application ID
     :return:                            The path to the application

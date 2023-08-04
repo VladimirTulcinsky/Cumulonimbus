@@ -9,7 +9,7 @@ from cumulonimbus.providers.base.application_configuration_factory import get_ap
 
 class AzureCreationStrategy(CreationStrategy):
     """
-    Implements creation for the AWS provider
+    Implements creation for the Azure provider
     """
 
     def create(self,
@@ -52,6 +52,7 @@ class AzureCreationStrategy(CreationStrategy):
                 'azure', app_id)
             # # Get absolute path to the terraform directory
             cwd = get_path_to_azure_app(app_id)
+            print("cwd=", cwd)
             tf = Terraform(working_dir=cwd)
             no_prompt = {"auto-approve": True}
             return_code, stdout, stderr = tf.destroy(
