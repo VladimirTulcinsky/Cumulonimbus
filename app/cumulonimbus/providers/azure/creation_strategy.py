@@ -49,7 +49,7 @@ class AzureCreationStrategy(CreationStrategy):
 
         try:
             application_configuration = get_application_configuration(
-                'azure', app_id)
+                'azure', app_id)  # can't this be removed?
             # # Get absolute path to the terraform directory
             cwd = get_path_to_azure_app(app_id)
             print("cwd=", cwd)

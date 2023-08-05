@@ -21,16 +21,17 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
         print("###############################################")
         print("#             Required Information            #")
         print("###############################################")
-        print(
-            "This application has not been tested on Windows, better use Linux ;)")
-        print("!!! You might need to delete your msal_token_cache.json file !!!")
         print("[1] This is your primary domain: " +
               output["domain_name"]["value"])
-        print("""In this application you will have to simulate device code phishing.Instead of setting up an phishing application that will refresh the code to avoid the device code to expire we will directly use the code when our victim logs in""")
-        print("[2] run az login --use-device-code --allow-no-subscriptions, copy the code, go to https://microsoft.com/devicelogin and paste the code.")
-        print("[3] Log in with this user: " +
+        print("[2] Log in with this user: " +
               output["user_name"]["value"])
-        print("[4] The password is: " +
+        print("[3] The password is: " +
               output["user_password"]["value"])
+        print(f""" [4] An application registration has been created for you with the name: {output["app_registration"]["value"]}. 
+              This application has the application permission Group.ReadWrite.All and {output["user_name"]["value"]} is owner on the application registration.
+              With an administatror account you should remove this user from the owners of the application registration.
+              """)
         print(
-            f"""Hint: Now the goal is to escalate your privileges to global admin by adding {output["user_name"]["value"]} to the groups of administrators". Note that the group has no role assignments (e.g. global admin) as this required a P1 license, in a real world scenario this is very likely to occur""")
+            f"""Hint: Now the goal is to escalate your privileges to global admin by adding {output["user_name"]["value"]} to the group {output["admin_group"]["value"]}. 
+            Note that the group has no role assignments (e.g. global admin) as this required a P1 license, in a real world scenario this is very likely to occur.
+            The other user in the group {output["admin_group"]["value"]} is just a random account because there's a requirement to have at least one owner""")
