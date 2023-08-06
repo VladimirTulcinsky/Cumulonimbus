@@ -20,3 +20,18 @@ resource "azuread_application" "group-add-app" {
   }
 }
 
+// Had to use this hack as admin consent doesn't exist in Terraform (yet)
+resource "null_resource" "aad_admin_consent" {
+  triggers = merge(
+    [for app in azuread_application.group-add-app.required_resource_access :
+      { for role in app.resource_access :
+        join("_", [app.resource_app_id, role.id]) => role.type
+      }
+    ]...
+  )
+
+  provisioner "local-exec" {
+    command = "sleep 30 && az ad app permission admin-consent --id ${azuread_application.group-add-app.application_id}"
+  }
+}
+
