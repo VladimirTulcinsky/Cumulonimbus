@@ -50,4 +50,4 @@ You will also find an additional README.md file for each scenario.
 
 **For more help:**
 
-**Bold:** For more help, run `./cnimbus.py -h`.
+For more help, run `./cnimbus.py -h`.
