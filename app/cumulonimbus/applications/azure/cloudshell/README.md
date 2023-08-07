@@ -17,3 +17,9 @@ A potential risk arises when an attacker combines various pieces of information 
 **Important:** The `.img` file deployed in Azure through the vulnerable application differs from the typical Azure-created images, which are usually around 5GB in size. In this case, the image has been intentionally sanitized and optimized, resulting in a smaller size of approximately 2MB. This adjustment was made to facilitate easy inclusion of the image in the repository.
 
 ---
+
+## ⚠️ Warning
+
+**Important:** Details regarding the attack, safeguards, and methods for identifying this vulnerability, weakness, or misconfiguration are available in the PDF document.
+
+---

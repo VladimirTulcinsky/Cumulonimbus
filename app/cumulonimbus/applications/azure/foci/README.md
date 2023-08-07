@@ -1,6 +1,6 @@
 # Device Code Phishing and Token Misuse
 
-In this scenario, the attacker must obtain a special refresh token called a family refresh token (which will be explained in detail in [Section about Vulnerability](#vulnerability-details)). This kind of token can be obtained by phishing a user using the device code phish technique. This technique abuses the OAuth 2.0 device authorization grant flow that was previously discussed in [OAuth 2.0 Grant Flows and Client Types](#oauth-2-grant-flows).
+In this scenario, the attacker must obtain a special refresh token called a family refresh token. This kind of token can be obtained by phishing a user using the device code phish technique. This technique abuses the OAuth 2.0 device authorization grant flow.
 
 To enable this flow, the device prompts the user to visit a webpage on another device to sign in and enter a specific code. Once the user is successfully signed in, the device obtains the necessary access tokens and refresh tokens. The attacker misuses this flow by deceiving the victim into entering the specific code and login information, allowing the attacker to receive the tokens.
 
@@ -16,5 +16,11 @@ The ultimate goal of this vulnerable application is to make the attacker add an 
 
 It is important to note that in this scenario, the attacker switches the client id, but in reality, it is not necessary. The attacker can already add users to groups using the permissions of the Azure CLI. Since the purpose of this cyber range is to reduce costs, we assume that users do not have licenses. Therefore, they do not have access to the entire 365 suite, such as emails, OneDrive, or SharePoint. The Azure CLI application allows adding a user to a group but does not permit reading emails. In such cases, switching the client id to Microsoft Office application (`d3590ed6-52b3-4102-aeff-aad2292ab01c`) can be useful. The goal of this vulnerable application is solely to demonstrate the possibility of switching the client id.
 
+
+## ⚠️ Warning
+
+**Important:** Details regarding the attack, safeguards, and methods for identifying this vulnerability, weakness, or misconfiguration are available in the PDF document.
+
+---
 
 

@@ -28,3 +28,10 @@ For offensive scenarios, the following open source tools can be employed:
 - [Az-Blob-Attacker](https://github.com/VitthalS/Az-Blob-Attacker)
 - [Microburst](https://github.com/NetSPI/MicroBurst)
 - [basicblobfinder](https://github.com/joswr1ght/basicblobfinder)
+
+
+## ⚠️ Warning
+
+**Important:** Details regarding the attack, safeguards, and methods for identifying this vulnerability, weakness, or misconfiguration are available in the PDF document.
+
+---
