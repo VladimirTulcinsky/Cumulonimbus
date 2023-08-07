@@ -10,8 +10,10 @@ The primary concern with this setup is the lack of sufficient Role-Based Access 
 
 A potential risk arises when an attacker combines various pieces of information obtained from the vulnerable storage account. By piecing together these details, the hacker can gain access to an administrator’s virtual machine where they will find the flag.
 
-## Warning
+---
 
-<div class="warning">
-**Warning:** The `.img` file deployed in Azure through the vulnerable application differs from the typical Azure-created images, which are usually around 5GB in size. In this case, the image has been intentionally sanitized and optimized, resulting in a smaller size of approximately 2MB. This adjustment was made to facilitate easy inclusion of the image in the repository.
-</div>
+## ⚠️ Warning
+
+**Important:** The `.img` file deployed in Azure through the vulnerable application differs from the typical Azure-created images, which are usually around 5GB in size. In this case, the image has been intentionally sanitized and optimized, resulting in a smaller size of approximately 2MB. This adjustment was made to facilitate easy inclusion of the image in the repository.
+
+---
