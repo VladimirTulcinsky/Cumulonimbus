@@ -4,9 +4,9 @@ FROM python:3.8
 ADD docker/dependencies /root/bin
 
 # Install required software
-RUN /bin/bash -c "/root/bin/container-install-prereqs.sh" \
-    && /bin/bash -c "/root/bin/container-install-aws2.sh" \
-    && /bin/bash -c "/root/bin/container-install-azure.sh" \
+RUN /bin/bash -c "/root/bin/install-prereqs.sh" \
+    && /bin/bash -c "/root/bin/install-aws2.sh" \
+    && /bin/bash -c "/root/bin/install-azure.sh" \
     && rm -rf /root/bin
     
 # Install Cumulonimbus

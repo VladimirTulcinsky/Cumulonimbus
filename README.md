@@ -46,6 +46,7 @@ docker run -it --entrypoint /bin/bash cumulonimbus:latest
 ```
 ### Where is the information needed to start the scenario?
 When a scenario is being created, essential information like user credentials, objectives, and more will be displayed in the terminal.
+You will also find an additional README.md file for each scenario.
 
 **For more help:**
 

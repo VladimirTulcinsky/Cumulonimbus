@@ -3,7 +3,7 @@ data "azuread_domains" "aad_domains" {
 }
 
 resource "azuread_user" "norightsuser" {
-  user_principal_name = "norightsuser2@${data.azuread_domains.aad_domains.domains.*.domain_name[0]}"
+  user_principal_name = "norightsuser@${data.azuread_domains.aad_domains.domains.*.domain_name[0]}"
   display_name        = "No Rights User"
   mail_nickname       = "norightsuser"
   password            = "IHaveNoRights1."
@@ -19,6 +19,7 @@ resource "azuread_user" "group_owner" {
 resource "azuread_group" "administrators" {
   display_name     = "cred-administrators"
   mail_nickname    = "cred-administrators"
+  description      = "This group should have the Global Admin role assigned, but this required a P1 license."
   security_enabled = true
 
   owners = [
