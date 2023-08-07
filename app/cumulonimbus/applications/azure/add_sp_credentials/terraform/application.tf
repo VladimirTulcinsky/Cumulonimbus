@@ -1,7 +1,8 @@
+data "azuread_client_config" "current" {}
+
 resource "azuread_application" "group-add-app" {
-  display_name    = "group-add-app-test"
-  identifier_uris = ["api://group-add-app"]
-  owners          = [azuread_user.norightsuser.object_id]
+  display_name = "group-add-app"
+  owners       = [data.azuread_client_config.current.object_id]
 
 
 
@@ -17,6 +18,17 @@ resource "azuread_application" "group-add-app" {
       id   = "e1fe6dd8-ba31-4d61-89e7-88639da4683d" # User.ReadWrite
       type = "Scope"
     }
+  }
+}
+
+resource "azuread_service_principal" "group-add-sp" {
+  application_id               = azuread_application.group-add-app.application_id
+  app_role_assignment_required = false
+  owners                       = [azuread_user.norightsuser.object_id, data.azuread_client_config.current.object_id]
+
+  feature_tags {
+    enterprise = true
+    gallery    = true
   }
 }
 
