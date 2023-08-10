@@ -13,11 +13,11 @@ resource "azurerm_key_vault" "ska_kv" {
   sku_name                  = "standard"
   enable_rbac_authorization = true
 
-  network_acls {
+  /*   network_acls {
     default_action = "Deny"
     bypass         = "AzureServices"
     ip_rules       = [var.attacker_public_ip]
-  }
+  } */
 }
 
 
