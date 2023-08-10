@@ -4,6 +4,13 @@ node_modules
 npm-debug.log
 Dockerfile*
 docker-compose*
-README.md
 LICENSE
 .vscode
+.data
+.terraform
+.terraform.lock.hcl
+.terraform.tfstate
+.terraform.tfstate.backup
+__pycache__
+set_env_vars.sh
+

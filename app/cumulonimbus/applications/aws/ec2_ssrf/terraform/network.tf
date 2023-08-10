@@ -48,7 +48,7 @@ resource "aws_security_group" "ssrf" {
     from_port   = 80
     to_port     = 80
     protocol    = "tcp"
-    cidr_blocks = [var.attacker_public_ip]
+    cidr_blocks = [local.attacker_public_ip_cidr]
   }
   # ingress {
   #   from_port   = 443
@@ -60,7 +60,7 @@ resource "aws_security_group" "ssrf" {
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = [var.attacker_public_ip] #TODO: change to attacker public IP
+    cidr_blocks = [local.attacker_public_ip_cidr] #TODO: change to attacker public IP
   }
   egress {
     from_port   = 0

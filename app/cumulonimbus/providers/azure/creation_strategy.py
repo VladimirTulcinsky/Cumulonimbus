@@ -52,7 +52,6 @@ class AzureCreationStrategy(CreationStrategy):
                 'azure', app_id)  # can't this be removed?
             # # Get absolute path to the terraform directory
             cwd = get_path_to_azure_app(app_id)
-            print("cwd=", cwd)
             tf = Terraform(working_dir=cwd)
             no_prompt = {"auto-approve": True}
             return_code, stdout, stderr = tf.destroy(

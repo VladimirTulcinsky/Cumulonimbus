@@ -10,7 +10,7 @@ resource "azurerm_storage_account" "ska_sa" {
   location                 = azurerm_resource_group.ska_sa.location
   account_tier             = "Standard"
   account_replication_type = "LRS"
-  /*   network_rules {
+  /* network_rules {
     default_action = "Deny"
     ip_rules       = [var.attacker_public_ip]
   } */

@@ -1,4 +1,4 @@
-# Device Code Phishing and Token Misuse
+# Vulnerable Application Information
 
 In this scenario, the attacker must obtain a special refresh token called a family refresh token. This kind of token can be obtained by phishing a user using the device code phish technique. This technique abuses the OAuth 2.0 device authorization grant flow.
 

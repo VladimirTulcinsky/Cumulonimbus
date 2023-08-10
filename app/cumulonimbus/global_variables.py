@@ -21,10 +21,11 @@ def get_public_ip():
         response = requests.get("https://api.ipify.org", timeout=5)
         if response.status_code == 200:
             ip = response.text.strip()
-            return {"azure": ip, "aws": f"{ip}/32"}
+            # change this, used to be different before. CIDR notation for aws
+            return {"azure": ip, "aws": ip}
     except:
         pass
-    return {"azure": "0.0.0.0/0", "aws": "0.0.0.0/0"}
+    return {"azure": "0.0.0.0", "aws": "0.0.0.0"}
 
 
 def __init_general():

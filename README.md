@@ -8,6 +8,14 @@ The application has only been tested on Linux (Ubuntu 22.04). The best option is
 docker run -it --entrypoint /bin/bash cumulonimbus:latest
 ```
 
+---
+
+## ⚠️ Warning
+
+**Important:** 
+This cyber range will set up vulnerable infrastructure in your environment. Do not deploy it in a production environment or one that might have sensitive data. To ensure the proper functioning of the cyber range, you need to create a service principal and assign it the "Global Administrator" role at the AAD level. Additionally, assign "Owner" and "Key Vault Administrator" roles on the subscription. You also need to disable security defaults for proper configuration.
+---
+
 
 ### How to authenticate?
 

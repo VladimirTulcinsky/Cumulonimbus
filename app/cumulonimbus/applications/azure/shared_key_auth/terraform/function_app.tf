@@ -20,11 +20,11 @@ resource "azurerm_windows_function_app" "ska_fapp" {
       allowed_origins = ["https://portal.azure.com"]
     }
 
-    /*     ip_restriction {
-      ip_address = "${var.attacker_public_ip}/32"
+    ip_restriction {
+      ip_address = local.attacker_public_ip_cidr // causes issues on destroy, see: https://github.com/hashicorp/terraform/issues/23552
       action     = "Allow"
       name       = "allow_only_attacker"
-    } */
+    }
 
     application_stack {
       node_version = "~18"
