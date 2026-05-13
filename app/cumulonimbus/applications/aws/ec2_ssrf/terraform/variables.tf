@@ -14,6 +14,11 @@ variable "attacker_public_ip" {
   type        = string
   description = "Attacker public IP address for whitelisting purposes"
   default     = "0.0.0.0"
+
+  validation {
+    condition     = can(regex("^(\\d{1,3}\\.){3}\\d{1,3}$", var.attacker_public_ip))
+    error_message = "attacker_public_ip must be a valid IPv4 address."
+  }
 }
 
 // had to find a hack,  causes issues on destroy, see: https://github.com/hashicorp/terraform/issues/23552#issuecomment-1584824629

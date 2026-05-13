@@ -26,6 +26,8 @@ jobs:
           - azure/managed_identity_abuse
           - azure/sa_public_access
           - azure/shared_key_auth
+          - azure/keyvault_misconfig
+          - azure/blob_sas_abuse
 
     steps:
       - uses: actions/checkout@v4
