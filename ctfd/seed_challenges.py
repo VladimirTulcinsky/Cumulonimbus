@@ -709,6 +709,81 @@ CHALLENGES = [
             {"content": "Run `az eventgrid event-subscription show --query \"destination.endpointUrl\"` — the `token` query parameter contains the flag.", "cost": 50},
         ],
     },
+    {
+        "name": "CodeBuild — Plaintext Environment Variables",
+        "category": "AWS CI/CD",
+        "description": (
+            "A CodeBuild project stores an API key as a PLAINTEXT environment variable. "
+            "Unlike PARAMETER_STORE or SECRETS_MANAGER types, plaintext values are "
+            "returned unmasked by `codebuild:BatchGetProjects`. Enumerate the project "
+            "and extract the flag.\n\n"
+            "Deploy with: `cnimbus aws create --app-id codebuild_env_vars`"
+        ),
+        "value": 100,
+        "type": "standard",
+        "flag": "CUMULONIMBUS{C0d3Bu1ld_Pl41nt3xt_Env_V4rs}",
+        "tags": ["AWS", "CodeBuild", "CI/CD", "Secrets"],
+        "hints": [
+            {"content": "Use `aws codebuild list-projects` then `aws codebuild batch-get-projects --names <name>`.", "cost": 25},
+            {"content": "The flag is in the `DEPLOY_API_KEY` entry of `projects[0].environment.environmentVariables`.", "cost": 50},
+        ],
+    },
+    {
+        "name": "Step Functions — Execution History Exposure",
+        "category": "AWS Serverless",
+        "description": (
+            "A Step Functions workflow passes sensitive payment data and an API key as "
+            "execution input. The full input is retained in execution history for 90 days "
+            "and is readable by anyone with `states:GetExecutionHistory`. Find the past "
+            "execution and extract the flag.\n\n"
+            "Deploy with: `cnimbus aws create --app-id stepfunctions_execution_history`"
+        ),
+        "value": 200,
+        "type": "standard",
+        "flag": "CUMULONIMBUS{St3pFunct10ns_3x3cut10n_H1st0ry_L34k}",
+        "tags": ["AWS", "Step Functions", "Serverless", "Data Exposure"],
+        "hints": [
+            {"content": "Use `aws stepfunctions list-state-machines` to find the ARN, then `aws stepfunctions list-executions` to list past runs.", "cost": 25},
+            {"content": "Run `aws stepfunctions get-execution-history --execution-arn <arn>` and look at the `ExecutionStarted` event's input — the `internalApiKey` field contains the flag.", "cost": 50},
+        ],
+    },
+    {
+        "name": "App Configuration — Data Reader Enumeration",
+        "category": "Azure Configuration",
+        "description": (
+            "An Azure App Configuration store contains database credentials and an API key "
+            "alongside normal config. The attacker has App Configuration Data Reader and can "
+            "list all key-values in plaintext. Find the `secrets/api-key` entry.\n\n"
+            "Deploy with: `cnimbus azure create --app-id app_configuration_secrets`"
+        ),
+        "value": 100,
+        "type": "standard",
+        "flag": "CUMULONIMBUS{App_C0nf1g_D4t4_R34d3r_Enum}",
+        "tags": ["Azure", "App Configuration", "Secrets", "Enumeration"],
+        "hints": [
+            {"content": "Use `az appconfig kv list --name <store> --auth-mode login` to list all key-values.", "cost": 25},
+            {"content": "The flag is the value of the `secrets/api-key` key.", "cost": 50},
+        ],
+    },
+    {
+        "name": "VM Extension — Plaintext Settings",
+        "category": "Azure Compute",
+        "description": (
+            "A Custom Script Extension on a VM embeds a command in its `settings` block "
+            "(not `protectedSettings`). The `settings` block is stored unencrypted in ARM "
+            "and returned by any Reader. Inspect the extension to find the flag in "
+            "`commandToExecute`.\n\n"
+            "Deploy with: `cnimbus azure create --app-id vm_extension_settings`"
+        ),
+        "value": 100,
+        "type": "standard",
+        "flag": "CUMULONIMBUS{VM_3xt3ns10n_S3tt1ngs_Pl41nt3xt}",
+        "tags": ["Azure", "VM Extension", "Custom Script", "Secrets"],
+        "hints": [
+            {"content": "Use `az vm extension list --vm-name <vm> --resource-group <rg>` to find the CustomScript extension.", "cost": 25},
+            {"content": "Run `az vm extension show --name configure-app --query settings` — `commandToExecute` contains the flag.", "cost": 50},
+        ],
+    },
 ]
 
 

@@ -55,6 +55,10 @@ jobs:
           - aws/ssm_session_manager
           - azure/resource_group_tags
           - azure/eventgrid_webhook_token
+          - aws/codebuild_env_vars
+          - aws/stepfunctions_execution_history
+          - azure/app_configuration_secrets
+          - azure/vm_extension_settings
 
     steps:
       - uses: actions/checkout@v4
