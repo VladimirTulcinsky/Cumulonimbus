@@ -148,6 +148,84 @@ CHALLENGES = [
         ],
     },
     {
+        "name": "S3 Public Access Misconfiguration",
+        "category": "AWS Storage",
+        "description": (
+            "A developer disabled S3 Block Public Access on a data bucket and attached a "
+            "bucket policy that grants s3:GetObject to the anonymous principal ('*'). "
+            "You are given low-privilege IAM credentials that can only list buckets. "
+            "Enumerate the bucket and read the flag without using your IAM identity.\n\n"
+            "Deploy with: `cnimbus aws create --app-id s3_public_access`"
+        ),
+        "value": 100,
+        "type": "standard",
+        "flag": "CUMULONIMBUS{S3_Publ1c_Acc3ss_Bl0ck_D1sabl3d}",
+        "tags": ["AWS", "S3", "Storage", "Misconfiguration", "Beginner"],
+        "hints": [
+            {"content": "Configure the attacker profile and run 'aws s3 ls' to discover the bucket.", "cost": 0},
+            {"content": "Try 'aws s3 ls s3://<bucket> --no-sign-request' — the --no-sign-request flag sends the request anonymously.", "cost": 25},
+        ],
+    },
+    {
+        "name": "IAM Privilege Escalation via PassRole + Lambda",
+        "category": "AWS IAM",
+        "description": (
+            "A developer IAM user has iam:PassRole scoped to a Lambda execution role with "
+            "S3 read access on a private flag bucket, combined with lambda:CreateFunction "
+            "and lambda:InvokeFunction. This is a well-known privilege escalation path: "
+            "create a Lambda function that runs as the privileged role and reads the flag.\n\n"
+            "Deploy with: `cnimbus aws create --app-id iam_privesc`"
+        ),
+        "value": 400,
+        "type": "standard",
+        "flag": "CUMULONIMBUS{1AM_Pass_R0l3_L4mbda_Pr1v3sc}",
+        "tags": ["AWS", "IAM", "Lambda", "Privilege Escalation", "PassRole"],
+        "hints": [
+            {"content": "Check your permissions with aws iam get-user-policy. Notice iam:PassRole and lambda:CreateFunction together.", "cost": 25},
+            {"content": "Create a Lambda with the privileged role ARN (--role flag). The handler just needs boto3 to read from S3.", "cost": 75},
+        ],
+    },
+    {
+        "name": "Automation Account Runbook Abuse",
+        "category": "Azure Automation",
+        "description": (
+            "An Azure Automation Account has a system-assigned managed identity with "
+            "Storage Blob Data Reader on a private flag storage account. "
+            "You have been granted Automation Contributor — you can create and run runbooks. "
+            "Runbooks execute as the Automation Account's managed identity. "
+            "Write a PowerShell runbook that queries IMDS for a token and reads the flag.\n\n"
+            "Deploy with: `cnimbus azure create --app-id automation_account`"
+        ),
+        "value": 250,
+        "type": "standard",
+        "flag": "CUMULONIMBUS{Aut0m4t10n_Runb00k_M1_Abus3}",
+        "tags": ["Azure", "Automation", "Managed Identity", "IMDS", "Runbook"],
+        "hints": [
+            {"content": "Automation Contributor lets you create and publish runbooks that run as the Automation Account's managed identity.", "cost": 25},
+            {"content": "In your runbook, call Invoke-RestMethod against http://169.254.169.254/metadata/identity/oauth2/token with resource=https://storage.azure.com/", "cost": 50},
+        ],
+    },
+    {
+        "name": "Azure Function App SSRF to IMDS",
+        "category": "Azure Serverless",
+        "description": (
+            "An Azure Function App exposes a /api/fetch endpoint that proxies any ?url= "
+            "the caller provides, without URL validation. The Function App has a "
+            "system-assigned managed identity with Storage Blob Data Reader on a private "
+            "blob container. Use SSRF to reach the Instance Metadata Service, obtain an "
+            "OAuth token, and use it to read the flag from blob storage.\n\n"
+            "Deploy with: `cnimbus azure create --app-id function_ssrf`"
+        ),
+        "value": 250,
+        "type": "standard",
+        "flag": "CUMULONIMBUS{Funct10n_SSRF_1MDS_T0k3n}",
+        "tags": ["Azure", "Function App", "SSRF", "IMDS", "Managed Identity"],
+        "hints": [
+            {"content": "Probe the ?url= parameter with http://169.254.169.254/metadata/instance to confirm SSRF.", "cost": 0},
+            {"content": "Fetch http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=https://storage.azure.com/ through the SSRF endpoint.", "cost": 25},
+        ],
+    },
+    {
         "name": "Key Vault Misconfiguration",
         "category": "Azure Key Vault",
         "description": (
