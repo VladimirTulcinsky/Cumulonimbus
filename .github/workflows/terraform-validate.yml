@@ -39,6 +39,10 @@ jobs:
           - azure/terraform_state_exposure
           - azure/arm_deployment_history
           - azure/exposed_app_registration
+          - aws/s3_bucket_versioning
+          - aws/cloudformation_stack
+          - aws/sts_assume_role_any
+          - azure/app_service_env_vars
 
     steps:
       - uses: actions/checkout@v4
