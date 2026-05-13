@@ -15,7 +15,7 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
 
     def get_hints(self):
         return {
-            1: "Real-world storage accounts follow environment naming patterns. Use cloud_enum (https://github.com/initstring/cloud_enum) to discover them: ./cloud_enum.py -k cumulonimbus<id>prd --disable-aws --disable-gcp. Also try other suffixes: dev, tst, uat, stg.",
+            1: "Real-world storage accounts follow environment naming patterns. Use cloud_enum (https://github.com/initstring/cloud_enum) to discover them: ./cloud_enum.py -k cumulonimbusXXXXprd --disable-aws --disable-gcp. Also try other suffixes: dev, tst, uat, stg.",
             2: "The 'website' container in the production storage account has 'container' access level — you can list its blobs. Look for a config file.",
             3: "config.cfg reveals the URL of a second container. That container uses 'blob' access; construct the direct URL to flag.txt and fetch it.",
         }
