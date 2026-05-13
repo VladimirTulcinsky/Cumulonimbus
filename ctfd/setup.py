@@ -28,7 +28,15 @@ import time
 
 import requests
 
-from seed_challenges import CHALLENGES, create_challenge, create_flag, create_hints, create_tags
+from seed_challenges import (
+    CHALLENGES,
+    create_challenge,
+    create_flag,
+    create_hints,
+    create_tags,
+    filter_challenges,
+    PROVIDER_DEFAULTS,
+)
 
 
 # ---------------------------------------------------------------------------
@@ -191,8 +199,8 @@ def create_api_token(base_url: str, session: requests.Session) -> str:
     return token
 
 
-def seed(base_url: str, token: str) -> None:
-    """Seed all Cumulonimbus challenges into CTFd."""
+def seed(base_url: str, token: str, provider: str | None = None) -> None:
+    """Seed Cumulonimbus challenges into CTFd, optionally filtered by provider."""
     headers = {"Authorization": f"Token {token}", "Content-Type": "application/json"}
 
     r = requests.get(f"{base_url}/api/v1/challenges", headers=headers)
@@ -202,9 +210,10 @@ def seed(base_url: str, token: str) -> None:
     r.raise_for_status()
 
     existing = {c["name"] for c in r.json().get("data", [])}
+    challenges = filter_challenges(provider) if provider else CHALLENGES
 
-    print(f"\nSeeding {len(CHALLENGES)} challenges:")
-    for challenge in CHALLENGES:
+    print(f"\nSeeding {len(challenges)} challenges:")
+    for challenge in challenges:
         if challenge["name"] in existing:
             print(f"  [skip]    {challenge['name']}")
             continue
@@ -221,10 +230,14 @@ def seed(base_url: str, token: str) -> None:
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description="Initialise CTFd and seed all Cumulonimbus challenges in one step."
+        description="Initialise CTFd and seed Cumulonimbus challenges in one step."
     )
-    parser.add_argument("--url", default="http://localhost:8000", help="CTFd base URL")
-    parser.add_argument("--ctf-name", default="Cumulonimbus", dest="ctf_name")
+    parser.add_argument("--provider", choices=["aws", "azure"], required=True,
+                        help="Which provider's challenges to seed (aws → port 8000, azure → port 8001)")
+    parser.add_argument("--url", default=None,
+                        help="CTFd base URL (default: 8000 for AWS, 8001 for Azure)")
+    parser.add_argument("--ctf-name", default=None, dest="ctf_name",
+                        help="Event name (default: 'Cumulonimbus — AWS' or 'Cumulonimbus — Azure')")
     parser.add_argument("--admin-name", default="admin", dest="admin_name")
     parser.add_argument("--admin-email", default="admin@cumulonimbus.local", dest="admin_email")
     parser.add_argument("--admin-password", default=None, dest="admin_password",
@@ -232,19 +245,22 @@ def main() -> None:
     parser.add_argument("--timeout", type=int, default=120, help="Seconds to wait for CTFd to start")
     args = parser.parse_args()
 
-    base_url = args.url.rstrip("/")
+    default_url = PROVIDER_DEFAULTS.get(args.provider, "http://localhost:8000")
+    base_url = (args.url or default_url).rstrip("/")
     session = requests.Session()
 
     print("=== Cumulonimbus CTFd Setup ===\n")
 
     already_configured = wait_for_ready(base_url, args.timeout)
 
+    ctf_name = args.ctf_name or f"Cumulonimbus — {args.provider.upper()}"
+
     if not already_configured:
         # Fresh install — use default password if not supplied
         password = args.admin_password or "cumulonimbus"
         run_setup_wizard(
             base_url, session,
-            args.ctf_name, args.admin_name, args.admin_email, password,
+            ctf_name, args.admin_name, args.admin_email, password,
         )
     else:
         print("  CTFd already configured — skipping setup wizard.")
@@ -260,7 +276,7 @@ def main() -> None:
         login(base_url, session, args.admin_name, password)
 
     token = create_api_token(base_url, session)
-    seed(base_url, token)
+    seed(base_url, token, provider=args.provider)
 
     print(f"\n=== Done! ===")
     print(f"  CTFd URL   : {base_url}")
