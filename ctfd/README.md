@@ -27,7 +27,29 @@ python setup.py \
   --admin-password supersecret
 ```
 
-### Manual seeding (if CTFd is already configured)
+### CTFd is already configured (existing install)
+
+If you previously set up CTFd manually, `setup.py` skips the wizard but still
+needs to log in to mint a token. Pass your existing admin credentials:
+
+```bash
+python setup.py --admin-password <your_password>
+```
+
+If you also used a non-default username:
+
+```bash
+python setup.py --admin-name <your_username> --admin-password <your_password>
+```
+
+You will see this error if you forget the flag and the default password is wrong:
+
+```
+ERROR: CTFd is already set up. Provide your admin password:
+    python setup.py --admin-password <your_password>
+```
+
+### Manual seeding only (skip setup, use an existing token)
 
 ```bash
 # Generate a token via: Admin Panel > Settings > Access Tokens > Generate
