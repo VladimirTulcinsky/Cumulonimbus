@@ -148,6 +148,7 @@ def ttl(provider, app_id, hours):
     import subprocess
     import json
     import datetime
+    import os
 
     try:
         if hours <= 0:
