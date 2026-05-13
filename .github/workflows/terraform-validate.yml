@@ -28,6 +28,10 @@ jobs:
           - azure/shared_key_auth
           - azure/keyvault_misconfig
           - azure/blob_sas_abuse
+          - azure/automation_account
+          - azure/function_ssrf
+          - aws/s3_public_access
+          - aws/iam_privesc
 
     steps:
       - uses: actions/checkout@v4

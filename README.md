@@ -17,6 +17,10 @@
 | `shared_key_auth` | Azure | Storage / Function App / Key Vault | Advanced |
 | `blob_sas_abuse` | Azure | Storage / Credential Exposure | Beginner |
 | `keyvault_misconfig` | Azure | Key Vault / Access Policy | Intermediate |
+| `automation_account` | Azure | Automation / Managed Identity | Intermediate |
+| `function_ssrf` | Azure | Serverless / SSRF / IMDS | Intermediate |
+| `s3_public_access` | AWS | Storage / Misconfiguration | Beginner |
+| `iam_privesc` | AWS | IAM / Privilege Escalation | Advanced |
 
 ## Quick Start
 
