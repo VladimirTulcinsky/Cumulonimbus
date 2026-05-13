@@ -15,6 +15,8 @@
 | `add_sp_credentials` | Azure | Identity / Privilege Escalation | Advanced |
 | `foci` | Azure | Identity / OAuth Token Abuse | Advanced |
 | `shared_key_auth` | Azure | Storage / Function App / Key Vault | Advanced |
+| `blob_sas_abuse` | Azure | Storage / Credential Exposure | Beginner |
+| `keyvault_misconfig` | Azure | Key Vault / Access Policy | Intermediate |
 
 ## Quick Start
 

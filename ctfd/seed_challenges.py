@@ -148,6 +148,45 @@ CHALLENGES = [
         ],
     },
     {
+        "name": "Key Vault Misconfiguration",
+        "category": "Azure Key Vault",
+        "description": (
+            "An Azure Key Vault was deployed in access policy mode with an overly permissive "
+            "policy that accidentally grants an attacker user Get and List on secrets. "
+            "The vault has public network access enabled. "
+            "Log in as the attacker, discover the vault, and read the flag secret.\n\n"
+            "Deploy with: `cnimbus azure create --app-id keyvault_misconfig`"
+        ),
+        "value": 200,
+        "type": "standard",
+        "flag": "CUMULONIMBUS{K3yV4ult_4cc3ss_P0l1cy_T00_Br04d}",
+        "tags": ["Azure", "Key Vault", "Access Policy", "Misconfiguration"],
+        "hints": [
+            {"content": "Use `az keyvault list` to enumerate vaults in the resource group.", "cost": 25},
+            {"content": "Run `az keyvault secret list` then `az keyvault secret show` to read the flag.", "cost": 50},
+        ],
+    },
+    {
+        "name": "Blob SAS Token Exposure",
+        "category": "Azure Storage",
+        "description": (
+            "A developer hardcoded an Azure Blob Storage SAS token inside app.js, "
+            "which is served publicly from a static website container. "
+            "The token has read+list permissions on the entire storage account. "
+            "Inspect the JavaScript source, extract the SAS token, "
+            "and use it to access the private 'secrets' container.\n\n"
+            "Deploy with: `cnimbus azure create --app-id blob_sas_abuse`"
+        ),
+        "value": 100,
+        "type": "standard",
+        "flag": "CUMULONIMBUS{SAS_T0k3n_N3v3r_1n_C0d3}",
+        "tags": ["Azure", "Storage", "SAS Token", "Credential Exposure", "Beginner"],
+        "hints": [
+            {"content": "View the page source of the web app endpoint and look inside app.js for a SAS_TOKEN variable.", "cost": 0},
+            {"content": "Use the SAS token to list the 'secrets' container: GET /secrets?restype=container&comp=list&<sas>", "cost": 25},
+        ],
+    },
+    {
         "name": "Managed Identity Abuse",
         "category": "Azure Compute",
         "description": (
