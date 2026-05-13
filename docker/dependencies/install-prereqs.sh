@@ -32,11 +32,13 @@ apt-get install -qy \
   sqlite3 \
   lsb-release \
 
-apt-get update && apt-get install -y gnupg software-properties-common wget
-wget -qO - https://apt.releases.hashicorp.com/gpg | gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
-echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | tee /etc/apt/sources.list.d/hashicorp.list
-apt-get update
-apt-get install -y terraform
+apt-get install -qy unzip wget
+
+TERRAFORM_VERSION=1.9.8
+wget -q "https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip" -O /tmp/terraform.zip
+unzip -q /tmp/terraform.zip -d /usr/local/bin/
+rm /tmp/terraform.zip
+chmod +x /usr/local/bin/terraform
 
 
   
