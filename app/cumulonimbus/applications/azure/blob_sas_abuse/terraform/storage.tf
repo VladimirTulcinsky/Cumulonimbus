@@ -16,15 +16,10 @@ resource "azurerm_storage_account" "blob_sas_abuse" {
   account_replication_type = "LRS"
   account_kind             = "StorageV2"
 
-  # Static website to host the "web app"
+  # Static website to host the "web app" — intentionally public
   static_website {
     index_document     = "index.html"
     error_404_document = "404.html"
-  }
-
-  network_rules {
-    default_action = "Deny"
-    ip_rules       = [var.attacker_public_ip]
   }
 }
 
