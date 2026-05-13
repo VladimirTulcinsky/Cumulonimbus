@@ -43,6 +43,10 @@ jobs:
           - aws/cloudformation_stack
           - aws/sts_assume_role_any
           - azure/app_service_env_vars
+          - aws/lambda_function_url
+          - aws/cognito_identity_pool
+          - azure/logic_app_credentials
+          - azure/storage_account_keys
 
     steps:
       - uses: actions/checkout@v4

@@ -492,6 +492,78 @@ CHALLENGES = [
             {"content": "Look for the SECRET_FLAG key in the app settings output.", "cost": 50},
         ],
     },
+    {
+        "name": "Lambda Function URL — No Auth",
+        "category": "AWS Serverless",
+        "description": (
+            "A developer exposed an internal diagnostics Lambda function via a Function URL "
+            "configured with `AuthType: NONE`. The function is publicly accessible without "
+            "any AWS credentials. Call the URL and retrieve the flag from the JSON response.\n\n"
+            "Deploy with: `cnimbus aws create --app-id lambda_function_url`"
+        ),
+        "value": 100,
+        "type": "standard",
+        "flag": "CUMULONIMBUS{L4mbd4_Funct10n_URL_N0_Auth}",
+        "tags": ["AWS", "Lambda", "Serverless", "Exposure"],
+        "hints": [
+            {"content": "Lambda Function URLs with AuthType NONE are publicly accessible — no credentials needed.", "cost": 25},
+            {"content": "Use `curl <function_url>` and look at the `flag` key in the JSON response body.", "cost": 50},
+        ],
+    },
+    {
+        "name": "Cognito Identity Pool — Unauthenticated Access",
+        "category": "AWS Identity",
+        "description": (
+            "A mobile app's Cognito Identity Pool allows unauthenticated (guest) identities "
+            "with an overly permissive IAM role attached. Exchange the pool ID for temporary "
+            "AWS credentials without any login, then use them to read the private S3 flag.\n\n"
+            "Deploy with: `cnimbus aws create --app-id cognito_identity_pool`"
+        ),
+        "value": 200,
+        "type": "standard",
+        "flag": "CUMULONIMBUS{C0gn1t0_Un4uth_1d3nt1ty_AWS_Cr3ds}",
+        "tags": ["AWS", "Cognito", "Identity", "S3", "Credential Abuse"],
+        "hints": [
+            {"content": "Use `aws cognito-identity get-id` with the identity pool ID to get an IdentityId without logging in.", "cost": 25},
+            {"content": "Exchange the IdentityId for temporary STS credentials via `get-credentials-for-identity`, then use them to read the S3 flag object.", "cost": 50},
+        ],
+    },
+    {
+        "name": "Logic App — Hardcoded Credentials",
+        "category": "Azure Integration",
+        "description": (
+            "An Azure Logic App sends hourly notifications with a bearer token hardcoded in "
+            "the HTTP action headers. Any identity with Reader on the resource group can "
+            "retrieve the full workflow definition — including the Authorization header.\n\n"
+            "Deploy with: `cnimbus azure create --app-id logic_app_credentials`"
+        ),
+        "value": 200,
+        "type": "standard",
+        "flag": "CUMULONIMBUS{L0g1c_App_H4rdcod3d_Cr3d3nt14ls}",
+        "tags": ["Azure", "Logic App", "Secrets", "Integration"],
+        "hints": [
+            {"content": "Use `az logic workflow show` to retrieve the workflow JSON definition.", "cost": 25},
+            {"content": "Inspect the `actions` section for the HTTP action headers — the Authorization value contains the flag.", "cost": 50},
+        ],
+    },
+    {
+        "name": "Storage Account Keys — Control Plane Bypass",
+        "category": "Azure Storage",
+        "description": (
+            "An attacker account has Storage Account Contributor — a control-plane role that "
+            "also includes `listKeys`. Use the master key to bypass Azure RBAC entirely and "
+            "read a private blob containing the flag.\n\n"
+            "Deploy with: `cnimbus azure create --app-id storage_account_keys`"
+        ),
+        "value": 200,
+        "type": "standard",
+        "flag": "CUMULONIMBUS{St0r4g3_Acc0unt_K3ys_Byp4ss_RBAC}",
+        "tags": ["Azure", "Storage", "RBAC", "Privilege Escalation"],
+        "hints": [
+            {"content": "Storage Account Contributor includes `listKeys` — use `az storage account keys list` to retrieve the account master key.", "cost": 25},
+            {"content": "Use the account key with `az storage blob download --account-key <key>` to access the private container.", "cost": 50},
+        ],
+    },
 ]
 
 

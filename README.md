@@ -32,6 +32,10 @@
 | `cloudformation_stack` | AWS | Infrastructure / Secrets | Beginner |
 | `sts_assume_role_any` | AWS | IAM / Privilege Escalation | Intermediate |
 | `app_service_env_vars` | Azure | Web / Secrets | Beginner |
+| `lambda_function_url` | AWS | Serverless / Exposure | Beginner |
+| `cognito_identity_pool` | AWS | Identity / Credential Abuse | Intermediate |
+| `logic_app_credentials` | Azure | Integration / Secrets | Intermediate |
+| `storage_account_keys` | Azure | Storage / Privilege Escalation | Intermediate |
 
 ## Quick Start
 
