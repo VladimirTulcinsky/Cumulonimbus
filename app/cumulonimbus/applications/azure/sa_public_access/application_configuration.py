@@ -24,13 +24,8 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
         return "CUMULONIMBUS{St0r4g3_Acc0unt_4cc355}"
 
     def pretty_print_tf_output(self, app_id, output):
-        """
-        Get the value of a Terraform output.
-
-        :param app_id:                      The application ID
-        :param output:                      The output name
-        :return:                            The output value
-        """
+        if not output:
+            return
         cid = str(output["cumulonimbus_id"]["value"])
         print("###############################################")
         print("#             Required Information            #")

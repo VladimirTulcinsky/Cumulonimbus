@@ -45,6 +45,8 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
         :param output:                      The output name
         :return:                            The output value
         """
+        if not output:
+            return
         print("###############################################")
         print("#             Attacker Credentials            #")
         print("###############################################")
