@@ -17,7 +17,7 @@ import requests
 CHALLENGES = [
     {
         "name": "EC2 SSRF",
-        "category": "AWS",
+        "category": "AWS / Compute",
         "description": (
             "A Node.js recipe application is running on an EC2 instance. "
             "The `/recipe?url=` endpoint fetches any URL the user provides. "
@@ -36,7 +36,7 @@ CHALLENGES = [
     },
     {
         "name": "Storage Account Public Access",
-        "category": "Azure",
+        "category": "Azure / Storage",
         "description": (
             "A company left several Azure Storage containers misconfigured. "
             "One container uses 'container' access (full listing), leaking the location "
@@ -55,7 +55,7 @@ CHALLENGES = [
     },
     {
         "name": "Cloud Shell Storage",
-        "category": "Azure",
+        "category": "Azure / Storage",
         "description": (
             "Azure Cloud Shell persists its environment via a file share mounted to a storage account. "
             "A user's storage account has insufficient RBAC controls. "
@@ -73,7 +73,7 @@ CHALLENGES = [
     },
     {
         "name": "Add Service Principal Credentials",
-        "category": "Azure",
+        "category": "Azure / Identity",
         "description": (
             "A user was removed as owner of an Azure AD application registration, "
             "but NOT from the underlying service principal. "
@@ -92,7 +92,7 @@ CHALLENGES = [
     },
     {
         "name": "Family Refresh Token (FOCI)",
-        "category": "Azure",
+        "category": "Azure / Identity",
         "description": (
             "Microsoft's Family of Client IDs (FOCI) allows a refresh token obtained "
             "for one Microsoft application to be redeemed against a different client ID. "
@@ -111,7 +111,7 @@ CHALLENGES = [
     },
     {
         "name": "Illicit Consent Grant",
-        "category": "Azure",
+        "category": "Azure / Identity",
         "description": (
             "Craft an OAuth phishing URL that requests dangerous delegated permissions "
             "(mail.read, files.readWrite.all, AppRoleAssignment.ReadWrite.All). "
@@ -130,7 +130,7 @@ CHALLENGES = [
     },
     {
         "name": "Shared Key Authentication",
-        "category": "Azure",
+        "category": "Azure / Storage",
         "description": (
             "An Azure Function App uses Shared Key authentication to access a storage account. "
             "Source code stored in that storage account can be modified by anyone who "
@@ -149,7 +149,7 @@ CHALLENGES = [
     },
     {
         "name": "Lambda Environment Variable Secrets",
-        "category": "AWS",
+        "category": "AWS / Serverless",
         "description": (
             "A developer stored a production API key directly in a Lambda function's "
             "environment variables. An 'auditor' IAM user has lambda:GetFunction, which "
@@ -168,7 +168,7 @@ CHALLENGES = [
     },
     {
         "name": "Secrets Manager Over-Permissive Policy",
-        "category": "AWS",
+        "category": "AWS / Secrets",
         "description": (
             "A monitoring service account was granted secretsmanager:GetSecretValue with "
             "a wildcard resource path instead of a specific secret ARN. Combined with "
@@ -187,7 +187,7 @@ CHALLENGES = [
     },
     {
         "name": "Terraform State File Exposure",
-        "category": "Azure",
+        "category": "Azure / Infrastructure",
         "description": (
             "An Azure Blob Storage container used as a Terraform backend was configured "
             "with container_access_type = 'blob' (public read). The state file contains "
@@ -207,7 +207,7 @@ CHALLENGES = [
     },
     {
         "name": "EC2 User Data Secret Exposure",
-        "category": "AWS",
+        "category": "AWS / Compute",
         "description": (
             "A developer hardcoded database credentials and an API secret in an EC2 "
             "instance's user data bootstrap script, intending to move them to SSM later. "
@@ -226,7 +226,7 @@ CHALLENGES = [
     },
     {
         "name": "SSM Parameter Store Path Wildcard",
-        "category": "AWS",
+        "category": "AWS / Secrets",
         "description": (
             "A deployment agent IAM user was granted ssm:GetParametersByPath with a "
             "wildcard resource path covering the entire /cumulonimbus/ hierarchy instead "
@@ -245,7 +245,7 @@ CHALLENGES = [
     },
     {
         "name": "ARM Deployment History Exposure",
-        "category": "Azure",
+        "category": "Azure / Infrastructure",
         "description": (
             "An ARM template was deployed with an admin API key passed as a plain 'string' "
             "parameter instead of 'secureString'. Azure retains full deployment history in "
@@ -264,7 +264,7 @@ CHALLENGES = [
     },
     {
         "name": "Exposed App Registration Client Secret",
-        "category": "Azure",
+        "category": "Azure / Identity",
         "description": (
             "A developer stored an application config.json containing an Entra ID app "
             "registration's client_id and client_secret in a public Azure Blob Storage "
@@ -284,7 +284,7 @@ CHALLENGES = [
     },
     {
         "name": "S3 Public Access Misconfiguration",
-        "category": "AWS",
+        "category": "AWS / Storage",
         "description": (
             "A developer disabled S3 Block Public Access on a data bucket and attached a "
             "bucket policy that grants s3:GetObject to the anonymous principal ('*'). "
@@ -303,7 +303,7 @@ CHALLENGES = [
     },
     {
         "name": "IAM Privilege Escalation via PassRole + Lambda",
-        "category": "AWS",
+        "category": "AWS / IAM",
         "description": (
             "A developer IAM user has iam:PassRole scoped to a Lambda execution role with "
             "S3 read access on a private flag bucket, combined with lambda:CreateFunction "
@@ -322,7 +322,7 @@ CHALLENGES = [
     },
     {
         "name": "Automation Account Runbook Abuse",
-        "category": "Azure",
+        "category": "Azure / Automation",
         "description": (
             "An Azure Automation Account has a system-assigned managed identity with "
             "Storage Blob Data Reader on a private flag storage account. "
@@ -342,7 +342,7 @@ CHALLENGES = [
     },
     {
         "name": "Azure Function App SSRF to IMDS",
-        "category": "Azure",
+        "category": "Azure / Serverless",
         "description": (
             "An Azure Function App exposes a /api/fetch endpoint that proxies any ?url= "
             "the caller provides, without URL validation. The Function App has a "
@@ -362,7 +362,7 @@ CHALLENGES = [
     },
     {
         "name": "Key Vault Misconfiguration",
-        "category": "Azure",
+        "category": "Azure / Key Vault",
         "description": (
             "An Azure Key Vault was deployed in access policy mode with an overly permissive "
             "policy that accidentally grants an attacker user Get and List on secrets. "
@@ -381,7 +381,7 @@ CHALLENGES = [
     },
     {
         "name": "Blob SAS Token Exposure",
-        "category": "Azure",
+        "category": "Azure / Storage",
         "description": (
             "A developer hardcoded an Azure Blob Storage SAS token inside app.js, "
             "which is served publicly from a static website container. "
@@ -401,7 +401,7 @@ CHALLENGES = [
     },
     {
         "name": "Managed Identity Abuse",
-        "category": "Azure",
+        "category": "Azure / Identity",
         "description": (
             "A VM is deployed with a system-assigned managed identity that has "
             "Storage Blob Data Reader on a private storage account containing the flag. "
@@ -421,7 +421,7 @@ CHALLENGES = [
     },
     {
         "name": "S3 Versioning — Deleted Object Recovery",
-        "category": "AWS",
+        "category": "AWS / Storage",
         "description": (
             "A developer accidentally committed production credentials to S3 inside "
             "`app/config.json`. They replaced the file and deleted it — thinking the "
@@ -440,7 +440,7 @@ CHALLENGES = [
     },
     {
         "name": "CloudFormation Stack Output Exposure",
-        "category": "AWS",
+        "category": "AWS / Infrastructure",
         "description": (
             "An engineering team stored an API key directly in a CloudFormation stack "
             "Output. Any identity with `cloudformation:DescribeStacks` can read every "
@@ -458,7 +458,7 @@ CHALLENGES = [
     },
     {
         "name": "STS AssumeRole — Wildcard Principal",
-        "category": "AWS",
+        "category": "AWS / IAM",
         "description": (
             "A role was created with `\"Principal\": {\"AWS\": \"*\"}` in the trust policy — "
             "meaning any AWS identity can assume it. The role has access to a secret SSM "
@@ -476,7 +476,7 @@ CHALLENGES = [
     },
     {
         "name": "App Service Environment Variables",
-        "category": "Azure",
+        "category": "Azure / Web",
         "description": (
             "A team deployed an Azure App Service and stored credentials in Application "
             "Settings. Website Contributor includes `Microsoft.Web/sites/config/list` which "
@@ -494,7 +494,7 @@ CHALLENGES = [
     },
     {
         "name": "Lambda Function URL — No Auth",
-        "category": "AWS",
+        "category": "AWS / Serverless",
         "description": (
             "A developer exposed an internal diagnostics Lambda function via a Function URL "
             "configured with `AuthType: NONE`. The function is publicly accessible without "
@@ -512,7 +512,7 @@ CHALLENGES = [
     },
     {
         "name": "Cognito Identity Pool — Unauthenticated Access",
-        "category": "AWS",
+        "category": "AWS / Identity",
         "description": (
             "A mobile app's Cognito Identity Pool allows unauthenticated (guest) identities "
             "with an overly permissive IAM role attached. Exchange the pool ID for temporary "
@@ -530,7 +530,7 @@ CHALLENGES = [
     },
     {
         "name": "Logic App — Hardcoded Credentials",
-        "category": "Azure",
+        "category": "Azure / Integration",
         "description": (
             "An Azure Logic App sends hourly notifications with a bearer token hardcoded in "
             "the HTTP action headers. Any identity with Reader on the resource group can "
@@ -548,7 +548,7 @@ CHALLENGES = [
     },
     {
         "name": "Storage Account Keys — Control Plane Bypass",
-        "category": "Azure",
+        "category": "Azure / Storage",
         "description": (
             "An attacker account has Storage Account Contributor — a control-plane role that "
             "also includes `listKeys`. Use the master key to bypass Azure RBAC entirely and "
@@ -566,7 +566,7 @@ CHALLENGES = [
     },
     {
         "name": "S3 Object ACL — Public Read",
-        "category": "AWS",
+        "category": "AWS / Storage",
         "description": (
             "A developer set a `public-read` ACL on an individual S3 object. The bucket "
             "blocks public policies, but object-level ACLs bypass this — making the file "
@@ -584,7 +584,7 @@ CHALLENGES = [
     },
     {
         "name": "Glue Job — Secrets in Arguments",
-        "category": "AWS",
+        "category": "AWS / Data",
         "description": (
             "An ETL team stored database credentials directly in a Glue job's "
             "`DefaultArguments`. These are returned in plaintext by `glue:GetJob`. "
@@ -602,7 +602,7 @@ CHALLENGES = [
     },
     {
         "name": "VM RunCommand — Arbitrary Execution",
-        "category": "Azure",
+        "category": "Azure / Compute",
         "description": (
             "An attacker account has Virtual Machine Contributor on a resource group. "
             "This role includes `runCommand/action`, allowing arbitrary shell execution "
@@ -620,7 +620,7 @@ CHALLENGES = [
     },
     {
         "name": "Container Instance — Plaintext Env Vars",
-        "category": "Azure",
+        "category": "Azure / Containers",
         "description": (
             "An ACI container group stores a sensitive API key as a plain (non-secure) "
             "environment variable. Any Reader can retrieve the full container definition "
@@ -638,7 +638,7 @@ CHALLENGES = [
     },
     {
         "name": "SQS Queue — Public Resource Policy",
-        "category": "AWS",
+        "category": "AWS / Messaging",
         "description": (
             "An SQS queue has a resource policy granting `sqs:ReceiveMessage` to "
             "`\"Principal\": \"*\"` — any caller. Messages containing sensitive data are "
@@ -656,7 +656,7 @@ CHALLENGES = [
     },
     {
         "name": "SSM Session Manager — Shell Without SSH",
-        "category": "AWS",
+        "category": "AWS / Compute",
         "description": (
             "An EC2 instance has the SSM Agent running and an IAM user has "
             "`ssm:StartSession`. This allows opening an interactive root shell on "
@@ -675,7 +675,7 @@ CHALLENGES = [
     },
     {
         "name": "Resource Group Tags — Credentials in Metadata",
-        "category": "Azure",
+        "category": "Azure / Governance",
         "description": (
             "A platform team stored a service principal secret as an Azure resource group "
             "tag. Tags are visible to any Reader on the resource. Enumerate the "
@@ -693,7 +693,7 @@ CHALLENGES = [
     },
     {
         "name": "Event Grid — Webhook Token Exposure",
-        "category": "Azure",
+        "category": "Azure / Integration",
         "description": (
             "An Event Grid subscription uses a secret token embedded in the webhook URL "
             "as a query parameter. The full URL is returned by the ARM API to any Reader. "
@@ -711,7 +711,7 @@ CHALLENGES = [
     },
     {
         "name": "CodeBuild — Plaintext Environment Variables",
-        "category": "AWS",
+        "category": "AWS / CI-CD",
         "description": (
             "A CodeBuild project stores an API key as a PLAINTEXT environment variable. "
             "Unlike PARAMETER_STORE or SECRETS_MANAGER types, plaintext values are "
@@ -730,7 +730,7 @@ CHALLENGES = [
     },
     {
         "name": "Step Functions — Execution History Exposure",
-        "category": "AWS",
+        "category": "AWS / Serverless",
         "description": (
             "A Step Functions workflow passes sensitive payment data and an API key as "
             "execution input. The full input is retained in execution history for 90 days "
@@ -749,7 +749,7 @@ CHALLENGES = [
     },
     {
         "name": "App Configuration — Data Reader Enumeration",
-        "category": "Azure",
+        "category": "Azure / Configuration",
         "description": (
             "An Azure App Configuration store contains database credentials and an API key "
             "alongside normal config. The attacker has App Configuration Data Reader and can "
@@ -767,7 +767,7 @@ CHALLENGES = [
     },
     {
         "name": "VM Extension — Plaintext Settings",
-        "category": "Azure",
+        "category": "Azure / Compute",
         "description": (
             "A Custom Script Extension on a VM embeds a command in its `settings` block "
             "(not `protectedSettings`). The `settings` block is stored unencrypted in ARM "
@@ -786,7 +786,7 @@ CHALLENGES = [
     },
     {
         "name": "Route53 Records",
-        "category": "AWS",
+        "category": "AWS / Networking",
         "description": (
             "A developer stored a sensitive value inside a Route53 DNS TXT record. "
             "You have IAM credentials with Route53 read access. "
@@ -804,7 +804,7 @@ CHALLENGES = [
     },
     {
         "name": "ECS Exec",
-        "category": "AWS",
+        "category": "AWS / Containers",
         "description": (
             "A Fargate service has `enable_execute_command` enabled. "
             "The attacker IAM user has `ecs:ExecuteCommand` and the SSM Messages permissions. "
@@ -822,7 +822,7 @@ CHALLENGES = [
     },
     {
         "name": "APIM Named Value",
-        "category": "Azure",
+        "category": "Azure / API Management",
         "description": (
             "An Azure API Management instance has a Named Value stored in plaintext "
             "(secret = false). The attacker has Reader on the resource group. "
@@ -840,7 +840,7 @@ CHALLENGES = [
     },
     {
         "name": "Container App Env Vars",
-        "category": "Azure",
+        "category": "Azure / Containers",
         "description": (
             "A developer stored a secret flag directly in an Azure Container App's environment variables. "
             "The attacker has Reader on the resource group. "
@@ -858,7 +858,7 @@ CHALLENGES = [
     },
     {
         "name": "DynamoDB Scan",
-        "category": "AWS",
+        "category": "AWS / Database",
         "description": (
             "A developer stored a sensitive API key directly as a DynamoDB table item. "
             "The attacker IAM user has DynamoDB read access. "
@@ -876,7 +876,7 @@ CHALLENGES = [
     },
     {
         "name": "Kinesis Shard Reader",
-        "category": "AWS",
+        "category": "AWS / Streaming",
         "description": (
             "A developer accidentally published a sensitive record to a Kinesis Data Stream. "
             "The attacker has Kinesis read permissions. "
@@ -894,7 +894,7 @@ CHALLENGES = [
     },
     {
         "name": "Deployment Script",
-        "category": "Azure",
+        "category": "Azure / Infrastructure",
         "description": (
             "An Azure Deployment Script ran during infrastructure provisioning and wrote sensitive data to its outputs. "
             "The outputs are persisted in the ARM resource definition. "
@@ -912,7 +912,7 @@ CHALLENGES = [
     },
     {
         "name": "Policy Assignment Metadata",
-        "category": "Azure",
+        "category": "Azure / Governance",
         "description": (
             "The platform team stored an internal reference token in an Azure Policy assignment's metadata field. "
             "Policy assignment metadata is plaintext and readable by any Reader. "
@@ -930,7 +930,7 @@ CHALLENGES = [
     },
     {
         "name": "Amplify Env Vars",
-        "category": "AWS",
+        "category": "AWS / Frontend",
         "description": (
             "A developer stored a secret directly in an AWS Amplify app's environment variables. "
             "The attacker has Amplify read access. "
@@ -948,7 +948,7 @@ CHALLENGES = [
     },
     {
         "name": "AppConfig Deployment",
-        "category": "AWS",
+        "category": "AWS / Configuration",
         "description": (
             "A developer stored database credentials inside an AWS AppConfig hosted configuration version. "
             "The attacker has AppConfig read access. "
@@ -966,7 +966,7 @@ CHALLENGES = [
     },
     {
         "name": "Monitor Action Group",
-        "category": "Azure",
+        "category": "Azure / Monitoring",
         "description": (
             "An Azure Monitor Action Group has a webhook receiver whose URL contains an embedded authentication token. "
             "The attacker has Reader on the resource group. "
@@ -984,7 +984,7 @@ CHALLENGES = [
     },
     {
         "name": "Data Factory Linked Service",
-        "category": "Azure",
+        "category": "Azure / Integration",
         "description": (
             "An Azure Data Factory linked service stores a storage account connection string in cleartext — "
             "without Key Vault integration. The attacker has Reader on the resource group. "
