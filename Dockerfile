@@ -12,6 +12,8 @@ RUN /bin/bash -c "/root/bin/install-prereqs.sh" \
 # Install Cumulonimbus
 COPY ./app /root/app
 WORKDIR /root/app
+RUN chmod +x /root/app/cnimbus.py \
+    && ln -s /root/app/cnimbus.py /usr/local/bin/cnimbus
 
 # Set path to credentials file
 ENV AWS_SHARED_CREDENTIALS_FILES=/cumulonimbus/.data/.aws/credentials \
