@@ -564,6 +564,78 @@ CHALLENGES = [
             {"content": "Use the account key with `az storage blob download --account-key <key>` to access the private container.", "cost": 50},
         ],
     },
+    {
+        "name": "S3 Object ACL — Public Read",
+        "category": "AWS Storage",
+        "description": (
+            "A developer set a `public-read` ACL on an individual S3 object. The bucket "
+            "blocks public policies, but object-level ACLs bypass this — making the file "
+            "directly accessible over HTTPS without any credentials.\n\n"
+            "Deploy with: `cnimbus aws create --app-id s3_object_public_acl`"
+        ),
+        "value": 100,
+        "type": "standard",
+        "flag": "CUMULONIMBUS{S3_0bj3ct_ACL_Publ1c_R3ad}",
+        "tags": ["AWS", "S3", "ACL", "Misconfiguration"],
+        "hints": [
+            {"content": "Object-level ACLs can make individual objects public even when the bucket blocks public bucket policies.", "cost": 25},
+            {"content": "Fetch `public/release-notes.txt` directly: `curl https://<bucket>.s3.eu-west-1.amazonaws.com/public/release-notes.txt`", "cost": 50},
+        ],
+    },
+    {
+        "name": "Glue Job — Secrets in Arguments",
+        "category": "AWS Data",
+        "description": (
+            "An ETL team stored database credentials directly in a Glue job's "
+            "`DefaultArguments`. These are returned in plaintext by `glue:GetJob`. "
+            "Enumerate the job and extract the flag from the job arguments.\n\n"
+            "Deploy with: `cnimbus aws create --app-id glue_job_secrets`"
+        ),
+        "value": 100,
+        "type": "standard",
+        "flag": "CUMULONIMBUS{Glu3_J0b_S3cr3ts_1n_4rgum3nts}",
+        "tags": ["AWS", "Glue", "ETL", "Secrets"],
+        "hints": [
+            {"content": "Use `aws glue list-jobs` to find the job, then `aws glue get-job --job-name <name>`.", "cost": 25},
+            {"content": "The flag is in the `--api-key` key inside `Job.DefaultArguments`.", "cost": 50},
+        ],
+    },
+    {
+        "name": "VM RunCommand — Arbitrary Execution",
+        "category": "Azure Compute",
+        "description": (
+            "An attacker account has Virtual Machine Contributor on a resource group. "
+            "This role includes `runCommand/action`, allowing arbitrary shell execution "
+            "on the VM as root — no SSH access needed. Read `/root/flag.txt` via RunCommand.\n\n"
+            "Deploy with: `cnimbus azure create --app-id vm_run_command`"
+        ),
+        "value": 200,
+        "type": "standard",
+        "flag": "CUMULONIMBUS{VM_RunC0mm4nd_Arb1tr4ry_Exec}",
+        "tags": ["Azure", "VM", "RunCommand", "Privilege Escalation"],
+        "hints": [
+            {"content": "Virtual Machine Contributor includes `Microsoft.Compute/virtualMachines/runCommand/action`.", "cost": 25},
+            {"content": "Use `az vm run-command invoke --command-id RunShellScript --scripts 'cat /root/flag.txt'` to read the flag.", "cost": 50},
+        ],
+    },
+    {
+        "name": "Container Instance — Plaintext Env Vars",
+        "category": "Azure Containers",
+        "description": (
+            "An ACI container group stores a sensitive API key as a plain (non-secure) "
+            "environment variable. Any Reader can retrieve the full container definition "
+            "via ARM, including all non-secure environment variables.\n\n"
+            "Deploy with: `cnimbus azure create --app-id container_instance_env`"
+        ),
+        "value": 100,
+        "type": "standard",
+        "flag": "CUMULONIMBUS{C0nt41n3r_1nst4nc3_Pl41nt3xt_Env}",
+        "tags": ["Azure", "ACI", "Containers", "Secrets"],
+        "hints": [
+            {"content": "Use `az container show --name <name> --resource-group <rg>` to retrieve the container group definition.", "cost": 25},
+            {"content": "Look for `SECRET_FLAG` in the `environmentVariables` array — non-secure env vars are returned in plaintext by the ARM API.", "cost": 50},
+        ],
+    },
 ]
 
 

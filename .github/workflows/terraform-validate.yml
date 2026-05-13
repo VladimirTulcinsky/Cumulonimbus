@@ -47,6 +47,10 @@ jobs:
           - aws/cognito_identity_pool
           - azure/logic_app_credentials
           - azure/storage_account_keys
+          - aws/s3_object_public_acl
+          - aws/glue_job_secrets
+          - azure/vm_run_command
+          - azure/container_instance_env
 
     steps:
       - uses: actions/checkout@v4
