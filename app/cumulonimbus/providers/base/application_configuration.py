@@ -21,6 +21,13 @@ class ApplicationConfigurationAbstract(metaclass=ABCMeta):
         """
         raise NotImplementedError()
 
+    def get_flag(self):
+        """
+        Return the flag for this application. Override in each app configuration.
+        Returns None if no flag is configured.
+        """
+        return None
+
 
 class ConfigurationException(Exception):
     def __init__(self, message, errors=None):

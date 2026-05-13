@@ -8,40 +8,63 @@ from cumulonimbus.providers.base.application_configuration_factory import get_ap
 
 class AWSCreationStrategy(CreationStrategy):
     """
-    Implements creation for the AWS provider
+    Implements creation and destruction for the AWS provider.
     """
 
-    def create(self,
-               app_id,
-               credentials,
-               **kwargs):
-
+    def create(self, app_id, credentials, **kwargs):
         try:
-            # Configure application
-            application_configuration = get_application_configuration(
-                'aws', app_id)
+            application_configuration = get_application_configuration('aws', app_id)
             application_configuration.configure_application()
 
-            # Get absolute path to the terraform directory
             cwd = get_path_to_aws_app(app_id)
             tf = Terraform(working_dir=cwd)
-            # return_code, stdout, stderr = tf.init(capture_output=False)
+            return_code, stdout, stderr = tf.init(capture_output=False)
             no_prompt = {"auto-approve": True}
+            return_code, stdout, stderr = tf.apply(
+                skip_plan=True,
+                **no_prompt,
+                no_color=IsFlagged,
+                capture_output=False,
+                refresh=False,
+                var={
+                    'shared_credentials_files': global_variables.PATH_TO_AWS_CREDENTIALS,
+                    'shared_config_files': global_variables.PATH_TO_AWS_CONFIG,
+                    'attacker_public_ip': global_variables.ATTACKER_PUBLIC_IP['aws'],
+                }
+            )
 
-            # return_code, stdout, stderr = tf.apply(skip_plan=True, **no_prompt, no_color=IsFlagged, capture_output=False, refresh=False,
-            #                                        var={'shared_credentials_files': global_variables.PATH_TO_AWS_CREDENTIALS, 'shared_config_files': global_variables.PATH_TO_AWS_CREDENTIALS, 'attacker_public_ip': global_variables.ATTACKER_PUBLIC_IP['aws']']})
-            # if stderr:
-            #     print("Are you sure you have the correct AWS credentials?")
-            #     raise CreationException(stderr)
+            if stderr:
+                print("Are you sure you have the correct AWS credentials?")
+                raise CreationException(stderr)
 
             outputs = tf.output()
             application_configuration.pretty_print_tf_output(app_id, outputs)
 
-            ####
-            # # # TODO: delete after test
+        except Exception as e:
+            raise CreationException(e)
+
+    def destroy(self, app_id, credentials, **kwargs):
+        try:
+            application_configuration = get_application_configuration('aws', app_id)
+
+            cwd = get_path_to_aws_app(app_id)
+            tf = Terraform(working_dir=cwd)
+            no_prompt = {"auto-approve": True}
             return_code, stdout, stderr = tf.destroy(
-                capture_output=False, **no_prompt, force=None, var={'shared_credentials_files': global_variables.PATH_TO_AWS_CREDENTIALS})
-            ####
+                capture_output=False,
+                **no_prompt,
+                force=None,
+                var={
+                    'shared_credentials_files': global_variables.PATH_TO_AWS_CREDENTIALS,
+                    'shared_config_files': global_variables.PATH_TO_AWS_CONFIG,
+                }
+            )
+
+            if stderr:
+                print("Are you sure you have the correct AWS credentials?")
+                raise CreationException(stderr)
+
+            print(f"Successfully destroyed AWS application: {app_id}")
 
         except Exception as e:
             raise CreationException(e)

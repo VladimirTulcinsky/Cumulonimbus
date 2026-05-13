@@ -24,6 +24,9 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
             key_pair_path))
         return key_pair_path
 
+    def get_flag(self):
+        return "Cumulonimbus{Th4tW4sCh33sy}"
+
     def pretty_print_tf_output(self, app_id, output):
         """
         Get the value of a Terraform output.
