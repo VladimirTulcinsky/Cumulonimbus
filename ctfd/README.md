@@ -1,87 +1,102 @@
 # CTFd for Cumulonimbus
 
-Spin up a self-hosted CTFd instance pre-loaded with all Cumulonimbus challenges.
+Two independent CTFd instances — one per cloud provider — so challenges stay
+focused and the AWS / Azure split is clear.
+
+| Instance | URL                   | Challenges |
+|----------|-----------------------|------------|
+| AWS      | http://localhost:8000 | AWS labs   |
+| Azure    | http://localhost:8001 | Azure labs |
 
 ## Quick Start
 
 ```bash
-# 1. Start CTFd (from this directory)
+# 1. Start both instances
 docker compose up -d
 
-# 2. Set up CTFd and seed all challenges automatically
-python setup.py
+# 2. Initialise and seed each one
+python setup.py --provider aws
+python setup.py --provider azure
 ```
 
-That's it. `setup.py` waits for CTFd to become ready, completes the setup wizard,
-generates an admin API token, and seeds all challenges in one step.
+Each command waits for its CTFd instance to become ready, completes the setup
+wizard, generates an admin API token, and seeds the matching challenges.
 
-Open **http://localhost:8000** when it finishes. Default credentials: `admin` / `cumulonimbus`.
+Default credentials for both instances: `admin` / `cumulonimbus`.
 
-### Custom credentials / event name
+## Custom credentials / event name
 
 ```bash
-python setup.py \
-  --ctf-name   "My Cloud CTF" \
-  --admin-name  admin \
-  --admin-email admin@example.com \
+python setup.py --provider aws \
+  --ctf-name "Cloud CTF — AWS" \
+  --admin-password supersecret
+
+python setup.py --provider azure \
+  --ctf-name "Cloud CTF — Azure" \
   --admin-password supersecret
 ```
 
-### CTFd is already configured (existing install)
+## CTFd is already configured (existing install)
 
-If you previously set up CTFd manually, `setup.py` skips the wizard but still
-needs to log in to mint a token. Pass your existing admin credentials:
-
-```bash
-python setup.py --admin-password <your_password>
-```
-
-If you also used a non-default username:
+If you set up CTFd manually, pass your existing admin password:
 
 ```bash
-python setup.py --admin-name <your_username> --admin-password <your_password>
+python setup.py --provider aws   --admin-password <your_password>
+python setup.py --provider azure --admin-password <your_password>
 ```
 
-You will see this error if you forget the flag and the default password is wrong:
+You will see this error if the flag is omitted and the default password is wrong:
 
 ```
 ERROR: CTFd is already set up. Provide your admin password:
-    python setup.py --admin-password <your_password>
+    python setup.py --provider <aws|azure> --admin-password <your_password>
 ```
 
-### Manual seeding only (skip setup, use an existing token)
+## Manual seeding only (skip setup, use an existing token)
 
 ```bash
-# Generate a token via: Admin Panel > Settings > Access Tokens > Generate
-python seed_challenges.py --url http://localhost:8000 --admin-token <your_token>
+# AWS
+python seed_challenges.py --provider aws \
+  --url http://localhost:8000 --admin-token <token>
+
+# Azure
+python seed_challenges.py --provider azure \
+  --url http://localhost:8001 --admin-token <token>
 ```
 
-## Ports
+## Running a single instance
 
-| Service | Port |
-|---------|------|
-| CTFd UI | 8000 |
-| MariaDB | internal only |
-| Redis   | internal only |
+```bash
+# AWS only
+docker compose up -d ctfd_aws db_aws cache_aws
+
+# Azure only
+docker compose up -d ctfd_azure db_azure cache_azure
+```
 
 ## Teardown
 
 ```bash
-docker compose down -v   # -v removes volumes (wipes scores and uploads)
+# Both instances (removes all data)
+docker compose down -v
+
+# One instance only
+docker compose down ctfd_aws db_aws cache_aws
+docker volume rm ctfd_ctfd_aws_db ctfd_ctfd_aws_logs ctfd_ctfd_aws_uploads ctfd_ctfd_aws_cache
 ```
 
 ## Environment Variables
 
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `CTFD_SECRET_KEY` | `change-me-in-production` | Flask secret key — set this for any non-local deployment |
+| Variable                | Default                | Description                              |
+|-------------------------|------------------------|------------------------------------------|
+| `CTFD_AWS_SECRET_KEY`   | `change-me-aws`        | Flask secret key for the AWS instance    |
+| `CTFD_AZURE_SECRET_KEY` | `change-me-azure`      | Flask secret key for the Azure instance  |
 
 ## Workflow with Cumulonimbus
 
-1. Deploy a lab: `cnimbus azure create --app-id managed_identity_abuse`
-2. Players attack the live infrastructure and capture the flag string
-3. Players submit the flag in CTFd at `http://localhost:8000`
-4. Tear down when done: `cnimbus azure destroy --app-id managed_identity_abuse`
+1. Deploy a lab: `cnimbus aws create --app-id ec2_ssrf`
+2. Players attack the live infrastructure and submit the flag in the matching CTFd
+3. Tear down when done: `cnimbus aws destroy --app-id ec2_ssrf`
 
-Each challenge description in CTFd includes the corresponding `cnimbus` deploy command,
-so the operator just needs to deploy the relevant labs before the event starts.
+Each challenge description in CTFd includes the corresponding `cnimbus` deploy
+command, so the operator just needs to deploy the relevant labs before the event.
