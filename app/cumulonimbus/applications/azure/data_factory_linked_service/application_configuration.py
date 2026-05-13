@@ -15,14 +15,14 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
             3: "Run: az datafactory linked-service list --factory-name <name> --resource-group <rg>, then: az datafactory linked-service show --factory-name <name> --linked-service-name DataLakeConnection --resource-group <rg> --query 'typeProperties.connectionString'",
         }
 
-    def configure_application(self, tf_output: dict) -> None:
-        self.pretty_print_tf_output(tf_output)
+    def configure_application(self, **kwargs):
+        pass
 
-    def pretty_print_tf_output(self, tf_output: dict) -> None:
+    def pretty_print_tf_output(self, app_id, output):
         print("\n=== Data Factory Linked Service Lab ===")
-        print(f"  Attacker Client ID     : {tf_output.get('attacker_client_id', {}).get('value', 'N/A')}")
-        print(f"  Attacker Client Secret : {tf_output.get('attacker_client_secret', {}).get('value', 'N/A')}")
-        print(f"  Resource Group         : {tf_output.get('resource_group_name', {}).get('value', 'N/A')}")
-        print(f"  Data Factory Name      : {tf_output.get('data_factory_name', {}).get('value', 'N/A')}")
-        print(f"  Linked Service Name    : {tf_output.get('linked_service_name', {}).get('value', 'N/A')}")
+        print(f"  Attacker Client ID     : {output.get('attacker_client_id', {}).get('value', 'N/A')}")
+        print(f"  Attacker Client Secret : {output.get('attacker_client_secret', {}).get('value', 'N/A')}")
+        print(f"  Resource Group         : {output.get('resource_group_name', {}).get('value', 'N/A')}")
+        print(f"  Data Factory Name      : {output.get('data_factory_name', {}).get('value', 'N/A')}")
+        print(f"  Linked Service Name    : {output.get('linked_service_name', {}).get('value', 'N/A')}")
         print("\nGoal: Read the Data Factory linked service definition to extract the cleartext storage account key.")

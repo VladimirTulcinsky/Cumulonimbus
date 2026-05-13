@@ -16,16 +16,16 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
             3: "Run `az webapp config appsettings list --name <app> --resource-group <rg>` with the attacker credentials. Look for the SECRET_FLAG setting.",
         }
 
-    def configure_application(self, tf_output: dict) -> None:
-        self.pretty_print_tf_output(tf_output)
+    def configure_application(self, **kwargs):
+        pass
 
-    def pretty_print_tf_output(self, tf_output: dict) -> None:
+    def pretty_print_tf_output(self, app_id, output):
         print("\n=== App Service Environment Variables Lab ===")
-        print(f"  Attacker UPN         : {tf_output.get('attacker_upn', {}).get('value', 'N/A')}")
-        print(f"  Attacker password    : {tf_output.get('attacker_password', {}).get('value', 'N/A')}")
-        print(f"  App Service name     : {tf_output.get('app_service_name', {}).get('value', 'N/A')}")
-        print(f"  Resource group       : {tf_output.get('resource_group_name', {}).get('value', 'N/A')}")
-        print(f"  Subscription ID      : {tf_output.get('subscription_id', {}).get('value', 'N/A')}")
+        print(f"  Attacker UPN         : {output.get('attacker_upn', {}).get('value', 'N/A')}")
+        print(f"  Attacker password    : {output.get('attacker_password', {}).get('value', 'N/A')}")
+        print(f"  App Service name     : {output.get('app_service_name', {}).get('value', 'N/A')}")
+        print(f"  Resource group       : {output.get('resource_group_name', {}).get('value', 'N/A')}")
+        print(f"  Subscription ID      : {output.get('subscription_id', {}).get('value', 'N/A')}")
         print("\nLogin as the attacker:")
         print("  az login --username <upn> --password <password>")
         print("\nGoal: Retrieve the flag from the App Service application settings.")

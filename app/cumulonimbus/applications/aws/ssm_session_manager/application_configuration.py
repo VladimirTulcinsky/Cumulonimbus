@@ -16,15 +16,15 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
             3: "Once connected, run `sudo cat /root/flag.txt` to read the flag from the instance filesystem.",
         }
 
-    def configure_application(self, tf_output: dict) -> None:
-        self.pretty_print_tf_output(tf_output)
+    def configure_application(self, **kwargs):
+        pass
 
-    def pretty_print_tf_output(self, tf_output: dict) -> None:
+    def pretty_print_tf_output(self, app_id, output):
         print("\n=== SSM Session Manager Lab ===")
-        print(f"  Attacker user     : {tf_output.get('attacker_username', {}).get('value', 'N/A')}")
-        print(f"  Access key ID     : {tf_output.get('attacker_access_key_id', {}).get('value', 'N/A')}")
-        print(f"  Secret access key : {tf_output.get('attacker_secret_access_key', {}).get('value', 'N/A')}")
-        print(f"  Instance ID       : {tf_output.get('instance_id', {}).get('value', 'N/A')}")
+        print(f"  Attacker user     : {output.get('attacker_username', {}).get('value', 'N/A')}")
+        print(f"  Access key ID     : {output.get('attacker_access_key_id', {}).get('value', 'N/A')}")
+        print(f"  Secret access key : {output.get('attacker_secret_access_key', {}).get('value', 'N/A')}")
+        print(f"  Instance ID       : {output.get('instance_id', {}).get('value', 'N/A')}")
         print("\nConfigure the attacker profile:")
         print("  aws configure --profile attacker   # region: eu-west-1")
         print("\nNote: The Session Manager plugin for the AWS CLI must be installed.")
