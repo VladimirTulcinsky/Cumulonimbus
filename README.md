@@ -21,9 +21,13 @@
 | `function_ssrf` | Azure | Serverless / SSRF / IMDS | Intermediate |
 | `s3_public_access` | AWS | Storage / Misconfiguration | Beginner |
 | `lambda_env_secrets` | AWS | Serverless / Credential Exposure | Beginner |
+| `ec2_userdata_secrets` | AWS | Compute / Credential Exposure | Beginner |
 | `secrets_manager_enum` | AWS | IAM / Secrets Management | Intermediate |
+| `ssm_parameter_store` | AWS | IAM / Secrets Management | Intermediate |
 | `iam_privesc` | AWS | IAM / Privilege Escalation | Advanced |
 | `terraform_state_exposure` | Azure | Storage / Secrets in State | Intermediate |
+| `arm_deployment_history` | Azure | ARM / Credential Exposure | Intermediate |
+| `exposed_app_registration` | Azure | Identity / Credential Exposure | Intermediate |
 
 ## Quick Start
 
