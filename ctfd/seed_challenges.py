@@ -784,6 +784,78 @@ CHALLENGES = [
             {"content": "Run `az vm extension show --name configure-app --query settings` — `commandToExecute` contains the flag.", "cost": 50},
         ],
     },
+    {
+        "name": "Route53 Records",
+        "category": "AWS",
+        "description": (
+            "A developer stored a sensitive value inside a Route53 DNS TXT record. "
+            "You have IAM credentials with Route53 read access. "
+            "Enumerate the hosted zone records to find the flag.\n\n"
+            "Deploy with: `cnimbus aws create --app-id route53_records`"
+        ),
+        "value": 100,
+        "type": "standard",
+        "flag": "CUMULONIMBUS{R0ut353_TXT_R3c0rd_S3cr3ts}",
+        "tags": ["AWS", "Route53", "DNS", "Enumeration"],
+        "hints": [
+            {"content": "Use `aws route53 list-hosted-zones` to find the hosted zone ID.", "cost": 25},
+            {"content": "Run `aws route53 list-resource-record-sets --hosted-zone-id <zone-id>` and look for a TXT record containing the flag.", "cost": 50},
+        ],
+    },
+    {
+        "name": "ECS Exec",
+        "category": "AWS",
+        "description": (
+            "A Fargate service has `enable_execute_command` enabled. "
+            "The attacker IAM user has `ecs:ExecuteCommand` and the SSM Messages permissions. "
+            "Use ECS Exec to open a shell inside the running container and read the flag from `/flag.txt`.\n\n"
+            "Deploy with: `cnimbus aws create --app-id ecs_exec`"
+        ),
+        "value": 200,
+        "type": "standard",
+        "flag": "CUMULONIMBUS{ECS_3x3c_C0nt41n3r_Sh3ll}",
+        "tags": ["AWS", "ECS", "Fargate", "Container", "ECS Exec"],
+        "hints": [
+            {"content": "Use `aws ecs list-clusters` then `aws ecs list-tasks --cluster <name>` to find the running task.", "cost": 25},
+            {"content": "Run `aws ecs execute-command --cluster <name> --task <id> --container app --interactive --command 'cat /flag.txt'`.", "cost": 50},
+        ],
+    },
+    {
+        "name": "APIM Named Value",
+        "category": "Azure",
+        "description": (
+            "An Azure API Management instance has a Named Value stored in plaintext "
+            "(secret = false). The attacker has Reader on the resource group. "
+            "Read the Named Value to retrieve the flag.\n\n"
+            "Deploy with: `cnimbus azure create --app-id apim_named_value`"
+        ),
+        "value": 100,
+        "type": "standard",
+        "flag": "CUMULONIMBUS{AP1M_N4m3d_V4lu3_Pl41nt3xt}",
+        "tags": ["Azure", "API Management", "Named Value", "Secrets"],
+        "hints": [
+            {"content": "Use `az apim nv list --service-name <apim> --resource-group <rg>` to list Named Values.", "cost": 25},
+            {"content": "Run `az apim nv show --service-name <apim> --resource-group <rg> --named-value-id flag-key --query value -o tsv`.", "cost": 50},
+        ],
+    },
+    {
+        "name": "Container App Env Vars",
+        "category": "Azure",
+        "description": (
+            "A developer stored a secret flag directly in an Azure Container App's environment variables. "
+            "The attacker has Reader on the resource group. "
+            "Inspect the Container App definition to find the flag.\n\n"
+            "Deploy with: `cnimbus azure create --app-id container_app_env_vars`"
+        ),
+        "value": 100,
+        "type": "standard",
+        "flag": "CUMULONIMBUS{C0nt41n3r_App_Env_V4rs_3xp0s3d}",
+        "tags": ["Azure", "Container Apps", "Environment Variables", "Secrets"],
+        "hints": [
+            {"content": "Use `az containerapp list --resource-group <rg>` to find the Container App name.", "cost": 25},
+            {"content": "Run `az containerapp show --name <name> --resource-group <rg> --query 'properties.template.containers[0].env'`.", "cost": 50},
+        ],
+    },
 ]
 
 

@@ -59,6 +59,10 @@ jobs:
           - aws/stepfunctions_execution_history
           - azure/app_configuration_secrets
           - azure/vm_extension_settings
+          - aws/route53_records
+          - aws/ecs_exec
+          - azure/apim_named_value
+          - azure/container_app_env_vars
 
     steps:
       - uses: actions/checkout@v4
