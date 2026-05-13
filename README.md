@@ -36,6 +36,10 @@
 | `cognito_identity_pool` | AWS | Identity / Credential Abuse | Intermediate |
 | `logic_app_credentials` | Azure | Integration / Secrets | Intermediate |
 | `storage_account_keys` | Azure | Storage / Privilege Escalation | Intermediate |
+| `s3_object_public_acl` | AWS | Storage / Misconfiguration | Beginner |
+| `glue_job_secrets` | AWS | Data / Secrets | Beginner |
+| `vm_run_command` | Azure | Compute / Privilege Escalation | Intermediate |
+| `container_instance_env` | Azure | Containers / Secrets | Beginner |
 
 ## Quick Start
 
