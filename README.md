@@ -44,6 +44,10 @@
 | `ssm_session_manager` | AWS | Compute / Lateral Movement | Intermediate |
 | `resource_group_tags` | Azure | Identity / Secrets | Beginner |
 | `eventgrid_webhook_token` | Azure | Integration / Secrets | Intermediate |
+| `codebuild_env_vars` | AWS | CI/CD / Secrets | Beginner |
+| `stepfunctions_execution_history` | AWS | Serverless / Data Exposure | Intermediate |
+| `app_configuration_secrets` | Azure | Configuration / Secrets | Beginner |
+| `vm_extension_settings` | Azure | Compute / Secrets | Beginner |
 
 ## Quick Start
 

@@ -1,0 +1,30 @@
+from cumulonimbus.providers.base.application_configuration import ApplicationConfigurationAbstract
+
+
+class ApplicationConfiguration(ApplicationConfigurationAbstract):
+
+    def get_flag(self) -> str:
+        return "CUMULONIMBUS{App_C0nf1g_D4t4_R34d3r_Enum}"
+
+    def get_difficulty(self) -> str:
+        return "Beginner"
+
+    def get_hints(self) -> dict:
+        return {
+            1: "Azure App Configuration stores key-value pairs accessible to any identity with App Configuration Data Reader. Try listing all keys in the store.",
+            2: "Use `az appconfig kv list --name <store> --auth-mode login` to list all key-values in the configuration store.",
+            3: "Look for the `secrets/api-key` key — its value contains the flag.",
+        }
+
+    def configure_application(self, tf_output: dict) -> None:
+        self.pretty_print_tf_output(tf_output)
+
+    def pretty_print_tf_output(self, tf_output: dict) -> None:
+        print("\n=== App Configuration Secrets Lab ===")
+        print(f"  Attacker UPN        : {tf_output.get('attacker_upn', {}).get('value', 'N/A')}")
+        print(f"  Attacker password   : {tf_output.get('attacker_password', {}).get('value', 'N/A')}")
+        print(f"  Config store name   : {tf_output.get('config_store_name', {}).get('value', 'N/A')}")
+        print(f"  Resource group      : {tf_output.get('resource_group_name', {}).get('value', 'N/A')}")
+        print("\nLogin as the attacker:")
+        print("  az login --username <upn> --password <password>")
+        print("\nGoal: Enumerate all key-values in the App Configuration store and find the flag.")
