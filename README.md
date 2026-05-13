@@ -52,6 +52,10 @@
 | `ecs_exec` | AWS | Containers / Lateral Movement | Intermediate |
 | `apim_named_value` | Azure | API Management / Secrets | Beginner |
 | `container_app_env_vars` | Azure | Containers / Secrets | Beginner |
+| `dynamodb_scan` | AWS | Database / Data Exposure | Beginner |
+| `kinesis_shard_reader` | AWS | Streaming / Data Exposure | Intermediate |
+| `deployment_script` | Azure | IaC / Data Exposure | Beginner |
+| `policy_assignment_metadata` | Azure | Governance / Secrets | Beginner |
 
 ## Quick Start
 
