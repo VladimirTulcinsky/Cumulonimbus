@@ -206,6 +206,83 @@ CHALLENGES = [
         ],
     },
     {
+        "name": "EC2 User Data Secret Exposure",
+        "category": "AWS Compute",
+        "description": (
+            "A developer hardcoded database credentials and an API secret in an EC2 "
+            "instance's user data bootstrap script, intending to move them to SSM later. "
+            "You have ec2:DescribeInstances and ec2:DescribeInstanceAttribute — enough "
+            "to retrieve the full user data without SSH or console access.\n\n"
+            "Deploy with: `cnimbus aws create --app-id ec2_userdata_secrets`"
+        ),
+        "value": 100,
+        "type": "standard",
+        "flag": "CUMULONIMBUS{3c2_Us3rD4t4_S3cr3ts_3xp0s3d}",
+        "tags": ["AWS", "EC2", "User Data", "Credential Exposure", "Beginner"],
+        "hints": [
+            {"content": "Run aws ec2 describe-instances to get the instance ID.", "cost": 0},
+            {"content": "aws ec2 describe-instance-attribute --attribute userData returns a base64 blob. Pipe it through 'base64 -d'.", "cost": 25},
+        ],
+    },
+    {
+        "name": "SSM Parameter Store Path Wildcard",
+        "category": "AWS IAM",
+        "description": (
+            "A deployment agent IAM user was granted ssm:GetParametersByPath with a "
+            "wildcard resource path covering the entire /cumulonimbus/ hierarchy instead "
+            "of just the application config path it needs. Combined with kms:Decrypt, "
+            "all SecureString parameters — including the flag — can be decrypted inline.\n\n"
+            "Deploy with: `cnimbus aws create --app-id ssm_parameter_store`"
+        ),
+        "value": 200,
+        "type": "standard",
+        "flag": "CUMULONIMBUS{SSM_P4r4m3t3r_P4th_W1ldcard}",
+        "tags": ["AWS", "SSM", "Parameter Store", "IAM", "Secrets Management"],
+        "hints": [
+            {"content": "Use aws ssm describe-parameters to enumerate all parameter names.", "cost": 0},
+            {"content": "aws ssm get-parameters-by-path --path /cumulonimbus/ --recursive --with-decryption dumps all values including SecureString.", "cost": 25},
+        ],
+    },
+    {
+        "name": "ARM Deployment History Exposure",
+        "category": "Azure ARM",
+        "description": (
+            "An ARM template was deployed with an admin API key passed as a plain 'string' "
+            "parameter instead of 'secureString'. Azure retains full deployment history in "
+            "the resource group. Any Reader can retrieve all parameter values from past "
+            "deployments — including secrets that were never marked secure.\n\n"
+            "Deploy with: `cnimbus azure create --app-id arm_deployment_history`"
+        ),
+        "value": 200,
+        "type": "standard",
+        "flag": "CUMULONIMBUS{4RM_D3pl0yment_H1st0ry_Pl41nt3xt}",
+        "tags": ["Azure", "ARM", "Deployment History", "Credential Exposure"],
+        "hints": [
+            {"content": "Run az deployment group list --resource-group <rg> to see past deployments.", "cost": 0},
+            {"content": "az deployment group show --name app-infra-v1 --query properties.parameters reveals all parameter values including plaintext string types.", "cost": 25},
+        ],
+    },
+    {
+        "name": "Exposed App Registration Client Secret",
+        "category": "Azure Identity",
+        "description": (
+            "A developer stored an application config.json containing an Entra ID app "
+            "registration's client_id and client_secret in a public Azure Blob Storage "
+            "container. The service principal has Storage Blob Data Reader on a private "
+            "storage account containing the flag. Find the config, extract the credentials, "
+            "authenticate as the SP, and read the flag.\n\n"
+            "Deploy with: `cnimbus azure create --app-id exposed_app_registration`"
+        ),
+        "value": 200,
+        "type": "standard",
+        "flag": "CUMULONIMBUS{3xp0s3d_4pp_R3g_Cl13nt_S3cr3t}",
+        "tags": ["Azure", "App Registration", "Service Principal", "Credential Exposure"],
+        "hints": [
+            {"content": "Download the public config.json from the config blob URL — no auth required. The file contains Azure SP credentials.", "cost": 0},
+            {"content": "az login --service-principal -u <client_id> -p <client_secret> --tenant <tenant_id>, then az storage blob download --auth-mode login", "cost": 25},
+        ],
+    },
+    {
         "name": "S3 Public Access Misconfiguration",
         "category": "AWS Storage",
         "description": (

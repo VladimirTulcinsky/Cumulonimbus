@@ -34,7 +34,11 @@ jobs:
           - aws/iam_privesc
           - aws/lambda_env_secrets
           - aws/secrets_manager_enum
+          - aws/ec2_userdata_secrets
+          - aws/ssm_parameter_store
           - azure/terraform_state_exposure
+          - azure/arm_deployment_history
+          - azure/exposed_app_registration
 
     steps:
       - uses: actions/checkout@v4
