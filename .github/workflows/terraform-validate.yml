@@ -51,6 +51,10 @@ jobs:
           - aws/glue_job_secrets
           - azure/vm_run_command
           - azure/container_instance_env
+          - aws/sqs_public_receive
+          - aws/ssm_session_manager
+          - azure/resource_group_tags
+          - azure/eventgrid_webhook_token
 
     steps:
       - uses: actions/checkout@v4

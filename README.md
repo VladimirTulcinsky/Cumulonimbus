@@ -40,6 +40,10 @@
 | `glue_job_secrets` | AWS | Data / Secrets | Beginner |
 | `vm_run_command` | Azure | Compute / Privilege Escalation | Intermediate |
 | `container_instance_env` | Azure | Containers / Secrets | Beginner |
+| `sqs_public_receive` | AWS | Messaging / Misconfiguration | Beginner |
+| `ssm_session_manager` | AWS | Compute / Lateral Movement | Intermediate |
+| `resource_group_tags` | Azure | Identity / Secrets | Beginner |
+| `eventgrid_webhook_token` | Azure | Integration / Secrets | Intermediate |
 
 ## Quick Start
 
