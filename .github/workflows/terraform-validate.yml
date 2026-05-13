@@ -32,6 +32,9 @@ jobs:
           - azure/function_ssrf
           - aws/s3_public_access
           - aws/iam_privesc
+          - aws/lambda_env_secrets
+          - aws/secrets_manager_enum
+          - azure/terraform_state_exposure
 
     steps:
       - uses: actions/checkout@v4
