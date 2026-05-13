@@ -67,6 +67,10 @@ jobs:
           - aws/kinesis_shard_reader
           - azure/deployment_script
           - azure/policy_assignment_metadata
+          - aws/amplify_env_vars
+          - aws/appconfig_deployment
+          - azure/monitor_action_group
+          - azure/data_factory_linked_service
 
     steps:
       - uses: actions/checkout@v4

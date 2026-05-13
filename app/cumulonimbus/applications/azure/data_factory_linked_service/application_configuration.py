@@ -1,0 +1,28 @@
+from cumulonimbus.providers.base.application_configuration import ApplicationConfigurationAbstract
+
+
+class ApplicationConfiguration(ApplicationConfigurationAbstract):
+    def get_flag(self) -> str:
+        return "CUMULONIMBUS{ADF_L1nk3d_S3rv1c3_Cl34rt3xt_K3y}"
+
+    def get_difficulty(self) -> str:
+        return "Intermediate"
+
+    def get_hints(self) -> dict:
+        return {
+            1: "Azure Data Factory stores connection details for linked services in its ARM definition. Credentials not backed by Key Vault are stored in cleartext.",
+            2: "A Reader on the resource group can enumerate all linked services in a Data Factory instance.",
+            3: "Run: az datafactory linked-service list --factory-name <name> --resource-group <rg>, then: az datafactory linked-service show --factory-name <name> --linked-service-name DataLakeConnection --resource-group <rg> --query 'typeProperties.connectionString'",
+        }
+
+    def configure_application(self, tf_output: dict) -> None:
+        self.pretty_print_tf_output(tf_output)
+
+    def pretty_print_tf_output(self, tf_output: dict) -> None:
+        print("\n=== Data Factory Linked Service Lab ===")
+        print(f"  Attacker Client ID     : {tf_output.get('attacker_client_id', {}).get('value', 'N/A')}")
+        print(f"  Attacker Client Secret : {tf_output.get('attacker_client_secret', {}).get('value', 'N/A')}")
+        print(f"  Resource Group         : {tf_output.get('resource_group_name', {}).get('value', 'N/A')}")
+        print(f"  Data Factory Name      : {tf_output.get('data_factory_name', {}).get('value', 'N/A')}")
+        print(f"  Linked Service Name    : {tf_output.get('linked_service_name', {}).get('value', 'N/A')}")
+        print("\nGoal: Read the Data Factory linked service definition to extract the cleartext storage account key.")

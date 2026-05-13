@@ -928,6 +928,78 @@ CHALLENGES = [
             {"content": "Inspect the metadata field: `az policy assignment show --name <name> --resource-group <rg> --query metadata`.", "cost": 50},
         ],
     },
+    {
+        "name": "Amplify Env Vars",
+        "category": "AWS",
+        "description": (
+            "A developer stored a secret directly in an AWS Amplify app's environment variables. "
+            "The attacker has Amplify read access. "
+            "Retrieve the app definition to find the flag in the environment variables.\n\n"
+            "Deploy with: `cnimbus aws create --app-id amplify_env_vars`"
+        ),
+        "value": 100,
+        "type": "standard",
+        "flag": "CUMULONIMBUS{4mpl1fy_App_3nv_V4rs_3xp0s3d}",
+        "tags": ["AWS", "Amplify", "Environment Variables", "Secrets"],
+        "hints": [
+            {"content": "Use `aws amplify list-apps` to find the target Amplify application.", "cost": 25},
+            {"content": "Run `aws amplify get-app --app-id <id> --query 'app.environmentVariables'` to read all environment variables.", "cost": 50},
+        ],
+    },
+    {
+        "name": "AppConfig Deployment",
+        "category": "AWS",
+        "description": (
+            "A developer stored database credentials inside an AWS AppConfig hosted configuration version. "
+            "The attacker has AppConfig read access. "
+            "Download the configuration content and find the flag embedded in the JSON.\n\n"
+            "Deploy with: `cnimbus aws create --app-id appconfig_deployment`"
+        ),
+        "value": 100,
+        "type": "standard",
+        "flag": "CUMULONIMBUS{AppC0nf1g_H0st3d_C0nf1g_3xp0s3d}",
+        "tags": ["AWS", "AppConfig", "Configuration", "Secrets"],
+        "hints": [
+            {"content": "Use `aws appconfig list-applications` then `aws appconfig list-configuration-profiles --application-id <id>`.", "cost": 25},
+            {"content": "Run `aws appconfig get-hosted-configuration-version --application-id <id> --configuration-profile-id <id> --version-number 1 /tmp/config.json && cat /tmp/config.json`.", "cost": 50},
+        ],
+    },
+    {
+        "name": "Monitor Action Group",
+        "category": "Azure",
+        "description": (
+            "An Azure Monitor Action Group has a webhook receiver whose URL contains an embedded authentication token. "
+            "The attacker has Reader on the resource group. "
+            "Read the Action Group definition to find the token in the webhook URL.\n\n"
+            "Deploy with: `cnimbus azure create --app-id monitor_action_group`"
+        ),
+        "value": 100,
+        "type": "standard",
+        "flag": "CUMULONIMBUS{Monit0r_W3bh00k_T0k3n_3xp0s3d}",
+        "tags": ["Azure", "Monitor", "Action Group", "Webhook", "Secrets"],
+        "hints": [
+            {"content": "Use `az monitor action-group list --resource-group <rg>` to find the action group.", "cost": 25},
+            {"content": "Run `az monitor action-group show --name <name> --resource-group <rg> --query webhookReceivers` and look at the `serviceUri`.", "cost": 50},
+        ],
+    },
+    {
+        "name": "Data Factory Linked Service",
+        "category": "Azure",
+        "description": (
+            "An Azure Data Factory linked service stores a storage account connection string in cleartext — "
+            "without Key Vault integration. The attacker has Reader on the resource group. "
+            "Read the linked service definition to extract the embedded account key.\n\n"
+            "Deploy with: `cnimbus azure create --app-id data_factory_linked_service`"
+        ),
+        "value": 200,
+        "type": "standard",
+        "flag": "CUMULONIMBUS{ADF_L1nk3d_S3rv1c3_Cl34rt3xt_K3y}",
+        "tags": ["Azure", "Data Factory", "Linked Service", "Connection String", "Secrets"],
+        "hints": [
+            {"content": "Use `az datafactory linked-service list --factory-name <name> --resource-group <rg>` to list linked services.", "cost": 25},
+            {"content": "Run `az datafactory linked-service show --factory-name <name> --linked-service-name DataLakeConnection --resource-group <rg> --query 'properties.typeProperties.connectionString'`.", "cost": 50},
+        ],
+    },
 ]
 
 
