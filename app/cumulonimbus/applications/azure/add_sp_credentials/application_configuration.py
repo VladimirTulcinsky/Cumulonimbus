@@ -10,6 +10,9 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
         """
         pass
 
+    def get_flag(self):
+        return "CUMULONIMBUS{SP_Cr3d3nt14ls_4dd3d}"
+
     def pretty_print_tf_output(self, app_id, output):
         """
         Get the value of a Terraform output.

@@ -1,0 +1,64 @@
+version: "3.9"
+
+services:
+  ctfd:
+    image: ctfd/ctfd:3.7.0
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=mysql+pymysql://ctfd:ctfd@db/ctfd
+      - REDIS_URL=redis://cache:6379
+      - SECRET_KEY=${CTFD_SECRET_KEY:-change-me-in-production}
+      - UPLOAD_FOLDER=/var/uploads
+      - LOG_FOLDER=/var/log/CTFd
+      - ACCESS_LOG=-
+      - ERROR_LOG=-
+      - REVERSE_PROXY=false
+    depends_on:
+      db:
+        condition: service_healthy
+      cache:
+        condition: service_started
+    volumes:
+      - ctfd_logs:/var/log/CTFd
+      - ctfd_uploads:/var/uploads
+    networks:
+      - ctfd_net
+
+  db:
+    image: mariadb:10.11
+    restart: unless-stopped
+    environment:
+      - MYSQL_ROOT_PASSWORD=ctfd_root
+      - MYSQL_USER=ctfd
+      - MYSQL_PASSWORD=ctfd
+      - MYSQL_DATABASE=ctfd
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    volumes:
+      - ctfd_db:/var/lib/mysql
+    networks:
+      - ctfd_net
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uctfd", "-pctfd"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  cache:
+    image: redis:7-alpine
+    restart: unless-stopped
+    volumes:
+      - ctfd_cache:/data
+    networks:
+      - ctfd_net
+
+volumes:
+  ctfd_logs:
+  ctfd_uploads:
+  ctfd_db:
+  ctfd_cache:
+
+networks:
+  ctfd_net:
+    driver: bridge

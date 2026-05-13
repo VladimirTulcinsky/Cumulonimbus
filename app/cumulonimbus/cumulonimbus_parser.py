@@ -27,11 +27,14 @@ class CumulonimbusParser:
         aws_cmd_parser = aws_parser.add_subparsers(title="The command you want to run",
                                                    dest="command")
 
-        # Possible commands: authenticate, create
         aws_cmd_auth_parser = aws_cmd_parser.add_parser(
             "authenticate", help="Authenticate {} against an Amazon Web Services account".format(global_variables.APP_NAME))
         aws_cmd_create_parser = aws_cmd_parser.add_parser(
-            "create", help="Create a vulnerable application in an Amazon Web Services account".format(global_variables.APP_NAME))
+            "create", help="Create a vulnerable application in an Amazon Web Services account")
+        aws_cmd_destroy_parser = aws_cmd_parser.add_parser(
+            "destroy", help="Destroy a vulnerable application in an Amazon Web Services account")
+        aws_cmd_validate_parser = aws_cmd_parser.add_parser(
+            "validate", help="Validate a captured flag for an Amazon Web Services application")
 
         # Authentication parameters
         aws_auth_params = aws_cmd_auth_parser.add_argument_group(
@@ -53,7 +56,7 @@ class CumulonimbusParser:
                                      dest='aws_session_token',
                                      help='AWS Session Token')
 
-        # Vulnerable application creation parameters
+        # Create parameters
         aws_creation_params = aws_cmd_create_parser.add_argument_group(
             'Creation parameters')
         aws_creation_params.add_argument('--app-id', action='store', choices=global_variables.AWS_APP_LIST, required=True,
@@ -61,9 +64,26 @@ class CumulonimbusParser:
                                          dest='vulnerable_app_id',
                                          help='Cumulonimbus vulnerable AWS application id')
 
+        # Destroy parameters
+        aws_destruction_params = aws_cmd_destroy_parser.add_argument_group(
+            'Destruction parameters')
+        aws_destruction_params.add_argument('--app-id', action='store', choices=global_variables.AWS_APP_LIST, required=True,
+                                            default="ec2_ssrf",
+                                            dest='vulnerable_app_id',
+                                            help='Cumulonimbus vulnerable AWS application id')
+
+        # Validate parameters
+        aws_validate_params = aws_cmd_validate_parser.add_argument_group(
+            'Validation parameters')
+        aws_validate_params.add_argument('--app-id', action='store', choices=global_variables.AWS_APP_LIST, required=True,
+                                         dest='vulnerable_app_id',
+                                         help='Cumulonimbus vulnerable AWS application id')
+        aws_validate_params.add_argument('--flag', action='store', required=True,
+                                         dest='flag',
+                                         help='The flag you captured')
+
         aws_additional_parser = aws_parser.add_argument_group(
             'Additional arguments')
-
         aws_additional_parser.add_argument('-r',
                                            '--region',
                                            dest='region',
@@ -77,21 +97,21 @@ class CumulonimbusParser:
                                                   help="Run {} against a Microsoft Azure account".format(global_variables.APP_NAME))
 
         azure_cmd_parser = azure_parser.add_subparsers(
-            title="The command you want to run", dest="command", required=True, help="The command you want to run (authenticate, create, etc.)")
+            title="The command you want to run", dest="command", required=True,
+            help="The command you want to run (authenticate, create, destroy, validate)")
 
-        # Possible commands: authenticate, create, destroy
         azure_cmd_auth_parser = azure_cmd_parser.add_parser(
             "authenticate", help="Authenticate {} against an Azure account".format(global_variables.APP_NAME))
         azure_cmd_create_parser = azure_cmd_parser.add_parser(
-            "create", help="Create a vulnerable application in an Azure account".format(global_variables.APP_NAME))
+            "create", help="Create a vulnerable application in an Azure account")
         azure_cmd_destroy_parser = azure_cmd_parser.add_parser(
-            "destroy", help="Destroy a vulnerable application in an Azure account".format(global_variables.APP_NAME))
+            "destroy", help="Destroy a vulnerable application in an Azure account")
+        azure_cmd_validate_parser = azure_cmd_parser.add_parser(
+            "validate", help="Validate a captured flag for an Azure application")
 
         azure_auth_modes = azure_cmd_auth_parser.add_mutually_exclusive_group(
             required=True)
 
-        # Service Principal authentication
-        # TODO: Add support for Managed Identity and other types of authentication
         azure_auth_modes.add_argument('--service-principal',
                                       action='store_true',
                                       help='Run {} with an Azure Service Principal'.format(global_variables.APP_NAME))
@@ -115,17 +135,7 @@ class CumulonimbusParser:
                                          dest='subscription_id',
                                          help='Subscription context to deploy resources')
 
-        # Additional arguments
-
-        """ azure_scope.add_argument('--subscription',
-                                 action='store',
-                                 default="",
-                                 nargs='+',
-                                 dest='subscription_id',
-                                 help='IDs (separated by spaces) of the Azure subscription(s) to scan. '
-                                      'By default, only the default subscription will be scanned.') """
-
-        # Vulnerable application creation parameters
+        # Create parameters
         azure_creation_params = azure_cmd_create_parser.add_argument_group(
             'Creation parameters')
         azure_creation_params.add_argument('--app-id', action='store', choices=global_variables.AZURE_APP_LIST, required=True,
@@ -133,7 +143,7 @@ class CumulonimbusParser:
                                            dest='vulnerable_app_id',
                                            help='Cumulonimbus vulnerable Azure application id')
 
-        # Vulnerable application creation parameters
+        # Destroy parameters
         azure_destruction_params = azure_cmd_destroy_parser.add_argument_group(
             'Destruction parameters')
         azure_destruction_params.add_argument('--app-id', action='store', choices=global_variables.AZURE_APP_LIST, required=True,
@@ -141,24 +151,30 @@ class CumulonimbusParser:
                                               dest='vulnerable_app_id',
                                               help='Cumulonimbus vulnerable Azure application id')
 
+        # Validate parameters
+        azure_validate_params = azure_cmd_validate_parser.add_argument_group(
+            'Validation parameters')
+        azure_validate_params.add_argument('--app-id', action='store', choices=global_variables.AZURE_APP_LIST, required=True,
+                                           dest='vulnerable_app_id',
+                                           help='Cumulonimbus vulnerable Azure application id')
+        azure_validate_params.add_argument('--flag', action='store', required=True,
+                                           dest='flag',
+                                           help='The flag you captured')
+
     def parse_args(self, args=None):
         args = self.parser.parse_args(args)
         if args is None:
             print('No arguments provided, try -h or --help to get additional information')
             return 1
 
-        # Cannot simply use required for backward compatibility
         if not args.provider:
             self.parser.error(
                 'You need to input a provider, try -h or --help to get additional information')
 
-        # If local analysis, overwrite results
         if args.__dict__.get('fetch_local'):
             args.force_write = True
 
-        # Test conditions
         v = vars(args)
-        # AWS
         if v.get('provider') == 'aws':
             if not v.get('command'):
                 self.parser.error(
@@ -170,7 +186,6 @@ class CumulonimbusParser:
                 if v.get('aws_access_keys') and not (v.get('aws_access_key_id') or v.get('aws_secret_access_key')):
                     self.parser.error('When running with --access-keys, you must provide an Access Key ID '
                                       'and Secret Access Key.')
-        # Azure
         elif v.get('provider') == 'azure':
             if v.get('service_principal') and not v.get('tenant_id') and not v.get('subscription_id'):
                 self.parser.error(

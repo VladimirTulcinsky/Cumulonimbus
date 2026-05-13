@@ -10,6 +10,9 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
         """
         pass
 
+    def get_flag(self):
+        return "Cumulonimbus{SharedKeyAuthorizationShouldBeDisabled}"
+
     def pretty_print_tf_output(self, app_id, output):
         """
         Get the value of a Terraform output.
