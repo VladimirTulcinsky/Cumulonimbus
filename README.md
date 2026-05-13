@@ -63,8 +63,29 @@
 
 ## Quick Start
 
-The easiest way to run Cumulonimbus is via the Docker container, which bundles all
-dependencies (Terraform, AWS CLI, Azure CLI).
+```bash
+# Start CTFd (AWS on :8000, Azure on :8001) and seed all challenges
+make ctfd
+
+# List every available lab with provider and difficulty
+make labs
+
+# Deploy a lab — provider is detected automatically
+make lab LAB=ec2_ssrf
+make lab LAB=keyvault_misconfig
+
+# Destroy a lab when done
+make destroy LAB=ec2_ssrf
+
+# Stop CTFd
+make clean
+```
+
+Run `make` or `make help` to see all available commands.
+
+### Running inside Docker
+
+The Docker image bundles all dependencies (Terraform, AWS CLI, Azure CLI, Python).
 
 ```shell
 docker run -it cumulonimbuscloud/cumulonimbus:latest
