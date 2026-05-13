@@ -419,6 +419,79 @@ CHALLENGES = [
             {"content": "Query http://169.254.169.254/metadata/identity/oauth2/token?resource=https://storage.azure.com/ from inside the VM.", "cost": 50},
         ],
     },
+    {
+        "name": "S3 Versioning — Deleted Object Recovery",
+        "category": "AWS Storage",
+        "description": (
+            "A developer accidentally committed production credentials to S3 inside "
+            "`app/config.json`. They replaced the file and deleted it — thinking the "
+            "history was gone. S3 versioning retains every version. Recover the original "
+            "file and extract the flag.\n\n"
+            "Deploy with: `cnimbus aws create --app-id s3_bucket_versioning`"
+        ),
+        "value": 100,
+        "type": "standard",
+        "flag": "CUMULONIMBUS{S3_V3rs10n1ng_D3l3t3d_0bj3cts}",
+        "tags": ["AWS", "S3", "Versioning", "Enumeration"],
+        "hints": [
+            {"content": "Use `aws s3api list-object-versions` to see all versions including those before the delete marker.", "cost": 25},
+            {"content": "Retrieve the earliest version with `aws s3api get-object --version-id <v1>`.", "cost": 50},
+        ],
+    },
+    {
+        "name": "CloudFormation Stack Output Exposure",
+        "category": "AWS Infrastructure",
+        "description": (
+            "An engineering team stored an API key directly in a CloudFormation stack "
+            "Output. Any identity with `cloudformation:DescribeStacks` can read every "
+            "output in plaintext. Find the stack and extract the flag.\n\n"
+            "Deploy with: `cnimbus aws create --app-id cloudformation_stack`"
+        ),
+        "value": 100,
+        "type": "standard",
+        "flag": "CUMULONIMBUS{Cl0udF0rm4t10n_Outputs_Expos3_S3cr3ts}",
+        "tags": ["AWS", "CloudFormation", "Secrets", "Enumeration"],
+        "hints": [
+            {"content": "Use `aws cloudformation list-stacks` to find the deployed stack.", "cost": 25},
+            {"content": "Run `aws cloudformation describe-stacks --stack-name <name>` and inspect the Outputs section.", "cost": 50},
+        ],
+    },
+    {
+        "name": "STS AssumeRole — Wildcard Principal",
+        "category": "AWS IAM",
+        "description": (
+            "A role was created with `\"Principal\": {\"AWS\": \"*\"}` in the trust policy — "
+            "meaning any AWS identity can assume it. The role has access to a secret SSM "
+            "parameter. Enumerate the roles, assume the misconfigured one, and read the flag.\n\n"
+            "Deploy with: `cnimbus aws create --app-id sts_assume_role_any`"
+        ),
+        "value": 200,
+        "type": "standard",
+        "flag": "CUMULONIMBUS{STS_Assum3_R0l3_W1ldcard_Pr1ncipal}",
+        "tags": ["AWS", "IAM", "STS", "Privilege Escalation"],
+        "hints": [
+            {"content": "Use `aws iam list-roles` to find a cumulonimbus role with an overly permissive trust policy.", "cost": 25},
+            {"content": "After assuming the role, read the flag from SSM: `aws ssm get-parameter --name /cumulonimbus/sts_assume_role_any/flag --with-decryption`.", "cost": 50},
+        ],
+    },
+    {
+        "name": "App Service Environment Variables",
+        "category": "Azure Web",
+        "description": (
+            "A team deployed an Azure App Service and stored credentials in Application "
+            "Settings. Website Contributor includes `Microsoft.Web/sites/config/list` which "
+            "returns all app settings in plaintext. List the settings and find the flag.\n\n"
+            "Deploy with: `cnimbus azure create --app-id app_service_env_vars`"
+        ),
+        "value": 100,
+        "type": "standard",
+        "flag": "CUMULONIMBUS{App_S3rv1c3_Env_V4rs_3xp0s3d}",
+        "tags": ["Azure", "App Service", "Secrets", "Configuration"],
+        "hints": [
+            {"content": "Use `az webapp config appsettings list --name <app> --resource-group <rg>` with your attacker credentials.", "cost": 25},
+            {"content": "Look for the SECRET_FLAG key in the app settings output.", "cost": 50},
+        ],
+    },
 ]
 
 

@@ -28,6 +28,10 @@
 | `terraform_state_exposure` | Azure | Storage / Secrets in State | Intermediate |
 | `arm_deployment_history` | Azure | ARM / Credential Exposure | Intermediate |
 | `exposed_app_registration` | Azure | Identity / Credential Exposure | Intermediate |
+| `s3_bucket_versioning` | AWS | Storage / Versioning | Beginner |
+| `cloudformation_stack` | AWS | Infrastructure / Secrets | Beginner |
+| `sts_assume_role_any` | AWS | IAM / Privilege Escalation | Intermediate |
+| `app_service_env_vars` | Azure | Web / Secrets | Beginner |
 
 ## Quick Start
 
