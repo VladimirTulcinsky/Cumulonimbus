@@ -56,6 +56,10 @@
 | `kinesis_shard_reader` | AWS | Streaming / Data Exposure | Intermediate |
 | `deployment_script` | Azure | IaC / Data Exposure | Beginner |
 | `policy_assignment_metadata` | Azure | Governance / Secrets | Beginner |
+| `amplify_env_vars` | AWS | Frontend / Secrets | Beginner |
+| `appconfig_deployment` | AWS | Configuration / Secrets | Beginner |
+| `monitor_action_group` | Azure | Monitoring / Secrets | Beginner |
+| `data_factory_linked_service` | Azure | Integration / Secrets | Intermediate |
 
 ## Quick Start
 
