@@ -48,6 +48,10 @@
 | `stepfunctions_execution_history` | AWS | Serverless / Data Exposure | Intermediate |
 | `app_configuration_secrets` | Azure | Configuration / Secrets | Beginner |
 | `vm_extension_settings` | Azure | Compute / Secrets | Beginner |
+| `route53_records` | AWS | DNS / Data Exposure | Beginner |
+| `ecs_exec` | AWS | Containers / Lateral Movement | Intermediate |
+| `apim_named_value` | Azure | API Management / Secrets | Beginner |
+| `container_app_env_vars` | Azure | Containers / Secrets | Beginner |
 
 ## Quick Start
 
