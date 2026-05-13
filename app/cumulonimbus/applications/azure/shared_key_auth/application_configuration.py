@@ -10,6 +10,16 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
         """
         pass
 
+    def get_difficulty(self):
+        return "Advanced"
+
+    def get_hints(self):
+        return {
+            1: "The user has Storage Account Contributor. This role exposes the account's shared key via az storage account keys list — use it to browse the storage containers.",
+            2: "One container holds the function app's JavaScript source. Download it, modify it to output the managed identity token (curl IMDS), then re-upload and trigger the function via HTTP.",
+            3: "Call http://169.254.169.254/msi/token?resource=https://vault.azure.net from inside the function. Use the returned token with az keyvault secret show to read the 'flag' secret.",
+        }
+
     def get_flag(self):
         return "Cumulonimbus{SharedKeyAuthorizationShouldBeDisabled}"
 

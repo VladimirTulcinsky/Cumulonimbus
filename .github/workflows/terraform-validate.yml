@@ -1,0 +1,48 @@
+name: Terraform Validate
+
+on:
+  push:
+    paths:
+      - "**.tf"
+      - ".github/workflows/terraform-validate.yml"
+  pull_request:
+    paths:
+      - "**.tf"
+      - ".github/workflows/terraform-validate.yml"
+
+jobs:
+  validate:
+    name: Validate (${{ matrix.app }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        app:
+          - aws/ec2_ssrf
+          - azure/add_sp_credentials
+          - azure/cloudshell
+          - azure/foci
+          - azure/illicit_consent_grant
+          - azure/managed_identity_abuse
+          - azure/sa_public_access
+          - azure/shared_key_auth
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.9.8"
+
+      - name: Terraform Format Check
+        working-directory: app/cumulonimbus/applications/${{ matrix.app }}/terraform
+        run: terraform fmt -check -recursive
+
+      - name: Terraform Init
+        working-directory: app/cumulonimbus/applications/${{ matrix.app }}/terraform
+        run: terraform init -backend=false
+
+      - name: Terraform Validate
+        working-directory: app/cumulonimbus/applications/${{ matrix.app }}/terraform
+        run: terraform validate

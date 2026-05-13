@@ -35,6 +35,8 @@ class CumulonimbusParser:
             "destroy", help="Destroy a vulnerable application in an Amazon Web Services account")
         aws_cmd_validate_parser = aws_cmd_parser.add_parser(
             "validate", help="Validate a captured flag for an Amazon Web Services application")
+        aws_cmd_hint_parser = aws_cmd_parser.add_parser(
+            "hint", help="Get a hint for an Amazon Web Services application")
 
         # Authentication parameters
         aws_auth_params = aws_cmd_auth_parser.add_argument_group(
@@ -82,6 +84,15 @@ class CumulonimbusParser:
                                          dest='flag',
                                          help='The flag you captured')
 
+        # Hint parameters
+        aws_hint_params = aws_cmd_hint_parser.add_argument_group('Hint parameters')
+        aws_hint_params.add_argument('--app-id', action='store', choices=global_variables.AWS_APP_LIST, required=True,
+                                     dest='vulnerable_app_id',
+                                     help='Cumulonimbus vulnerable AWS application id')
+        aws_hint_params.add_argument('--level', action='store', type=int, choices=[1, 2, 3],
+                                     default=1, dest='hint_level',
+                                     help='Hint level: 1 = gentle nudge, 2 = moderate, 3 = explicit (default: 1)')
+
         aws_additional_parser = aws_parser.add_argument_group(
             'Additional arguments')
         aws_additional_parser.add_argument('-r',
@@ -108,6 +119,8 @@ class CumulonimbusParser:
             "destroy", help="Destroy a vulnerable application in an Azure account")
         azure_cmd_validate_parser = azure_cmd_parser.add_parser(
             "validate", help="Validate a captured flag for an Azure application")
+        azure_cmd_hint_parser = azure_cmd_parser.add_parser(
+            "hint", help="Get a hint for an Azure application")
 
         azure_auth_modes = azure_cmd_auth_parser.add_mutually_exclusive_group(
             required=True)
@@ -160,6 +173,15 @@ class CumulonimbusParser:
         azure_validate_params.add_argument('--flag', action='store', required=True,
                                            dest='flag',
                                            help='The flag you captured')
+
+        # Hint parameters
+        azure_hint_params = azure_cmd_hint_parser.add_argument_group('Hint parameters')
+        azure_hint_params.add_argument('--app-id', action='store', choices=global_variables.AZURE_APP_LIST, required=True,
+                                       dest='vulnerable_app_id',
+                                       help='Cumulonimbus vulnerable Azure application id')
+        azure_hint_params.add_argument('--level', action='store', type=int, choices=[1, 2, 3],
+                                       default=1, dest='hint_level',
+                                       help='Hint level: 1 = gentle nudge, 2 = moderate, 3 = explicit (default: 1)')
 
     def parse_args(self, args=None):
         args = self.parser.parse_args(args)
