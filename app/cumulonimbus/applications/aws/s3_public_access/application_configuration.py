@@ -19,6 +19,8 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
         return "CUMULONIMBUS{S3_Publ1c_Acc3ss_Bl0ck_D1sabl3d}"
 
     def pretty_print_tf_output(self, app_id, output):
+        if not output:
+            return
         print("###############################################")
         print("#             Required Information            #")
         print("###############################################")
