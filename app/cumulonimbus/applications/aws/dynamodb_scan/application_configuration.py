@@ -15,12 +15,12 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
             3: "Run: aws dynamodb list-tables, then: aws dynamodb scan --table-name <table-name>",
         }
 
-    def configure_application(self, tf_output: dict) -> None:
-        self.pretty_print_tf_output(tf_output)
+    def configure_application(self, **kwargs):
+        pass
 
-    def pretty_print_tf_output(self, tf_output: dict) -> None:
+    def pretty_print_tf_output(self, app_id, output):
         print("\n=== DynamoDB Scan Lab ===")
-        print(f"  Access Key ID     : {tf_output.get('attacker_access_key_id', {}).get('value', 'N/A')}")
-        print(f"  Secret Access Key : {tf_output.get('attacker_secret_access_key', {}).get('value', 'N/A')}")
-        print(f"  Table Name        : {tf_output.get('table_name', {}).get('value', 'N/A')}")
+        print(f"  Access Key ID     : {output.get('attacker_access_key_id', {}).get('value', 'N/A')}")
+        print(f"  Secret Access Key : {output.get('attacker_secret_access_key', {}).get('value', 'N/A')}")
+        print(f"  Table Name        : {output.get('table_name', {}).get('value', 'N/A')}")
         print("\nGoal: Scan the DynamoDB table and retrieve the flag stored in a table item.")

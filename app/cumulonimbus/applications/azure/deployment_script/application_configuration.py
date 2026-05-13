@@ -15,13 +15,13 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
             3: "Run: az deployment-scripts list --resource-group <rg>, then: az deployment-scripts show --name <name> --resource-group <rg> --query outputs",
         }
 
-    def configure_application(self, tf_output: dict) -> None:
-        self.pretty_print_tf_output(tf_output)
+    def configure_application(self, **kwargs):
+        pass
 
-    def pretty_print_tf_output(self, tf_output: dict) -> None:
+    def pretty_print_tf_output(self, app_id, output):
         print("\n=== Deployment Script Lab ===")
-        print(f"  Attacker Client ID     : {tf_output.get('attacker_client_id', {}).get('value', 'N/A')}")
-        print(f"  Attacker Client Secret : {tf_output.get('attacker_client_secret', {}).get('value', 'N/A')}")
-        print(f"  Resource Group         : {tf_output.get('resource_group_name', {}).get('value', 'N/A')}")
-        print(f"  Deployment Script Name : {tf_output.get('deployment_script_name', {}).get('value', 'N/A')}")
+        print(f"  Attacker Client ID     : {output.get('attacker_client_id', {}).get('value', 'N/A')}")
+        print(f"  Attacker Client Secret : {output.get('attacker_client_secret', {}).get('value', 'N/A')}")
+        print(f"  Resource Group         : {output.get('resource_group_name', {}).get('value', 'N/A')}")
+        print(f"  Deployment Script Name : {output.get('deployment_script_name', {}).get('value', 'N/A')}")
         print("\nGoal: Retrieve the Deployment Script outputs to find the flag.")

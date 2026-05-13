@@ -15,13 +15,13 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
             3: "Run: aws amplify list-apps, then: aws amplify get-app --app-id <app-id> --query 'app.environmentVariables'",
         }
 
-    def configure_application(self, tf_output: dict) -> None:
-        self.pretty_print_tf_output(tf_output)
+    def configure_application(self, **kwargs):
+        pass
 
-    def pretty_print_tf_output(self, tf_output: dict) -> None:
+    def pretty_print_tf_output(self, app_id, output):
         print("\n=== Amplify Env Vars Lab ===")
-        print(f"  Access Key ID     : {tf_output.get('attacker_access_key_id', {}).get('value', 'N/A')}")
-        print(f"  Secret Access Key : {tf_output.get('attacker_secret_access_key', {}).get('value', 'N/A')}")
-        print(f"  Amplify App ID    : {tf_output.get('amplify_app_id', {}).get('value', 'N/A')}")
-        print(f"  Amplify App Name  : {tf_output.get('amplify_app_name', {}).get('value', 'N/A')}")
+        print(f"  Access Key ID     : {output.get('attacker_access_key_id', {}).get('value', 'N/A')}")
+        print(f"  Secret Access Key : {output.get('attacker_secret_access_key', {}).get('value', 'N/A')}")
+        print(f"  Amplify App ID    : {output.get('amplify_app_id', {}).get('value', 'N/A')}")
+        print(f"  Amplify App Name  : {output.get('amplify_app_name', {}).get('value', 'N/A')}")
         print("\nGoal: Retrieve the Amplify app definition and read the flag from environment variables.")

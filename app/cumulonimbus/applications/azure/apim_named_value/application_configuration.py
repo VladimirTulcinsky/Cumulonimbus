@@ -15,14 +15,14 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
             3: "Run: az apim nv list --service-name <apim-name> --resource-group <rg>, then: az apim nv show --service-name <apim-name> --resource-group <rg> --named-value-id flag-key --query value -o tsv",
         }
 
-    def configure_application(self, tf_output: dict) -> None:
-        self.pretty_print_tf_output(tf_output)
+    def configure_application(self, **kwargs):
+        pass
 
-    def pretty_print_tf_output(self, tf_output: dict) -> None:
+    def pretty_print_tf_output(self, app_id, output):
         print("\n=== APIM Named Value Lab ===")
-        print(f"  Attacker Client ID     : {tf_output.get('attacker_client_id', {}).get('value', 'N/A')}")
-        print(f"  Attacker Client Secret : {tf_output.get('attacker_client_secret', {}).get('value', 'N/A')}")
-        print(f"  Resource Group         : {tf_output.get('resource_group_name', {}).get('value', 'N/A')}")
-        print(f"  APIM Name              : {tf_output.get('apim_name', {}).get('value', 'N/A')}")
-        print(f"  Named Value ID         : {tf_output.get('named_value_id', {}).get('value', 'N/A')}")
+        print(f"  Attacker Client ID     : {output.get('attacker_client_id', {}).get('value', 'N/A')}")
+        print(f"  Attacker Client Secret : {output.get('attacker_client_secret', {}).get('value', 'N/A')}")
+        print(f"  Resource Group         : {output.get('resource_group_name', {}).get('value', 'N/A')}")
+        print(f"  APIM Name              : {output.get('apim_name', {}).get('value', 'N/A')}")
+        print(f"  Named Value ID         : {output.get('named_value_id', {}).get('value', 'N/A')}")
         print("\nGoal: Read the plaintext Named Value in Azure API Management to retrieve the flag.")

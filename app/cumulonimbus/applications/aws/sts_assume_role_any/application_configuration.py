@@ -16,15 +16,15 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
             3: "After assuming the role, use the returned temporary credentials to read the SSM parameter at /cumulonimbus/sts_assume_role_any/flag.",
         }
 
-    def configure_application(self, tf_output: dict) -> None:
-        self.pretty_print_tf_output(tf_output)
+    def configure_application(self, **kwargs):
+        pass
 
-    def pretty_print_tf_output(self, tf_output: dict) -> None:
+    def pretty_print_tf_output(self, app_id, output):
         print("\n=== STS Assume Role Any Lab ===")
-        print(f"  Attacker user     : {tf_output.get('attacker_username', {}).get('value', 'N/A')}")
-        print(f"  Access key ID     : {tf_output.get('attacker_access_key_id', {}).get('value', 'N/A')}")
-        print(f"  Secret access key : {tf_output.get('attacker_secret_access_key', {}).get('value', 'N/A')}")
-        print(f"  Target role ARN   : {tf_output.get('target_role_arn', {}).get('value', 'N/A')}")
+        print(f"  Attacker user     : {output.get('attacker_username', {}).get('value', 'N/A')}")
+        print(f"  Access key ID     : {output.get('attacker_access_key_id', {}).get('value', 'N/A')}")
+        print(f"  Secret access key : {output.get('attacker_secret_access_key', {}).get('value', 'N/A')}")
+        print(f"  Target role ARN   : {output.get('target_role_arn', {}).get('value', 'N/A')}")
         print("\nConfigure the attacker profile:")
         print("  aws configure --profile attacker   # region: eu-west-1")
         print("\nGoal: Assume the misconfigured role and retrieve the flag from SSM.")

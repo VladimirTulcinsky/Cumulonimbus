@@ -16,14 +16,14 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
             3: "The temporary credentials have S3 read access. Use them to read s3://<bucket>/secret/flag.txt — the bucket name is in the lab output.",
         }
 
-    def configure_application(self, tf_output: dict) -> None:
-        self.pretty_print_tf_output(tf_output)
+    def configure_application(self, **kwargs):
+        pass
 
-    def pretty_print_tf_output(self, tf_output: dict) -> None:
+    def pretty_print_tf_output(self, app_id, output):
         print("\n=== Cognito Identity Pool Lab ===")
-        print(f"  Identity pool ID : {tf_output.get('identity_pool_id', {}).get('value', 'N/A')}")
-        print(f"  Account ID       : {tf_output.get('account_id', {}).get('value', 'N/A')}")
-        print(f"  Region           : {tf_output.get('region', {}).get('value', 'N/A')}")
-        print(f"  Flag bucket      : {tf_output.get('flag_bucket', {}).get('value', 'N/A')}")
-        print(f"  Flag object      : {tf_output.get('flag_object_key', {}).get('value', 'N/A')}")
+        print(f"  Identity pool ID : {output.get('identity_pool_id', {}).get('value', 'N/A')}")
+        print(f"  Account ID       : {output.get('account_id', {}).get('value', 'N/A')}")
+        print(f"  Region           : {output.get('region', {}).get('value', 'N/A')}")
+        print(f"  Flag bucket      : {output.get('flag_bucket', {}).get('value', 'N/A')}")
+        print(f"  Flag object      : {output.get('flag_object_key', {}).get('value', 'N/A')}")
         print("\nGoal: Obtain unauthenticated AWS credentials via Cognito and read the flag from S3.")
