@@ -10,6 +10,16 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
         """
         pass
 
+    def get_difficulty(self):
+        return "Beginner"
+
+    def get_hints(self):
+        return {
+            1: "The static website hints at a production storage account with a similar naming pattern. Try enumerating storage accounts using tools like cloud-enum.",
+            2: "The 'website' container in the production storage account has 'container' access level — you can list its blobs. Look for a config file.",
+            3: "config.cfg reveals the URL of a second container. That container uses 'blob' access; construct the direct URL to flag.txt and fetch it.",
+        }
+
     def get_flag(self):
         return "CUMULONIMBUS{St0r4g3_Acc0unt_4cc355}"
 

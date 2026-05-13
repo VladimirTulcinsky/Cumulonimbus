@@ -44,6 +44,11 @@ def run_from_cli():
                         app_id=args.get('vulnerable_app_id'),
                         submitted_flag=args.get('flag'))
 
+    elif args.get('command') == 'hint':
+        return hint(provider=args.get('provider'),
+                    app_id=args.get('vulnerable_app_id'),
+                    level=args.get('hint_level', 1))
+
 
 def authenticate(provider,
                  profile=None,
@@ -107,6 +112,30 @@ def destroy(provider, app_id):
 
     except Exception as e:
         print(f'Destruction failure: {e}')
+        return 101
+
+
+def hint(provider, app_id, level):
+    try:
+        app_config = get_application_configuration(provider, app_id)
+        hints = app_config.get_hints()
+        difficulty = app_config.get_difficulty()
+
+        if not hints:
+            print(f"No hints are configured for {app_id}.")
+            return 1
+
+        max_level = max(hints.keys())
+        level = min(level, max_level)
+
+        print(f"[{app_id}]  Difficulty: {difficulty}")
+        print(f"Hint (level {level}/{max_level}): {hints[level]}")
+        if level < max_level:
+            print(f"  Run with --level {level + 1} for a stronger hint.")
+        return 0
+
+    except Exception as e:
+        print(f'Hint failure: {e}')
         return 101
 
 

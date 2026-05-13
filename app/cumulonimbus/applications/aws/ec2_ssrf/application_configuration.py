@@ -24,6 +24,16 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
             key_pair_path))
         return key_pair_path
 
+    def get_difficulty(self):
+        return "Beginner"
+
+    def get_hints(self):
+        return {
+            1: "The web app fetches any URL you pass to ?url=. Think about what internal endpoints are reachable from inside the EC2 instance.",
+            2: "The EC2 Instance Metadata Service (IMDS) is reachable at http://169.254.169.254/. Try fetching /latest/meta-data/iam/security-credentials/",
+            3: "Fetch http://169.254.169.254/latest/meta-data/iam/security-credentials/<role-name> via the SSRF endpoint to get temporary AWS credentials, then use them with the AWS CLI to access S3.",
+        }
+
     def get_flag(self):
         return "Cumulonimbus{Th4tW4sCh33sy}"
 

@@ -10,6 +10,16 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
         """
         pass
 
+    def get_difficulty(self):
+        return "Intermediate"
+
+    def get_hints(self):
+        return {
+            1: "Start the o365-attack-toolkit container and configure template.conf with the application ID and secret output by the lab. The tool generates a phishing URL.",
+            2: "Visit http://127.0.0.1:8080/ and copy the phishing link. Open it in a browser and sign in as the admin user with the provided credentials to simulate consent being granted.",
+            3: "After consent, your redirect URI receives an authorization code. The toolkit exchanges it for tokens stored in a SQLite DB. Dump them with sqlite3 and use the access token to call the Graph API.",
+        }
+
     def get_flag(self):
         return "CUMULONIMBUS{1ll1c1t_C0ns3nt_Gr4nt3d}"
 

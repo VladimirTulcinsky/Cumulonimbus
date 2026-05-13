@@ -28,6 +28,19 @@ class ApplicationConfigurationAbstract(metaclass=ABCMeta):
         """
         return None
 
+    def get_difficulty(self):
+        """
+        Return the difficulty rating: Beginner, Intermediate, or Advanced.
+        """
+        return "Intermediate"
+
+    def get_hints(self):
+        """
+        Return a dict mapping hint level (int) to hint text.
+        Level 1 is the most gentle nudge; higher levels are more explicit.
+        """
+        return {}
+
 
 class ConfigurationException(Exception):
     def __init__(self, message, errors=None):

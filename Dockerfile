@@ -1,4 +1,4 @@
-FROM python:3.8
+FROM python:3.12-slim
 
 # Copy helper scripts to container
 ADD docker/dependencies /root/bin
@@ -8,7 +8,7 @@ RUN /bin/bash -c "/root/bin/install-prereqs.sh" \
     && /bin/bash -c "/root/bin/install-aws2.sh" \
     && /bin/bash -c "/root/bin/install-azure.sh" \
     && rm -rf /root/bin
-    
+
 # Install Cumulonimbus
 COPY ./app /root/app
 WORKDIR /root/app
@@ -17,7 +17,6 @@ WORKDIR /root/app
 ENV AWS_SHARED_CREDENTIALS_FILES=/cumulonimbus/.data/.aws/credentials \
     AWS_SHARED_CONFIG_FILES=/cumulonimbus/.data/.aws/config \
     AZURE_CREDENTIALS_FILES=/cumulonimbus/.data/.azure/credentials
-
 
 # Command
 ENTRYPOINT [ "/bin/bash" ]

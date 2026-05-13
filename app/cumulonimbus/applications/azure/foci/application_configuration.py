@@ -10,6 +10,16 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
         """
         pass
 
+    def get_difficulty(self):
+        return "Advanced"
+
+    def get_hints(self):
+        return {
+            1: "After device code phishing, your refresh token is in msal_token_cache.json. A Family Refresh Token can be redeemed by any FOCI client — you are not limited to the Azure CLI client ID.",
+            2: "Use TokenTactics or a manual token request to exchange the refresh token using a different client_id, e.g. Microsoft Office (d3590ed6-52b3-4102-aeff-aad2292ab01c).",
+            3: "With the new token (scoped to a client that has Group.ReadWrite.All), call the Microsoft Graph API to add your user to the administrators group: POST /v1.0/groups/<id>/members/$ref",
+        }
+
     def get_flag(self):
         return "CUMULONIMBUS{F4m1ly_R3fr3sh_T0k3n_4bus3d}"
 
