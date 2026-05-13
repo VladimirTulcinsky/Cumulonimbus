@@ -636,6 +636,79 @@ CHALLENGES = [
             {"content": "Look for `SECRET_FLAG` in the `environmentVariables` array — non-secure env vars are returned in plaintext by the ARM API.", "cost": 50},
         ],
     },
+    {
+        "name": "SQS Queue — Public Resource Policy",
+        "category": "AWS Messaging",
+        "description": (
+            "An SQS queue has a resource policy granting `sqs:ReceiveMessage` to "
+            "`\"Principal\": \"*\"` — any caller. Messages containing sensitive data are "
+            "visible to anyone with the queue URL. No AWS credentials required.\n\n"
+            "Deploy with: `cnimbus aws create --app-id sqs_public_receive`"
+        ),
+        "value": 100,
+        "type": "standard",
+        "flag": "CUMULONIMBUS{SQS_Publ1c_R3s0urc3_P0l1cy_R3c31v3}",
+        "tags": ["AWS", "SQS", "Messaging", "Misconfiguration"],
+        "hints": [
+            {"content": "The queue policy allows any principal to receive messages — no credentials needed, just the queue URL.", "cost": 25},
+            {"content": "Run `aws sqs receive-message --queue-url <url> --region eu-west-1` — the flag is in the message body.", "cost": 50},
+        ],
+    },
+    {
+        "name": "SSM Session Manager — Shell Without SSH",
+        "category": "AWS Compute",
+        "description": (
+            "An EC2 instance has the SSM Agent running and an IAM user has "
+            "`ssm:StartSession`. This allows opening an interactive root shell on "
+            "the instance with no SSH key, no open ports, and no bastion host. "
+            "Read `/root/flag.txt`.\n\n"
+            "Deploy with: `cnimbus aws create --app-id ssm_session_manager`"
+        ),
+        "value": 200,
+        "type": "standard",
+        "flag": "CUMULONIMBUS{SSM_S3ss10n_M4n4g3r_Sh3ll_4cc3ss}",
+        "tags": ["AWS", "SSM", "EC2", "Lateral Movement"],
+        "hints": [
+            {"content": "Use `aws ec2 describe-instances` to find the target instance ID, then `aws ssm start-session --target <id>`.", "cost": 25},
+            {"content": "Once connected, run `sudo cat /root/flag.txt` to read the flag.", "cost": 50},
+        ],
+    },
+    {
+        "name": "Resource Group Tags — Credentials in Metadata",
+        "category": "Azure Identity",
+        "description": (
+            "A platform team stored a service principal secret as an Azure resource group "
+            "tag. Tags are visible to any Reader on the resource. Enumerate the "
+            "subscription's resource groups and find the flag in the tags.\n\n"
+            "Deploy with: `cnimbus azure create --app-id resource_group_tags`"
+        ),
+        "value": 100,
+        "type": "standard",
+        "flag": "CUMULONIMBUS{S3cr3t_1n_R3s0urc3_Gr0up_T4gs}",
+        "tags": ["Azure", "Tags", "Identity", "Secrets"],
+        "hints": [
+            {"content": "Use `az group list` to find the cumulonimbus resource group, then `az group show --name <rg> --query tags`.", "cost": 25},
+            {"content": "The `service-principal-secret` tag contains the flag.", "cost": 50},
+        ],
+    },
+    {
+        "name": "Event Grid — Webhook Token Exposure",
+        "category": "Azure Integration",
+        "description": (
+            "An Event Grid subscription uses a secret token embedded in the webhook URL "
+            "as a query parameter. The full URL is returned by the ARM API to any Reader. "
+            "Find the subscription and extract the token from the webhook URL.\n\n"
+            "Deploy with: `cnimbus azure create --app-id eventgrid_webhook_token`"
+        ),
+        "value": 200,
+        "type": "standard",
+        "flag": "CUMULONIMBUS{3v3ntGr1d_W3bh00k_T0k3n_3xp0s3d}",
+        "tags": ["Azure", "Event Grid", "Webhook", "Secrets"],
+        "hints": [
+            {"content": "Use `az eventgrid event-subscription list --source-resource-id <topic-id>` to find subscriptions.", "cost": 25},
+            {"content": "Run `az eventgrid event-subscription show --query \"destination.endpointUrl\"` — the `token` query parameter contains the flag.", "cost": 50},
+        ],
+    },
 ]
 
 
