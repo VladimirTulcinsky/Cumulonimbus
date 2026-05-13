@@ -148,6 +148,64 @@ CHALLENGES = [
         ],
     },
     {
+        "name": "Lambda Environment Variable Secrets",
+        "category": "AWS Serverless",
+        "description": (
+            "A developer stored a production API key directly in a Lambda function's "
+            "environment variables. An 'auditor' IAM user has lambda:GetFunction, which "
+            "returns the full function configuration including all environment variables "
+            "in plaintext. Find the function and extract the secret.\n\n"
+            "Deploy with: `cnimbus aws create --app-id lambda_env_secrets`"
+        ),
+        "value": 100,
+        "type": "standard",
+        "flag": "CUMULONIMBUS{L4mbd4_3nv_S3cr3ts_Pl41nt3xt}",
+        "tags": ["AWS", "Lambda", "Credential Exposure", "Serverless", "Beginner"],
+        "hints": [
+            {"content": "Run aws lambda list-functions to find the target, then aws lambda get-function-configuration.", "cost": 0},
+            {"content": "The response includes a .Environment.Variables field with all env vars in plaintext.", "cost": 25},
+        ],
+    },
+    {
+        "name": "Secrets Manager Over-Permissive Policy",
+        "category": "AWS IAM",
+        "description": (
+            "A monitoring service account was granted secretsmanager:GetSecretValue with "
+            "a wildcard resource path instead of a specific secret ARN. Combined with "
+            "secretsmanager:ListSecrets, this allows enumerating and reading every secret "
+            "under the /cumulonimbus/ prefix — including the flag.\n\n"
+            "Deploy with: `cnimbus aws create --app-id secrets_manager_enum`"
+        ),
+        "value": 200,
+        "type": "standard",
+        "flag": "CUMULONIMBUS{S3cr3ts_M4n4g3r_0v3rp3rm1ss1v3}",
+        "tags": ["AWS", "Secrets Manager", "IAM", "Misconfiguration"],
+        "hints": [
+            {"content": "Use aws secretsmanager list-secrets to enumerate all secrets your identity can see.", "cost": 0},
+            {"content": "Call aws secretsmanager get-secret-value for each listed secret ARN.", "cost": 25},
+        ],
+    },
+    {
+        "name": "Terraform State File Exposure",
+        "category": "Azure Storage",
+        "description": (
+            "An Azure Blob Storage container used as a Terraform backend was configured "
+            "with container_access_type = 'blob' (public read). The state file contains "
+            "multiple outputs marked sensitive=true — but Terraform's sensitive flag only "
+            "suppresses CLI display; values are always stored in plaintext in .tfstate. "
+            "Download the state file and extract the credentials.\n\n"
+            "Deploy with: `cnimbus azure create --app-id terraform_state_exposure`"
+        ),
+        "value": 200,
+        "type": "standard",
+        "flag": "CUMULONIMBUS{TF_St4t3_S3ns1t1v3_1s_N0t_3ncrypt3d}",
+        "tags": ["Azure", "Terraform", "Storage", "Credentials in State", "Intermediate"],
+        "hints": [
+            {"content": "The state blob URL is provided in the lab output. Download it with curl — no authentication required.", "cost": 0},
+            {"content": "Parse the JSON and look inside .outputs. All values including sensitive=true ones are plaintext.", "cost": 25},
+        ],
+    },
+    {
         "name": "S3 Public Access Misconfiguration",
         "category": "AWS Storage",
         "description": (

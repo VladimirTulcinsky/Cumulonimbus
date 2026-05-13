@@ -20,7 +20,10 @@
 | `automation_account` | Azure | Automation / Managed Identity | Intermediate |
 | `function_ssrf` | Azure | Serverless / SSRF / IMDS | Intermediate |
 | `s3_public_access` | AWS | Storage / Misconfiguration | Beginner |
+| `lambda_env_secrets` | AWS | Serverless / Credential Exposure | Beginner |
+| `secrets_manager_enum` | AWS | IAM / Secrets Management | Intermediate |
 | `iam_privesc` | AWS | IAM / Privilege Escalation | Advanced |
+| `terraform_state_exposure` | Azure | Storage / Secrets in State | Intermediate |
 
 ## Quick Start
 
