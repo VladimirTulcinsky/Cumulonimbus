@@ -8,13 +8,29 @@ Spin up a self-hosted CTFd instance pre-loaded with all Cumulonimbus challenges.
 # 1. Start CTFd (from this directory)
 docker compose up -d
 
-# 2. Open http://localhost:8000 and complete the setup wizard
-#    (create an admin account, set event name, etc.)
+# 2. Set up CTFd and seed all challenges automatically
+python setup.py
+```
 
-# 3. Generate an admin API token
-#    Admin Panel > Settings > Access Tokens > Generate
+That's it. `setup.py` waits for CTFd to become ready, completes the setup wizard,
+generates an admin API token, and seeds all challenges in one step.
 
-# 4. Seed all challenges
+Open **http://localhost:8000** when it finishes. Default credentials: `admin` / `cumulonimbus`.
+
+### Custom credentials / event name
+
+```bash
+python setup.py \
+  --ctf-name   "My Cloud CTF" \
+  --admin-name  admin \
+  --admin-email admin@example.com \
+  --admin-password supersecret
+```
+
+### Manual seeding (if CTFd is already configured)
+
+```bash
+# Generate a token via: Admin Panel > Settings > Access Tokens > Generate
 python seed_challenges.py --url http://localhost:8000 --admin-token <your_token>
 ```
 
