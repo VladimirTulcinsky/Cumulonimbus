@@ -856,6 +856,78 @@ CHALLENGES = [
             {"content": "Run `az containerapp show --name <name> --resource-group <rg> --query 'properties.template.containers[0].env'`.", "cost": 50},
         ],
     },
+    {
+        "name": "DynamoDB Scan",
+        "category": "AWS",
+        "description": (
+            "A developer stored a sensitive API key directly as a DynamoDB table item. "
+            "The attacker IAM user has DynamoDB read access. "
+            "Scan the table to find the flag.\n\n"
+            "Deploy with: `cnimbus aws create --app-id dynamodb_scan`"
+        ),
+        "value": 100,
+        "type": "standard",
+        "flag": "CUMULONIMBUS{Dyn4m0DB_Sc4n_D4t4_3xp0sur3}",
+        "tags": ["AWS", "DynamoDB", "Database", "Data Exposure"],
+        "hints": [
+            {"content": "Use `aws dynamodb list-tables` to find the target table.", "cost": 25},
+            {"content": "Run `aws dynamodb scan --table-name <table-name>` and look at the `value` field of each item.", "cost": 50},
+        ],
+    },
+    {
+        "name": "Kinesis Shard Reader",
+        "category": "AWS",
+        "description": (
+            "A developer accidentally published a sensitive record to a Kinesis Data Stream. "
+            "The attacker has Kinesis read permissions. "
+            "Read the shard from the beginning, decode the base64 record data, and retrieve the flag.\n\n"
+            "Deploy with: `cnimbus aws create --app-id kinesis_shard_reader`"
+        ),
+        "value": 200,
+        "type": "standard",
+        "flag": "CUMULONIMBUS{K1n3s1s_Sh4rd_R3c0rd_L34k}",
+        "tags": ["AWS", "Kinesis", "Streaming", "Data Exposure"],
+        "hints": [
+            {"content": "Use `aws kinesis list-streams` then `aws kinesis get-shard-iterator --shard-iterator-type TRIM_HORIZON` to get a starting iterator.", "cost": 25},
+            {"content": "Run `aws kinesis get-records --shard-iterator <iterator>` and base64-decode the `Data` field: `echo '<data>' | base64 -d`.", "cost": 50},
+        ],
+    },
+    {
+        "name": "Deployment Script",
+        "category": "Azure",
+        "description": (
+            "An Azure Deployment Script ran during infrastructure provisioning and wrote sensitive data to its outputs. "
+            "The outputs are persisted in the ARM resource definition. "
+            "The attacker has Reader on the resource group. Read the script outputs to retrieve the flag.\n\n"
+            "Deploy with: `cnimbus azure create --app-id deployment_script`"
+        ),
+        "value": 100,
+        "type": "standard",
+        "flag": "CUMULONIMBUS{D3pl0ym3nt_Scr1pt_0utput_3xp0s3d}",
+        "tags": ["Azure", "Deployment Script", "IaC", "Data Exposure"],
+        "hints": [
+            {"content": "Use `az deployment-scripts list --resource-group <rg>` to find the deployment script.", "cost": 25},
+            {"content": "Run `az deployment-scripts show --name <name> --resource-group <rg> --query outputs`.", "cost": 50},
+        ],
+    },
+    {
+        "name": "Policy Assignment Metadata",
+        "category": "Azure",
+        "description": (
+            "The platform team stored an internal reference token in an Azure Policy assignment's metadata field. "
+            "Policy assignment metadata is plaintext and readable by any Reader. "
+            "List policy assignments in the resource group and inspect the metadata to find the flag.\n\n"
+            "Deploy with: `cnimbus azure create --app-id policy_assignment_metadata`"
+        ),
+        "value": 100,
+        "type": "standard",
+        "flag": "CUMULONIMBUS{P0l1cy_M3t4d4t4_S3cr3t_3xp0s3d}",
+        "tags": ["Azure", "Policy", "Governance", "Secrets"],
+        "hints": [
+            {"content": "Use `az policy assignment list --resource-group <rg>` to list assignments scoped to the resource group.", "cost": 25},
+            {"content": "Inspect the metadata field: `az policy assignment show --name <name> --resource-group <rg> --query metadata`.", "cost": 50},
+        ],
+    },
 ]
 
 

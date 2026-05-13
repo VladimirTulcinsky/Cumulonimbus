@@ -63,6 +63,10 @@ jobs:
           - aws/ecs_exec
           - azure/apim_named_value
           - azure/container_app_env_vars
+          - aws/dynamodb_scan
+          - aws/kinesis_shard_reader
+          - azure/deployment_script
+          - azure/policy_assignment_metadata
 
     steps:
       - uses: actions/checkout@v4
