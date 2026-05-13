@@ -36,8 +36,22 @@ Flag
 
 ### Step 1 — Enumerate storage accounts
 
+Use [cloud_enum](https://github.com/initstring/cloud_enum) to discover storage accounts by guessing common environment suffixes:
+
 ```bash
 # Replace XXXX with the unique ID shown after deployment
+./cloud_enum.py -k cumulonimbusXXXXprd --disable-aws --disable-gcp
+
+# Real environments often use other suffixes — try them all
+./cloud_enum.py -k cumulonimbusXXXXdev --disable-aws --disable-gcp
+./cloud_enum.py -k cumulonimbusXXXXtst --disable-aws --disable-gcp
+./cloud_enum.py -k cumulonimbusXXXXuat --disable-aws --disable-gcp
+./cloud_enum.py -k cumulonimbusXXXXstg --disable-aws --disable-gcp
+```
+
+Once you've identified the production account, list the `website` container directly:
+
+```bash
 curl "https://cumulonimbusXXXXprd.blob.core.windows.net/website?restype=container&comp=list"
 ```
 
