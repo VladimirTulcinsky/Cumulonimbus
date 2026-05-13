@@ -157,8 +157,21 @@ def login(
         },
         allow_redirects=True,
     )
-    if "/login" in r.url or "incorrect" in r.text.lower():
-        raise RuntimeError("Login failed — wrong admin credentials.")
+    # Success: CTFd redirects away from /login (to / or /challenges)
+    # Failure: stays on /login, or contains an error flash message
+    failed = (
+        r.url.rstrip("/").endswith("/login")
+        or "incorrect" in r.text.lower()
+        or "invalid" in r.text.lower()
+    )
+    if failed:
+        print()
+        print(
+            f"\nERROR: Login failed for user '{admin_name}'.\n"
+            "  If you set up CTFd manually with a different password, pass it explicitly:\n"
+            f"    python setup.py --admin-name <name> --admin-password <password>"
+        )
+        sys.exit(1)
     print(" done.")
 
 
@@ -214,7 +227,8 @@ def main() -> None:
     parser.add_argument("--ctf-name", default="Cumulonimbus", dest="ctf_name")
     parser.add_argument("--admin-name", default="admin", dest="admin_name")
     parser.add_argument("--admin-email", default="admin@cumulonimbus.local", dest="admin_email")
-    parser.add_argument("--admin-password", default="cumulonimbus", dest="admin_password")
+    parser.add_argument("--admin-password", default=None, dest="admin_password",
+                        help="Admin password (default: 'cumulonimbus' for fresh installs)")
     parser.add_argument("--timeout", type=int, default=120, help="Seconds to wait for CTFd to start")
     args = parser.parse_args()
 
@@ -226,13 +240,24 @@ def main() -> None:
     already_configured = wait_for_ready(base_url, args.timeout)
 
     if not already_configured:
+        # Fresh install — use default password if not supplied
+        password = args.admin_password or "cumulonimbus"
         run_setup_wizard(
             base_url, session,
-            args.ctf_name, args.admin_name, args.admin_email, args.admin_password,
+            args.ctf_name, args.admin_name, args.admin_email, password,
         )
     else:
         print("  CTFd already configured — skipping setup wizard.")
-        login(base_url, session, args.admin_name, args.admin_password)
+        if not args.admin_password:
+            print(
+                "\nERROR: CTFd is already set up. Provide your admin password:\n"
+                "    python setup.py --admin-password <your_password>\n"
+                "Or if you also used a non-default username:\n"
+                "    python setup.py --admin-name <name> --admin-password <password>"
+            )
+            sys.exit(1)
+        password = args.admin_password
+        login(base_url, session, args.admin_name, password)
 
     token = create_api_token(base_url, session)
     seed(base_url, token)
@@ -240,7 +265,7 @@ def main() -> None:
     print(f"\n=== Done! ===")
     print(f"  CTFd URL   : {base_url}")
     print(f"  Admin user : {args.admin_name}")
-    print(f"  Admin pass : {args.admin_password}")
+    print(f"  Admin pass : {password}")
     print(f"  API token  : {token}")
 
 
