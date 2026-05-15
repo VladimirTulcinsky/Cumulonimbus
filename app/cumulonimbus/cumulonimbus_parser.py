@@ -235,8 +235,10 @@ class CumulonimbusParser:
                     self.parser.error('When running with --access-keys, you must provide an Access Key ID '
                                       'and Secret Access Key.')
         elif v.get('provider') == 'azure':
-            if v.get('service_principal') and not v.get('tenant_id') and not v.get('subscription_id'):
-                self.parser.error(
-                    'You must provide --tenant-id and --subscription-id when using --service-principal authentication')
+            if v.get('service_principal'):
+                missing = [f'--{f}' for f in ('tenant_id', 'subscription_id', 'tenant_domain') if not v.get(f)]
+                if missing:
+                    self.parser.error(
+                        f'You must provide {", ".join(missing)} when using --service-principal authentication')
 
         return args
