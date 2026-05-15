@@ -160,6 +160,10 @@ class CumulonimbusParser:
                                          action='store',
                                          dest='subscription_id',
                                          help='Subscription context to deploy resources')
+        azure_auth_s_params.add_argument('--tenant-domain',
+                                         action='store',
+                                         dest='tenant_domain',
+                                         help='Primary domain of the Azure AD tenant (e.g. contoso.onmicrosoft.com)')
 
         # Create parameters
         azure_creation_params = azure_cmd_create_parser.add_argument_group(

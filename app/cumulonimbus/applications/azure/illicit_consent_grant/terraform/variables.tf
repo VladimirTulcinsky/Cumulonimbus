@@ -59,3 +59,9 @@ variable "app_name" {
   description = "Name of the application that will be used in the resource names and complemented with a random number"
   default     = "cumulonimbus"
 }
+
+variable "tenant_domain" {
+  type        = string
+  description = "Primary domain of the Azure AD tenant (e.g. contoso.onmicrosoft.com)"
+  default     = ""
+}

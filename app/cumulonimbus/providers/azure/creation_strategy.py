@@ -29,7 +29,7 @@ class AzureCreationStrategy(CreationStrategy):
             return_code, stdout, stderr = tf.init(capture_output=False)
             no_prompt = {"auto-approve": True}
             return_code, stdout, stderr = tf.apply(skip_plan=True, **no_prompt, no_color=IsFlagged, capture_output=False, refresh=False,
-                                                   var={'client_id': os.environ['AZURE_CLIENT_ID'], 'client_secret': os.environ['AZURE_CLIENT_SECRET'], 'tenant_id': os.environ['AZURE_TENANT_ID'], 'subscription_id': os.environ['AZURE_SUBSCRIPTION_ID'], 'attacker_public_ip': global_variables.ATTACKER_PUBLIC_IP['azure']})
+                                                   var={'client_id': os.environ['AZURE_CLIENT_ID'], 'client_secret': os.environ['AZURE_CLIENT_SECRET'], 'tenant_id': os.environ['AZURE_TENANT_ID'], 'subscription_id': os.environ['AZURE_SUBSCRIPTION_ID'], 'attacker_public_ip': global_variables.ATTACKER_PUBLIC_IP['azure'], 'tenant_domain': os.environ.get('AZURE_TENANT_DOMAIN', '')})
 
             if stderr:
                 print("Are you sure you have the correct Azure credentials?")
@@ -55,7 +55,7 @@ class AzureCreationStrategy(CreationStrategy):
             tf = Terraform(working_dir=cwd)
             no_prompt = {"auto-approve": True}
             return_code, stdout, stderr = tf.destroy(
-                capture_output=False, **no_prompt, force=None, var={'client_id': os.environ['AZURE_CLIENT_ID'], 'client_secret': os.environ['AZURE_CLIENT_SECRET'], 'tenant_id': os.environ['AZURE_TENANT_ID'], 'subscription_id': os.environ['AZURE_SUBSCRIPTION_ID']})
+                capture_output=False, **no_prompt, force=None, var={'client_id': os.environ['AZURE_CLIENT_ID'], 'client_secret': os.environ['AZURE_CLIENT_SECRET'], 'tenant_id': os.environ['AZURE_TENANT_ID'], 'subscription_id': os.environ['AZURE_SUBSCRIPTION_ID'], 'tenant_domain': os.environ.get('AZURE_TENANT_DOMAIN', '')})
 
             outputs = tf.output()
             application_configuration.pretty_print_tf_output(app_id, outputs)

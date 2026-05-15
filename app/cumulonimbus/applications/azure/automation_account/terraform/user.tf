@@ -1,6 +1,3 @@
-data "azuread_domains" "automation_account" {
-  only_initial = true
-}
 
 resource "random_password" "attacker" {
   length           = 16
@@ -11,7 +8,7 @@ resource "random_password" "attacker" {
 }
 
 resource "azuread_user" "attacker" {
-  user_principal_name   = "aa-attacker@${data.azuread_domains.automation_account.domains[0].domain_name}"
+  user_principal_name   = "aa-attacker@${var.tenant_domain}"
   display_name          = "AA Attacker"
   mail_nickname         = "aa-attacker"
   password              = random_password.attacker.result

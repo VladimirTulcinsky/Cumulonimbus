@@ -63,9 +63,6 @@ resource "azurerm_resource_group_template_deployment" "app_infra" {
 
 # ── Attacker user: Reader on the resource group ───────────────────────────────
 
-data "azuread_domains" "arm_deployment_history" {
-  only_initial = true
-}
 
 resource "random_password" "attacker" {
   length           = 16
@@ -76,7 +73,7 @@ resource "random_password" "attacker" {
 }
 
 resource "azuread_user" "attacker" {
-  user_principal_name   = "arm-auditor@${data.azuread_domains.arm_deployment_history.domains[0].domain_name}"
+  user_principal_name   = "arm-auditor@${var.tenant_domain}"
   display_name          = "ARM Auditor"
   mail_nickname         = "arm-auditor"
   password              = random_password.attacker.result

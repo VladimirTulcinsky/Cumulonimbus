@@ -58,3 +58,9 @@ variable "app_name" {
   description = "Base name used in resource naming"
   default     = "cumulonimbus"
 }
+
+variable "tenant_domain" {
+  type        = string
+  description = "Primary domain of the Azure AD tenant (e.g. contoso.onmicrosoft.com)"
+  default     = ""
+}

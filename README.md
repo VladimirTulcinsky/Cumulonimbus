@@ -102,7 +102,8 @@ You need a cloud account with sufficient permissions before deploying labs.
 # Azure
 cnimbus azure authenticate --service-principal \
   --client-id <id> --client-secret <secret> \
-  --tenant-id <tenant> --subscription-id <subscription>
+  --tenant-id <tenant> --subscription-id <subscription> \
+  --tenant-domain <domain>            # e.g. contoso.onmicrosoft.com
 
 # AWS
 cnimbus aws authenticate \

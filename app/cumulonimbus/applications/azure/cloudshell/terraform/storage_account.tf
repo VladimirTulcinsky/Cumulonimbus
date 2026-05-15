@@ -23,9 +23,8 @@ resource "azurerm_storage_share" "iam_cs" {
 }
 
 resource "azurerm_storage_share_directory" "iam_cs" {
-  name                 = ".cloudconsole"
-  share_name           = azurerm_storage_share.iam_cs.name
-  storage_account_name = azurerm_storage_account.iam_cs.name
+  name             = ".cloudconsole"
+  storage_share_id = azurerm_storage_share.iam_cs.id
 }
 
 resource "azurerm_storage_share_file" "iam_cs" {
