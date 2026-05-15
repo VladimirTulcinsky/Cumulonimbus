@@ -88,6 +88,9 @@ You need a cloud account with sufficient permissions before deploying labs.
 - Owner on the target subscription
 - Key Vault Administrator on the target subscription
 - Security defaults disabled
+- Microsoft Graph application permissions (admin consented): `User.ReadWrite.All`, `Application.ReadWrite.All`, `Directory.ReadWrite.All`
+
+> Grant Graph permissions: Azure Portal → App registrations → your app → API permissions → Add a permission → Microsoft Graph → Application permissions → select the permissions above → Grant admin consent
 
 **AWS** — an IAM user or role with:
 - `AdministratorAccess` (or at minimum EC2, S3, and IAM full access)
