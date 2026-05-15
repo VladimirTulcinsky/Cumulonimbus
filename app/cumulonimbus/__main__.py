@@ -23,6 +23,7 @@ def run_from_cli():
                          client_id=args.get('client_id'), client_secret=args.get('client_secret'),
                          tenant_id=args.get('tenant_id'),
                          subscription_id=args.get('subscription_id'),
+                         tenant_domain=args.get('tenant_domain'),
                          region=args.get('region')
                          )
             print('Authentication successful')
@@ -64,6 +65,7 @@ def authenticate(provider,
                  client_id=None, client_secret=None,
                  tenant_id=None,
                  subscription_id=None,
+                 tenant_domain=None,
                  region=""):
     print('Authenticating to cloud provider')
     auth_strategy = get_authentication_strategy(provider)
@@ -77,7 +79,8 @@ def authenticate(provider,
                                                  tenant_id=tenant_id,
                                                  client_id=client_id,
                                                  client_secret=client_secret,
-                                                 subscription_id=subscription_id)
+                                                 subscription_id=subscription_id,
+                                                 tenant_domain=tenant_domain)
 
         if not credentials:
             return 101
