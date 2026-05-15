@@ -105,8 +105,10 @@ class AzureAuthenticationStrategy(AuthenticationStrategy):
             print(f"  Resolved tenant domain: {domain}")
         else:
             print("  WARNING: could not resolve tenant domain automatically.")
-            print("  To find your tenant domain: Azure Portal > Microsoft Entra ID > Overview > Primary domain")
-            print("  Re-authenticate with: cnimbus azure authenticate ... --tenant-domain <domain>")
+            print("  Pass it explicitly: cnimbus azure authenticate ... --tenant-domain <domain>")
+            print("  Where to find it: Azure Portal > Microsoft Entra ID > Overview > 'Primary domain'")
+            print("  To enable auto-discovery: grant 'Domain.Read.All' (Application) to your service principal")
+            print("    Portal: App registrations > <your app> > API permissions > Add > Microsoft Graph > Application > Domain.Read.All > Grant admin consent")
         return domain
 
     def _domain_from_mgmt(self, credentials, tenant_id: str) -> str:
@@ -124,9 +126,7 @@ class AzureAuthenticationStrategy(AuthenticationStrategy):
                     domain = tenant.get("defaultDomain") or next(iter(tenant.get("domains", [])), "")
                     if domain:
                         return domain
-                    print(f"  [debug] mgmt /tenants: tenant found but no domain fields (keys: {list(tenant.keys())})")
-                    return ""
-            print(f"  [debug] mgmt /tenants: returned {len(tenants)} entry(s), target tenant not matched")
+                    return ""  # tenant found but ARM strips domain fields for SP tokens
         except Exception as e:
             print(f"  [debug] mgmt /tenants failed: {e}")
         return ""
