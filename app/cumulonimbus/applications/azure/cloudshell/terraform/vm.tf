@@ -75,7 +75,7 @@ resource "azurerm_windows_virtual_machine" "vm_cs" {
   location              = azurerm_resource_group.vm_cs.location
   resource_group_name   = azurerm_resource_group.vm_cs.name
   network_interface_ids = [azurerm_network_interface.vm_cs.id]
-  size                  = "Standard_B2s"
+  size                  = "Standard_D2s_v3"
 
   os_disk {
     name                 = "adminVmDisk"
