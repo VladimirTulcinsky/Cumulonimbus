@@ -54,7 +54,7 @@ strip the leading `?` from the SAS and join with `&`:
 curl "https://<account>.blob.core.windows.net/<container>?restype=container&comp=list&sv=...&sig=..."
 
 # List all containers in the account (requires srt=s)
-curl "https://<account>.blob.core.windows.net/?restype=account&comp=list&sv=...&sig=..."
+curl "https://<account>.blob.core.windows.net/?comp=list&sv=...&sig=..."
 
 # Download a specific blob
 curl "https://<account>.blob.core.windows.net/<container>/<blob>?sv=...&sig=..."
@@ -97,7 +97,7 @@ The SAS token has service-level list permission — use it to enumerate all cont
 ACCOUNT="<storage_account_name>"
 SAS="<extracted_sas_token>"   # starts with ?sv=
 
-curl "https://${ACCOUNT}.blob.core.windows.net/?restype=account&comp=list&${SAS:1}"
+curl "https://${ACCOUNT}.blob.core.windows.net/?comp=list&${SAS:1}"
 ```
 
 If listing were restricted, you would brute-force container names instead.
