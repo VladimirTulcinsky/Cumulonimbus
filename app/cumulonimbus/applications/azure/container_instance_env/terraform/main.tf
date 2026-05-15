@@ -29,3 +29,8 @@ provider "azuread" {
   client_secret = var.client_secret
   tenant_id     = var.tenant_id
 }
+
+
+resource "azurerm_resource_provider_registration" "microsoft_containerinstance" {
+  name = "Microsoft.ContainerInstance"
+}

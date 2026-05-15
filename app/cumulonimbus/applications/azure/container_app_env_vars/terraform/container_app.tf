@@ -5,7 +5,8 @@ resource "random_string" "suffix" {
 }
 
 resource "azurerm_resource_group" "lab" {
-  name     = "${var.app_name}-${var.app_id}-${random_string.suffix.result}"
+  name     = "${var.app_name  depends_on = [azurerm_resource_provider_registration.microsoft_app, azurerm_resource_provider_registration.microsoft_operationalinsights]
+}-${var.app_id}-${random_string.suffix.result}"
   location = "West Europe"
 
   tags = {

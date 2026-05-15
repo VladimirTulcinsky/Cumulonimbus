@@ -1,6 +1,8 @@
 resource "azurerm_resource_group" "ska_sa" {
   name     = "ska-sa-rg"
   location = "West Europe"
+
+  depends_on = [azurerm_resource_provider_registration.microsoft_web, azurerm_resource_provider_registration.microsoft_keyvault]
 }
 
 

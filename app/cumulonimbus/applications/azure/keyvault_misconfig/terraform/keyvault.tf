@@ -8,6 +8,8 @@ resource "random_integer" "keyvault_misconfig" {
 resource "azurerm_resource_group" "keyvault_misconfig" {
   name     = "keyvault-misconfig"
   location = "West Europe"
+
+  depends_on = [azurerm_resource_provider_registration.microsoft_keyvault]
 }
 
 # Misconfigured Key Vault: access policy mode, public network access, no firewall
