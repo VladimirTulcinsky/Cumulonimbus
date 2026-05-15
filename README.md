@@ -26,45 +26,45 @@
 
 | App ID | Category |
 |--------|----------|
-| `sa_public_access` | Storage Misconfiguration |
-| `blob_sas_abuse` | Storage / Credential Exposure |
-| `app_service_env_vars` | Web / Secrets |
-| `container_instance_env` | Containers / Secrets |
-| `container_app_env_vars` | Containers / Secrets |
-| `resource_group_tags` | Identity / Secrets |
-| `app_configuration_secrets` | Configuration / Secrets |
-| `vm_extension_settings` | Compute / Secrets |
-| `apim_named_value` | API Management / Secrets |
-| `deployment_script` | IaC / Data Exposure |
-| `policy_assignment_metadata` | Governance / Secrets |
-| `monitor_action_group` | Monitoring / Secrets |
+| [`sa_public_access`](app/cumulonimbus/applications/azure/sa_public_access/README.md) | Storage Misconfiguration |
+| [`blob_sas_abuse`](app/cumulonimbus/applications/azure/blob_sas_abuse/README.md) | Storage / Credential Exposure |
+| [`app_service_env_vars`](app/cumulonimbus/applications/azure/app_service_env_vars/README.md) | Web / Secrets |
+| [`container_instance_env`](app/cumulonimbus/applications/azure/container_instance_env/README.md) | Containers / Secrets |
+| [`container_app_env_vars`](app/cumulonimbus/applications/azure/container_app_env_vars/README.md) | Containers / Secrets |
+| [`resource_group_tags`](app/cumulonimbus/applications/azure/resource_group_tags/README.md) | Identity / Secrets |
+| [`app_configuration_secrets`](app/cumulonimbus/applications/azure/app_configuration_secrets/README.md) | Configuration / Secrets |
+| [`vm_extension_settings`](app/cumulonimbus/applications/azure/vm_extension_settings/README.md) | Compute / Secrets |
+| [`apim_named_value`](app/cumulonimbus/applications/azure/apim_named_value/README.md) | API Management / Secrets |
+| [`deployment_script`](app/cumulonimbus/applications/azure/deployment_script/README.md) | IaC / Data Exposure |
+| [`policy_assignment_metadata`](app/cumulonimbus/applications/azure/policy_assignment_metadata/README.md) | Governance / Secrets |
+| [`monitor_action_group`](app/cumulonimbus/applications/azure/monitor_action_group/README.md) | Monitoring / Secrets |
 
 **Intermediate**
 
 | App ID | Category |
 |--------|----------|
-| `cloudshell` | Storage / RBAC |
-| `illicit_consent_grant` | Identity / OAuth Phishing |
-| `managed_identity_abuse` | Compute / IMDS |
-| `keyvault_misconfig` | Key Vault / Access Policy |
-| `automation_account` | Automation / Managed Identity |
-| `function_ssrf` | Serverless / SSRF / IMDS |
-| `terraform_state_exposure` | Storage / Secrets in State |
-| `arm_deployment_history` | ARM / Credential Exposure |
-| `exposed_app_registration` | Identity / Credential Exposure |
-| `storage_account_keys` | Storage / Privilege Escalation |
-| `vm_run_command` | Compute / Privilege Escalation |
-| `eventgrid_webhook_token` | Integration / Secrets |
-| `logic_app_credentials` | Integration / Secrets |
-| `data_factory_linked_service` | Integration / Secrets |
+| [`cloudshell`](app/cumulonimbus/applications/azure/cloudshell/README.md) | Storage / RBAC |
+| [`illicit_consent_grant`](app/cumulonimbus/applications/azure/illicit_consent_grant/README.md) | Identity / OAuth Phishing |
+| [`managed_identity_abuse`](app/cumulonimbus/applications/azure/managed_identity_abuse/README.md) | Compute / IMDS |
+| [`keyvault_misconfig`](app/cumulonimbus/applications/azure/keyvault_misconfig/README.md) | Key Vault / Access Policy |
+| [`automation_account`](app/cumulonimbus/applications/azure/automation_account/README.md) | Automation / Managed Identity |
+| [`function_ssrf`](app/cumulonimbus/applications/azure/function_ssrf/README.md) | Serverless / SSRF / IMDS |
+| [`terraform_state_exposure`](app/cumulonimbus/applications/azure/terraform_state_exposure/README.md) | Storage / Secrets in State |
+| [`arm_deployment_history`](app/cumulonimbus/applications/azure/arm_deployment_history/README.md) | ARM / Credential Exposure |
+| [`exposed_app_registration`](app/cumulonimbus/applications/azure/exposed_app_registration/README.md) | Identity / Credential Exposure |
+| [`storage_account_keys`](app/cumulonimbus/applications/azure/storage_account_keys/README.md) | Storage / Privilege Escalation |
+| [`vm_run_command`](app/cumulonimbus/applications/azure/vm_run_command/README.md) | Compute / Privilege Escalation |
+| [`eventgrid_webhook_token`](app/cumulonimbus/applications/azure/eventgrid_webhook_token/README.md) | Integration / Secrets |
+| [`logic_app_credentials`](app/cumulonimbus/applications/azure/logic_app_credentials/README.md) | Integration / Secrets |
+| [`data_factory_linked_service`](app/cumulonimbus/applications/azure/data_factory_linked_service/README.md) | Integration / Secrets |
 
 **Advanced**
 
 | App ID | Category |
 |--------|----------|
-| `add_sp_credentials` | Identity / Privilege Escalation |
-| `foci` | Identity / OAuth Token Abuse |
-| `shared_key_auth` | Storage / Function App / Key Vault |
+| [`add_sp_credentials`](app/cumulonimbus/applications/azure/add_sp_credentials/README.md) | Identity / Privilege Escalation |
+| [`foci`](app/cumulonimbus/applications/azure/foci/README.md) | Identity / OAuth Token Abuse |
+| [`shared_key_auth`](app/cumulonimbus/applications/azure/shared_key_auth/README.md) | Storage / Function App / Key Vault |
 
 </details>
 
@@ -77,40 +77,40 @@
 
 | App ID | Category |
 |--------|----------|
-| `ec2_ssrf` | SSRF / IMDS |
-| `s3_public_access` | Storage / Misconfiguration |
-| `s3_object_public_acl` | Storage / Misconfiguration |
-| `s3_bucket_versioning` | Storage / Versioning |
-| `lambda_env_secrets` | Serverless / Credential Exposure |
-| `lambda_function_url` | Serverless / Exposure |
-| `ec2_userdata_secrets` | Compute / Credential Exposure |
-| `cloudformation_stack` | Infrastructure / Secrets |
-| `glue_job_secrets` | Data / Secrets |
-| `sqs_public_receive` | Messaging / Misconfiguration |
-| `codebuild_env_vars` | CI/CD / Secrets |
-| `route53_records` | DNS / Data Exposure |
-| `dynamodb_scan` | Database / Data Exposure |
-| `amplify_env_vars` | Frontend / Secrets |
-| `appconfig_deployment` | Configuration / Secrets |
+| [`ec2_ssrf`](app/cumulonimbus/applications/aws/ec2_ssrf/README.md) | SSRF / IMDS |
+| [`s3_public_access`](app/cumulonimbus/applications/aws/s3_public_access/README.md) | Storage / Misconfiguration |
+| [`s3_object_public_acl`](app/cumulonimbus/applications/aws/s3_object_public_acl/README.md) | Storage / Misconfiguration |
+| [`s3_bucket_versioning`](app/cumulonimbus/applications/aws/s3_bucket_versioning/README.md) | Storage / Versioning |
+| [`lambda_env_secrets`](app/cumulonimbus/applications/aws/lambda_env_secrets/README.md) | Serverless / Credential Exposure |
+| [`lambda_function_url`](app/cumulonimbus/applications/aws/lambda_function_url/README.md) | Serverless / Exposure |
+| [`ec2_userdata_secrets`](app/cumulonimbus/applications/aws/ec2_userdata_secrets/README.md) | Compute / Credential Exposure |
+| [`cloudformation_stack`](app/cumulonimbus/applications/aws/cloudformation_stack/README.md) | Infrastructure / Secrets |
+| [`glue_job_secrets`](app/cumulonimbus/applications/aws/glue_job_secrets/README.md) | Data / Secrets |
+| [`sqs_public_receive`](app/cumulonimbus/applications/aws/sqs_public_receive/README.md) | Messaging / Misconfiguration |
+| [`codebuild_env_vars`](app/cumulonimbus/applications/aws/codebuild_env_vars/README.md) | CI/CD / Secrets |
+| [`route53_records`](app/cumulonimbus/applications/aws/route53_records/README.md) | DNS / Data Exposure |
+| [`dynamodb_scan`](app/cumulonimbus/applications/aws/dynamodb_scan/README.md) | Database / Data Exposure |
+| [`amplify_env_vars`](app/cumulonimbus/applications/aws/amplify_env_vars/README.md) | Frontend / Secrets |
+| [`appconfig_deployment`](app/cumulonimbus/applications/aws/appconfig_deployment/README.md) | Configuration / Secrets |
 
 **Intermediate**
 
 | App ID | Category |
 |--------|----------|
-| `secrets_manager_enum` | IAM / Secrets Management |
-| `ssm_parameter_store` | IAM / Secrets Management |
-| `sts_assume_role_any` | IAM / Privilege Escalation |
-| `cognito_identity_pool` | Identity / Credential Abuse |
-| `ssm_session_manager` | Compute / Lateral Movement |
-| `ecs_exec` | Containers / Lateral Movement |
-| `kinesis_shard_reader` | Streaming / Data Exposure |
-| `stepfunctions_execution_history` | Serverless / Data Exposure |
+| [`secrets_manager_enum`](app/cumulonimbus/applications/aws/secrets_manager_enum/README.md) | IAM / Secrets Management |
+| [`ssm_parameter_store`](app/cumulonimbus/applications/aws/ssm_parameter_store/README.md) | IAM / Secrets Management |
+| [`sts_assume_role_any`](app/cumulonimbus/applications/aws/sts_assume_role_any/README.md) | IAM / Privilege Escalation |
+| [`cognito_identity_pool`](app/cumulonimbus/applications/aws/cognito_identity_pool/README.md) | Identity / Credential Abuse |
+| [`ssm_session_manager`](app/cumulonimbus/applications/aws/ssm_session_manager/README.md) | Compute / Lateral Movement |
+| [`ecs_exec`](app/cumulonimbus/applications/aws/ecs_exec/README.md) | Containers / Lateral Movement |
+| [`kinesis_shard_reader`](app/cumulonimbus/applications/aws/kinesis_shard_reader/README.md) | Streaming / Data Exposure |
+| [`stepfunctions_execution_history`](app/cumulonimbus/applications/aws/stepfunctions_execution_history/README.md) | Serverless / Data Exposure |
 
 **Advanced**
 
 | App ID | Category |
 |--------|----------|
-| `iam_privesc` | IAM / Privilege Escalation |
+| [`iam_privesc`](app/cumulonimbus/applications/aws/iam_privesc/README.md) | IAM / Privilege Escalation |
 
 </details>
 
