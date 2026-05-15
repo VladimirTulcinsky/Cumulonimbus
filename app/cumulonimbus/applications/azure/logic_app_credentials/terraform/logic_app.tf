@@ -14,6 +14,8 @@ resource "azurerm_resource_group" "rg" {
     app_id  = var.app_id
     managed = "terraform"
   }
+
+  depends_on = [azurerm_resource_provider_registration.microsoft_logic]
 }
 
 # Logic App workflow with an HTTP action containing hardcoded credentials in headers

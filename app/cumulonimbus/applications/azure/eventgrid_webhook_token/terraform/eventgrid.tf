@@ -14,6 +14,8 @@ resource "azurerm_resource_group" "rg" {
     app_id  = var.app_id
     managed = "terraform"
   }
+
+  depends_on = [azurerm_resource_provider_registration.microsoft_eventgrid]
 }
 
 resource "azurerm_eventgrid_topic" "app" {
