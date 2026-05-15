@@ -1,20 +1,15 @@
 <div align="center">
 
-```
- ██████╗██╗      ██████╗ ██╗   ██╗██████╗
-██╔════╝██║     ██╔═══██╗██║   ██║██╔══██╗
-██║     ██║     ██║   ██║██║   ██║██║  ██║
-██║     ██║     ██║   ██║██║   ██║██║  ██║
-╚██████╗███████╗╚██████╔╝╚██████╔╝██████╔╝
- ╚═════╝╚══════╝ ╚═════╝  ╚═════╝╚═════╝
+<img src="docs/logo.svg" alt="Cumulonimbus" width="860"/>
 
-     N I M B U S
-```
-
-### A Vulnerable Cloud Environment · AWS & Azure
+---
 
 > ⚠️ **Warning:** This cyber range deploys intentionally vulnerable infrastructure.
 > Do **not** use it in production or in an environment with sensitive data.
+
+> 💸 **Cost notice:** Deploying a lab provisions **real cloud infrastructure** on your AWS or Azure account.
+> Charges will be incurred. Always destroy labs when you are done:
+> `cnimbus <provider> destroy --app-id <app-id>`
 
 </div>
 
@@ -23,7 +18,7 @@
 ## Available Labs
 
 <details>
-<summary><strong>☁️ Azure Labs — 29 challenges</strong></summary>
+<summary><strong>🔵 Azure Labs — 29 challenges</strong></summary>
 
 <br>
 
