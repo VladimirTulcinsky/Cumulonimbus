@@ -74,10 +74,10 @@ az vm show -g admin-vm-rg -n admin-vm --show-details --query publicIps -o tsv
 xfreerdp /v:<vm-ip> /u:ytirucsboybytiruces /p:'IWillNotRememberThisPassword1.' /cert-ignore /f
 ```
 
-Once connected, open a terminal and run:
+Once connected, the flag is on the Desktop — open it directly or run:
 
 ```
-type C:\flag.txt
+type C:\Users\ytirucsboybytiruces\Desktop\flag.txt
 ```
 
 ## How to Fix in Production

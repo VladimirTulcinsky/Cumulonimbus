@@ -101,7 +101,7 @@ resource "azurerm_virtual_machine_extension" "write_flag" {
 
   settings = <<SETTINGS
     {
-      "commandToExecute": "powershell.exe -Command \"New-Item 'C:/flag.txt' -ItemType File -Value 'Cumulonimbus{CSStorageMustBeLockedDown}'\""
+      "commandToExecute": "powershell.exe -Command \"New-Item 'C:/Users/ytirucsboybytiruces/Desktop/flag.txt' -ItemType File -Value 'Cumulonimbus{CSStorageMustBeLockedDown}'\""
     }
   SETTINGS
 }
