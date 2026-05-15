@@ -100,12 +100,12 @@ You need a cloud account with sufficient permissions before deploying labs.
 
 ```shell
 # Azure
-./cnimbus.py azure authenticate --service-principal \
+cnimbus azure authenticate --service-principal \
   --client-id <id> --client-secret <secret> \
   --tenant-id <tenant> --subscription-id <subscription>
 
 # AWS
-./cnimbus.py aws authenticate \
+cnimbus aws authenticate \
   --access-key-id <key-id> --secret-access-key <secret> \
   [--session-token <token>]
 ```
@@ -113,30 +113,30 @@ You need a cloud account with sufficient permissions before deploying labs.
 ### Deploy a lab
 
 ```shell
-./cnimbus.py azure create --app-id <app-id>
-./cnimbus.py aws   create --app-id <app-id>
+cnimbus azure create --app-id <app-id>
+cnimbus aws   create --app-id <app-id>
 ```
 
 ### Destroy a lab
 
 ```shell
-./cnimbus.py azure destroy --app-id <app-id>
-./cnimbus.py aws   destroy --app-id <app-id>
+cnimbus azure destroy --app-id <app-id>
+cnimbus aws   destroy --app-id <app-id>
 ```
 
 ### Validate a captured flag
 
 ```shell
-./cnimbus.py azure validate --app-id <app-id> --flag "CUMULONIMBUS{...}"
-./cnimbus.py aws   validate --app-id <app-id> --flag "Cumulonimbus{...}"
+cnimbus azure validate --app-id <app-id> --flag "CUMULONIMBUS{...}"
+cnimbus aws   validate --app-id <app-id> --flag "Cumulonimbus{...}"
 ```
 
 ### Get a hint
 
 ```shell
 # Level 1 = gentle nudge, 2 = moderate, 3 = explicit
-./cnimbus.py azure hint --app-id <app-id> --level 1
-./cnimbus.py aws   hint --app-id <app-id> --level 2
+cnimbus azure hint --app-id <app-id> --level 1
+cnimbus aws   hint --app-id <app-id> --level 2
 ```
 
 ---
@@ -157,7 +157,7 @@ python seed_challenges.py --url http://localhost:8000 --admin-token <token>
 ## For more help
 
 ```shell
-./cnimbus.py -h
-./cnimbus.py azure -h
-./cnimbus.py aws -h
+cnimbus -h
+cnimbus azure -h
+cnimbus aws -h
 ```
