@@ -1,65 +1,125 @@
-# Cumulonimbus: A Vulnerable Cloud Environment
+<div align="center">
 
-> **Warning:** This cyber range deploys intentionally vulnerable infrastructure.
+```
+ ██████╗██╗      ██████╗ ██╗   ██╗██████╗
+██╔════╝██║     ██╔═══██╗██║   ██║██╔══██╗
+██║     ██║     ██║   ██║██║   ██║██║  ██║
+██║     ██║     ██║   ██║██║   ██║██║  ██║
+╚██████╗███████╗╚██████╔╝╚██████╔╝██████╔╝
+ ╚═════╝╚══════╝ ╚═════╝  ╚═════╝╚═════╝
+
+     N I M B U S
+```
+
+### A Vulnerable Cloud Environment · AWS & Azure
+
+> ⚠️ **Warning:** This cyber range deploys intentionally vulnerable infrastructure.
 > Do **not** use it in production or in an environment with sensitive data.
+
+</div>
+
+---
 
 ## Available Labs
 
-| App ID | Provider | Category | Difficulty |
-|--------|----------|----------|------------|
-| `ec2_ssrf` | AWS | SSRF / IMDS | Beginner |
-| `sa_public_access` | Azure | Storage Misconfiguration | Beginner |
-| `cloudshell` | Azure | Storage / RBAC | Intermediate |
-| `illicit_consent_grant` | Azure | Identity / OAuth Phishing | Intermediate |
-| `managed_identity_abuse` | Azure | Compute / IMDS | Intermediate |
-| `add_sp_credentials` | Azure | Identity / Privilege Escalation | Advanced |
-| `foci` | Azure | Identity / OAuth Token Abuse | Advanced |
-| `shared_key_auth` | Azure | Storage / Function App / Key Vault | Advanced |
-| `blob_sas_abuse` | Azure | Storage / Credential Exposure | Beginner |
-| `keyvault_misconfig` | Azure | Key Vault / Access Policy | Intermediate |
-| `automation_account` | Azure | Automation / Managed Identity | Intermediate |
-| `function_ssrf` | Azure | Serverless / SSRF / IMDS | Intermediate |
-| `s3_public_access` | AWS | Storage / Misconfiguration | Beginner |
-| `lambda_env_secrets` | AWS | Serverless / Credential Exposure | Beginner |
-| `ec2_userdata_secrets` | AWS | Compute / Credential Exposure | Beginner |
-| `secrets_manager_enum` | AWS | IAM / Secrets Management | Intermediate |
-| `ssm_parameter_store` | AWS | IAM / Secrets Management | Intermediate |
-| `iam_privesc` | AWS | IAM / Privilege Escalation | Advanced |
-| `terraform_state_exposure` | Azure | Storage / Secrets in State | Intermediate |
-| `arm_deployment_history` | Azure | ARM / Credential Exposure | Intermediate |
-| `exposed_app_registration` | Azure | Identity / Credential Exposure | Intermediate |
-| `s3_bucket_versioning` | AWS | Storage / Versioning | Beginner |
-| `cloudformation_stack` | AWS | Infrastructure / Secrets | Beginner |
-| `sts_assume_role_any` | AWS | IAM / Privilege Escalation | Intermediate |
-| `app_service_env_vars` | Azure | Web / Secrets | Beginner |
-| `lambda_function_url` | AWS | Serverless / Exposure | Beginner |
-| `cognito_identity_pool` | AWS | Identity / Credential Abuse | Intermediate |
-| `logic_app_credentials` | Azure | Integration / Secrets | Intermediate |
-| `storage_account_keys` | Azure | Storage / Privilege Escalation | Intermediate |
-| `s3_object_public_acl` | AWS | Storage / Misconfiguration | Beginner |
-| `glue_job_secrets` | AWS | Data / Secrets | Beginner |
-| `vm_run_command` | Azure | Compute / Privilege Escalation | Intermediate |
-| `container_instance_env` | Azure | Containers / Secrets | Beginner |
-| `sqs_public_receive` | AWS | Messaging / Misconfiguration | Beginner |
-| `ssm_session_manager` | AWS | Compute / Lateral Movement | Intermediate |
-| `resource_group_tags` | Azure | Identity / Secrets | Beginner |
-| `eventgrid_webhook_token` | Azure | Integration / Secrets | Intermediate |
-| `codebuild_env_vars` | AWS | CI/CD / Secrets | Beginner |
-| `stepfunctions_execution_history` | AWS | Serverless / Data Exposure | Intermediate |
-| `app_configuration_secrets` | Azure | Configuration / Secrets | Beginner |
-| `vm_extension_settings` | Azure | Compute / Secrets | Beginner |
-| `route53_records` | AWS | DNS / Data Exposure | Beginner |
-| `ecs_exec` | AWS | Containers / Lateral Movement | Intermediate |
-| `apim_named_value` | Azure | API Management / Secrets | Beginner |
-| `container_app_env_vars` | Azure | Containers / Secrets | Beginner |
-| `dynamodb_scan` | AWS | Database / Data Exposure | Beginner |
-| `kinesis_shard_reader` | AWS | Streaming / Data Exposure | Intermediate |
-| `deployment_script` | Azure | IaC / Data Exposure | Beginner |
-| `policy_assignment_metadata` | Azure | Governance / Secrets | Beginner |
-| `amplify_env_vars` | AWS | Frontend / Secrets | Beginner |
-| `appconfig_deployment` | AWS | Configuration / Secrets | Beginner |
-| `monitor_action_group` | Azure | Monitoring / Secrets | Beginner |
-| `data_factory_linked_service` | Azure | Integration / Secrets | Intermediate |
+<details>
+<summary><strong>☁️ Azure Labs — 29 challenges</strong></summary>
+
+<br>
+
+**Beginner**
+
+| App ID | Category |
+|--------|----------|
+| `sa_public_access` | Storage Misconfiguration |
+| `blob_sas_abuse` | Storage / Credential Exposure |
+| `app_service_env_vars` | Web / Secrets |
+| `container_instance_env` | Containers / Secrets |
+| `container_app_env_vars` | Containers / Secrets |
+| `resource_group_tags` | Identity / Secrets |
+| `app_configuration_secrets` | Configuration / Secrets |
+| `vm_extension_settings` | Compute / Secrets |
+| `apim_named_value` | API Management / Secrets |
+| `deployment_script` | IaC / Data Exposure |
+| `policy_assignment_metadata` | Governance / Secrets |
+| `monitor_action_group` | Monitoring / Secrets |
+
+**Intermediate**
+
+| App ID | Category |
+|--------|----------|
+| `cloudshell` | Storage / RBAC |
+| `illicit_consent_grant` | Identity / OAuth Phishing |
+| `managed_identity_abuse` | Compute / IMDS |
+| `keyvault_misconfig` | Key Vault / Access Policy |
+| `automation_account` | Automation / Managed Identity |
+| `function_ssrf` | Serverless / SSRF / IMDS |
+| `terraform_state_exposure` | Storage / Secrets in State |
+| `arm_deployment_history` | ARM / Credential Exposure |
+| `exposed_app_registration` | Identity / Credential Exposure |
+| `storage_account_keys` | Storage / Privilege Escalation |
+| `vm_run_command` | Compute / Privilege Escalation |
+| `eventgrid_webhook_token` | Integration / Secrets |
+| `logic_app_credentials` | Integration / Secrets |
+| `data_factory_linked_service` | Integration / Secrets |
+
+**Advanced**
+
+| App ID | Category |
+|--------|----------|
+| `add_sp_credentials` | Identity / Privilege Escalation |
+| `foci` | Identity / OAuth Token Abuse |
+| `shared_key_auth` | Storage / Function App / Key Vault |
+
+</details>
+
+<details>
+<summary><strong>🟠 AWS Labs — 24 challenges</strong></summary>
+
+<br>
+
+**Beginner**
+
+| App ID | Category |
+|--------|----------|
+| `ec2_ssrf` | SSRF / IMDS |
+| `s3_public_access` | Storage / Misconfiguration |
+| `s3_object_public_acl` | Storage / Misconfiguration |
+| `s3_bucket_versioning` | Storage / Versioning |
+| `lambda_env_secrets` | Serverless / Credential Exposure |
+| `lambda_function_url` | Serverless / Exposure |
+| `ec2_userdata_secrets` | Compute / Credential Exposure |
+| `cloudformation_stack` | Infrastructure / Secrets |
+| `glue_job_secrets` | Data / Secrets |
+| `sqs_public_receive` | Messaging / Misconfiguration |
+| `codebuild_env_vars` | CI/CD / Secrets |
+| `route53_records` | DNS / Data Exposure |
+| `dynamodb_scan` | Database / Data Exposure |
+| `amplify_env_vars` | Frontend / Secrets |
+| `appconfig_deployment` | Configuration / Secrets |
+
+**Intermediate**
+
+| App ID | Category |
+|--------|----------|
+| `secrets_manager_enum` | IAM / Secrets Management |
+| `ssm_parameter_store` | IAM / Secrets Management |
+| `sts_assume_role_any` | IAM / Privilege Escalation |
+| `cognito_identity_pool` | Identity / Credential Abuse |
+| `ssm_session_manager` | Compute / Lateral Movement |
+| `ecs_exec` | Containers / Lateral Movement |
+| `kinesis_shard_reader` | Streaming / Data Exposure |
+| `stepfunctions_execution_history` | Serverless / Data Exposure |
+
+**Advanced**
+
+| App ID | Category |
+|--------|----------|
+| `iam_privesc` | IAM / Privilege Escalation |
+
+</details>
+
+---
 
 ## Quick Start
 
