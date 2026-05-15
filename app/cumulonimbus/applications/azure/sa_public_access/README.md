@@ -49,7 +49,21 @@ Use [cloud_enum](https://github.com/initstring/cloud_enum) to discover storage a
 ./cloud_enum.py -k cumulonimbusXXXXstg --disable-aws --disable-gcp
 ```
 
-Once you've identified the production account, list the `website` container directly:
+Once you've identified the production account, enumerate its containers.
+Since no credentials are needed, you can brute-force container names directly:
+
+| Tool | Example command |
+|------|----------------|
+| **gobuster** | `gobuster fuzz -u "https://cumulonimbusXXXXprd.blob.core.windows.net/FUZZ?restype=container&comp=list" -w containers.txt -b 404` |
+| **ffuf** | `ffuf -u "https://cumulonimbusXXXXprd.blob.core.windows.net/FUZZ?restype=container" -w containers.txt -fc 404` |
+| **cloudbrute** | `cloudbrute -d cumulonimbusXXXXprd.blob.core.windows.net -w containers.txt -service azure` |
+| **wfuzz** | `wfuzz -c -z file,containers.txt --hc 404 "https://cumulonimbusXXXXprd.blob.core.windows.net/FUZZ?restype=container"` |
+
+Recommended wordlists from [SecLists](https://github.com/danielmiessler/SecLists):
+- `Discovery/Cloud/azure-storage-containers.txt`
+- `Discovery/Web-Content/common.txt`
+
+Or list the `website` container directly once you know its name:
 
 ```bash
 curl "https://cumulonimbusXXXXprd.blob.core.windows.net/website?restype=container&comp=list"
