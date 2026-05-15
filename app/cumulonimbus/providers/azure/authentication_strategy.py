@@ -1,6 +1,7 @@
 import logging
 import os
 
+import requests
 from azure.identity import ClientSecretCredential
 import cumulonimbus.global_variables as global_variables
 from cumulonimbus.providers.base.authentication_strategy import AuthenticationStrategy, AuthenticationException
@@ -58,8 +59,10 @@ class AzureAuthenticationStrategy(AuthenticationStrategy):
                 raise AuthenticationException('Unknown authentication method')
 
             # Try getting token to authenticate, if error trigger AuthenticationException
-            credentials.get_token(
-                "https://management.core.windows.net/.default")
+            token = credentials.get_token("https://management.azure.com/.default")
+
+            if not tenant_domain:
+                tenant_domain = self._resolve_tenant_domain(token.token, tenant_id)
 
             self.write_credentials_to_file(
                 client_id, client_secret, tenant_id, subscription_id, tenant_domain)
@@ -90,6 +93,25 @@ class AzureAuthenticationStrategy(AuthenticationStrategy):
 
     def get_tenant_domain(self):
         return os.environ.get("AZURE_TENANT_DOMAIN", "")
+
+    def _resolve_tenant_domain(self, token: str, tenant_id: str) -> str:
+        """Look up the tenant's default domain via the management plane (no Graph perms needed)."""
+        try:
+            r = requests.get(
+                "https://management.azure.com/tenants?api-version=2022-12-01",
+                headers={"Authorization": f"Bearer {token}"},
+                timeout=10,
+            )
+            r.raise_for_status()
+            for tenant in r.json().get("value", []):
+                if tenant.get("tenantId") == tenant_id:
+                    domain = tenant.get("defaultDomain", "")
+                    if domain:
+                        print(f"  Resolved tenant domain: {domain}")
+                        return domain
+        except Exception:
+            pass
+        return ""
 
     def write_credentials_to_file(self, client_id, client_secret, tenant_id, subscription_id, tenant_domain=None):
         f = open(global_variables.PATH_TO_AZURE_CREDENTIALS, "w")
