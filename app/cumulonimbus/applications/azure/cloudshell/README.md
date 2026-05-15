@@ -77,7 +77,7 @@ xfreerdp /v:<vm-ip> /u:ytirucsboybytiruces /p:'IWillNotRememberThisPassword1.' /
 Once connected, the flag is on the Desktop — open it directly or run:
 
 ```
-type C:\Users\ytirucsboybytiruces\Desktop\flag.txt
+type C:\Users\Public\Desktop\flag.txt
 ```
 
 ## How to Fix in Production

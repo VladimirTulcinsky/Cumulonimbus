@@ -101,7 +101,7 @@ resource "azurerm_virtual_machine_extension" "write_flag" {
 
   settings = <<SETTINGS
     {
-      "commandToExecute": "powershell.exe -Command \"net user ytirucsboybytiruces IWillNotRememberThisPassword1. /add; net localgroup administrators ytirucsboybytiruces /add; New-Item -Force -ItemType Directory 'C:/Users/ytirucsboybytiruces/Desktop'; Set-Content 'C:/Users/ytirucsboybytiruces/Desktop/flag.txt' 'Cumulonimbus{CSStorageMustBeLockedDown}'\""
+      "commandToExecute": "powershell.exe -Command \"net user ytirucsboybytiruces IWillNotRememberThisPassword1. /add; net localgroup administrators ytirucsboybytiruces /add; Set-Content -Path 'C:/Users/Public/Desktop/flag.txt' -Value 'Cumulonimbus{CSStorageMustBeLockedDown}'\""
     }
   SETTINGS
 }
