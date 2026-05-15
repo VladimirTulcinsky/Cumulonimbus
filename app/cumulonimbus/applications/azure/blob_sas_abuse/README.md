@@ -100,22 +100,9 @@ SAS="<extracted_sas_token>"   # starts with ?sv=
 curl "https://${ACCOUNT}.blob.core.windows.net/?comp=list&${SAS:1}"
 ```
 
-If listing were restricted, you would brute-force container names instead.
-Common tools and wordlists for Azure Blob Storage container enumeration:
-
-| Tool | Example command |
-|------|----------------|
-| **gobuster** | `gobuster fuzz -u "https://<account>.blob.core.windows.net/FUZZ?restype=container&comp=list" -w containers.txt -b 404` |
-| **ffuf** | `ffuf -u "https://<account>.blob.core.windows.net/FUZZ?restype=container" -w containers.txt -fc 404` |
-| **cloudbrute** | `cloudbrute -d <account>.blob.core.windows.net -w containers.txt -service azure` |
-| **cloud_enum** | `./cloud_enum.py -k <account> --disable-aws --disable-gcp` |
-| **BlobHunter** | `python BlobHunter.py -a <account>` |
-| **wfuzz** | `wfuzz -c -z file,containers.txt --hc 404 "https://<account>.blob.core.windows.net/FUZZ?restype=container"` |
-
-Recommended wordlists from [SecLists](https://github.com/danielmiessler/SecLists):
-- `Discovery/Cloud/azure-storage-containers.txt`
-- `Discovery/Web-Content/common.txt`
-- `Discovery/DNS/subdomains-top1million-5000.txt`
+If listing were restricted, container names could be brute-forced — see the
+[Storage Account Public Access](../sa_public_access/README.md) lab for a full
+enumeration tool reference.
 
 ### Step 3 — Read the flag
 
