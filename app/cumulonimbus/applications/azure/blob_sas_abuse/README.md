@@ -13,7 +13,54 @@ The portal's static files are served from a public `$web` container. Any visitor
 inspects the JavaScript source finds the SAS token and can use it to access the private
 `secrets` container — including `flag.txt`.
 
-## Attack Path
+## What is a SAS Token?
+
+A **Shared Access Signature (SAS)** is a URI query string that grants time-limited,
+permission-scoped access to Azure Storage without needing account credentials.
+It looks like this:
+
+```
+?sv=2019-12-12&ss=b&srt=sco&sp=rl&se=2030-01-01T00:00:00Z&st=2024-01-01T00:00:00Z&spr=https&sig=<signature>
+```
+
+| Parameter | Meaning | Values in this lab |
+|-----------|---------|-------------------|
+| `sv` | Storage service version | `2019-12-12` |
+| `ss` | Services (which Azure Storage services) | `b` = Blob only |
+| `srt` | Resource types accessible | `s` = service, `c` = container, `o` = object |
+| `sp` | Permissions | `r` = read, `l` = list |
+| `st` | Start time (ISO 8601) | `2024-01-01` |
+| `se` | Expiry time (ISO 8601) | `2030-01-01` — far future, a red flag |
+| `spr` | Allowed protocol | `https` |
+| `sig` | HMAC-SHA256 signature over the parameters | (opaque) |
+
+The `srt=sco` and `sp=rl` combination is particularly dangerous: it grants **read and list
+access to every container and every blob** in the storage account — not just the one the
+developer intended to share.
+
+### How to use the SAS token
+
+Append it to any Azure Blob Storage URL as a query string:
+
+```
+https://<account>.blob.core.windows.net/<container>/<blob>?sv=...&sig=...
+```
+
+When the URL already has query parameters (e.g. `?restype=container&comp=list`),
+strip the leading `?` from the SAS and join with `&`:
+
+```bash
+# List blobs in a container
+curl "https://<account>.blob.core.windows.net/<container>?restype=container&comp=list&sv=...&sig=..."
+
+# List all containers in the account (requires srt=s)
+curl "https://<account>.blob.core.windows.net/?restype=account&comp=list&sv=...&sig=..."
+
+# Download a specific blob
+curl "https://<account>.blob.core.windows.net/<container>/<blob>?sv=...&sig=..."
+```
+
+
 
 ```
 [Attacker]
