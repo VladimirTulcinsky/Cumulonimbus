@@ -69,23 +69,15 @@ class AzureAuthenticationStrategy(AuthenticationStrategy):
             raise AuthenticationException(e)
 
     def get_credentials(self):
-        """
-        Returns the credentials object
-        """
-
-        print("Getting credentials for Azure")
         try:
-            client_id = os.environ["AZURE_CLIENT_ID"]
-            client_secret = os.environ["AZURE_CLIENT_SECRET"]
-            tenant_id = os.environ["AZURE_TENANT_ID"]
-            subscription_id = os.environ["AZURE_SUBSCRIPTION_ID"]
-            credentials = self.authenticate(service_principal=True,
-                                            client_id=client_id,
-                                            client_secret=client_secret,
-                                            tenant_id=tenant_id, subscription_id=subscription_id)
-            return credentials
+            return AzureCredentials(
+                client_id=os.environ["AZURE_CLIENT_ID"],
+                client_secret=os.environ["AZURE_CLIENT_SECRET"],
+                tenant_id=os.environ["AZURE_TENANT_ID"],
+                subscription_id=os.environ["AZURE_SUBSCRIPTION_ID"],
+            )
         except KeyError:
-            print("Are you sure you are authenticated to Azure and every parameter is set? (client_id, client_secret, tenant_id, subscription_id)")
+            print("No Azure credentials found. Please authenticate first: cnimbus azure authenticate ...")
 
     def get_tenant_domain(self):
         return os.environ.get("AZURE_TENANT_DOMAIN", "")
