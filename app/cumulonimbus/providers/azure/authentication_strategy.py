@@ -59,10 +59,10 @@ class AzureAuthenticationStrategy(AuthenticationStrategy):
                 raise AuthenticationException('Unknown authentication method')
 
             # Try getting token to authenticate, if error trigger AuthenticationException
-            token = credentials.get_token("https://management.azure.com/.default")
+            credentials.get_token("https://management.azure.com/.default")
 
             if not tenant_domain:
-                tenant_domain = self._resolve_tenant_domain(token.token, tenant_id)
+                tenant_domain = self._resolve_tenant_domain(credentials, tenant_id)
 
             self.write_credentials_to_file(
                 client_id, client_secret, tenant_id, subscription_id, tenant_domain)
@@ -94,9 +94,21 @@ class AzureAuthenticationStrategy(AuthenticationStrategy):
     def get_tenant_domain(self):
         return os.environ.get("AZURE_TENANT_DOMAIN", "")
 
-    def _resolve_tenant_domain(self, token: str, tenant_id: str) -> str:
-        """Look up the tenant's default domain via the management plane (no Graph perms needed)."""
+    def _resolve_tenant_domain(self, credentials, tenant_id: str) -> str:
+        """Look up the tenant's default domain. Tries two APIs in order."""
+        domain = self._domain_from_mgmt(credentials, tenant_id)
+        if not domain:
+            domain = self._domain_from_graph(credentials)
+        if domain:
+            print(f"  Resolved tenant domain: {domain}")
+        else:
+            print("  WARNING: could not resolve tenant domain automatically.")
+            print("  Re-authenticate with: cnimbus azure authenticate ... --tenant-domain <domain>")
+        return domain
+
+    def _domain_from_mgmt(self, credentials, tenant_id: str) -> str:
         try:
+            token = credentials.get_token("https://management.azure.com/.default").token
             r = requests.get(
                 "https://management.azure.com/tenants?api-version=2022-12-01",
                 headers={"Authorization": f"Bearer {token}"},
@@ -105,10 +117,26 @@ class AzureAuthenticationStrategy(AuthenticationStrategy):
             r.raise_for_status()
             for tenant in r.json().get("value", []):
                 if tenant.get("tenantId") == tenant_id:
-                    domain = tenant.get("defaultDomain", "")
+                    domain = tenant.get("defaultDomain") or (tenant.get("domains") or [""])[0]
                     if domain:
-                        print(f"  Resolved tenant domain: {domain}")
                         return domain
+        except Exception:
+            pass
+        return ""
+
+    def _domain_from_graph(self, credentials) -> str:
+        try:
+            token = credentials.get_token("https://graph.microsoft.com/.default").token
+            r = requests.get(
+                "https://graph.microsoft.com/v1.0/organization?$select=verifiedDomains",
+                headers={"Authorization": f"Bearer {token}"},
+                timeout=10,
+            )
+            r.raise_for_status()
+            for org in r.json().get("value", []):
+                for domain in org.get("verifiedDomains", []):
+                    if domain.get("isDefault"):
+                        return domain.get("name", "")
         except Exception:
             pass
         return ""
