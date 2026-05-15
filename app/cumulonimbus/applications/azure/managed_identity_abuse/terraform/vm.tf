@@ -39,7 +39,7 @@ resource "azurerm_linux_virtual_machine" "managed_identity_abuse" {
   name                            = "vm-mia-${random_integer.managed_identity_abuse.result}"
   resource_group_name             = azurerm_resource_group.managed_identity_abuse.name
   location                        = azurerm_resource_group.managed_identity_abuse.location
-  size                            = "Standard_B1s"
+  size                            = "Standard_D2s_v3"
   admin_username                  = "azureuser"
   disable_password_authentication = true
 
