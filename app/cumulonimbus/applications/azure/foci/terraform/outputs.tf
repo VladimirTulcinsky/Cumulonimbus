@@ -1,5 +1,5 @@
 output "domain_name" {
-  value = data.azuread_domains.aad_domains.domains.*.domain_name[0]
+  value = var.tenant_domain
 }
 
 output "user_name" {

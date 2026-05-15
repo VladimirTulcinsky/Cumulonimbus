@@ -1,6 +1,3 @@
-data "azuread_domains" "managed_identity_abuse" {
-  only_initial = true
-}
 
 resource "random_password" "attacker" {
   length           = 16
@@ -11,7 +8,7 @@ resource "random_password" "attacker" {
 }
 
 resource "azuread_user" "attacker" {
-  user_principal_name = "mia-attacker@${data.azuread_domains.managed_identity_abuse.domains[0].domain_name}"
+  user_principal_name = "mia-attacker@${var.tenant_domain}"
   display_name        = "MIA Attacker"
   mail_nickname       = "mia-attacker"
   password            = random_password.attacker.result

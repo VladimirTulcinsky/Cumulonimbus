@@ -25,6 +25,7 @@ class AzureAuthenticationStrategy(AuthenticationStrategy):
                      tenant_id=None,
                      subscription_id=None,
                      client_id=None, client_secret=None,
+                     tenant_domain=None,
                      **kargs):
         """
         Implements authentication for Azure 
@@ -61,7 +62,7 @@ class AzureAuthenticationStrategy(AuthenticationStrategy):
                 "https://management.core.windows.net/.default")
 
             self.write_credentials_to_file(
-                client_id, client_secret, tenant_id, subscription_id)
+                client_id, client_secret, tenant_id, subscription_id, tenant_domain)
 
             return AzureCredentials(client_id, client_secret, tenant_id, subscription_id)
 
@@ -87,10 +88,14 @@ class AzureAuthenticationStrategy(AuthenticationStrategy):
         except KeyError:
             print("Are you sure you are authenticated to Azure and every parameter is set? (client_id, client_secret, tenant_id, subscription_id)")
 
-    def write_credentials_to_file(self, client_id, client_secret, tenant_id, subscription_id):
+    def get_tenant_domain(self):
+        return os.environ.get("AZURE_TENANT_DOMAIN", "")
+
+    def write_credentials_to_file(self, client_id, client_secret, tenant_id, subscription_id, tenant_domain=None):
         f = open(global_variables.PATH_TO_AZURE_CREDENTIALS, "w")
         f.write("AZURE_CLIENT_ID=" + str(client_id or '') + "\n")
         f.write("AZURE_CLIENT_SECRET=" + str(client_secret or '') + "\n")
         f.write("AZURE_TENANT_ID=" + str(tenant_id or '') + "\n")
         f.write("AZURE_SUBSCRIPTION_ID=" + str(subscription_id or '') + "\n")
+        f.write("AZURE_TENANT_DOMAIN=" + str(tenant_domain or '') + "\n")
         f.close()

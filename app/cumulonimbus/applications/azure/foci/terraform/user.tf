@@ -1,16 +1,13 @@
-data "azuread_domains" "aad_domains" {
-  only_default = true
-}
 
 resource "azuread_user" "administrator" {
-  user_principal_name = "almightyadmin@${data.azuread_domains.aad_domains.domains.*.domain_name[0]}"
+  user_principal_name = "almightyadmin@${var.tenant_domain}"
   display_name        = "Almighty Admin"
   mail_nickname       = "aadmin"
   password            = "FocIHaveToFindAnotherP@sswd1."
 }
 
 resource "azuread_user" "grouper" {
-  user_principal_name = "grouper@${data.azuread_domains.aad_domains.domains.*.domain_name[0]}"
+  user_principal_name = "grouper@${var.tenant_domain}"
   display_name        = "Grouper Phish"
   mail_nickname       = "gphish"
   password            = "ICanAddYouToAGroup1Hehe."

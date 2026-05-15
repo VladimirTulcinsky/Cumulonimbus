@@ -1,6 +1,3 @@
-data "azuread_domains" "keyvault_misconfig" {
-  only_initial = true
-}
 
 resource "random_password" "attacker" {
   length           = 16
@@ -11,7 +8,7 @@ resource "random_password" "attacker" {
 }
 
 resource "azuread_user" "attacker" {
-  user_principal_name   = "kv-attacker@${data.azuread_domains.keyvault_misconfig.domains[0].domain_name}"
+  user_principal_name   = "kv-attacker@${var.tenant_domain}"
   display_name          = "KV Attacker"
   mail_nickname         = "kv-attacker"
   password              = random_password.attacker.result

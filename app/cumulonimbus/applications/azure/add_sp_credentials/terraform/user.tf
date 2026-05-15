@@ -1,16 +1,13 @@
-data "azuread_domains" "aad_domains" {
-  only_default = true
-}
 
 resource "azuread_user" "norightsuser" {
-  user_principal_name = "norightsuser@${data.azuread_domains.aad_domains.domains.*.domain_name[0]}"
+  user_principal_name = "norightsuser@${var.tenant_domain}"
   display_name        = "No Rights User"
   mail_nickname       = "norightsuser"
   password            = "IHaveNoRights1."
 }
 
 resource "azuread_user" "group_owner" {
-  user_principal_name = "cred-group-owner@${data.azuread_domains.aad_domains.domains.*.domain_name[0]}"
+  user_principal_name = "cred-group-owner@${var.tenant_domain}"
   display_name        = "Cred Group Owner"
   mail_nickname       = "cred-group-owner"
   password            = "JustBecauseAgroupNeedsAnOwnerHehe1."
