@@ -88,7 +88,7 @@ resource "azurerm_storage_blob" "app_js" {
   type                   = "Block"
   content_type           = "application/javascript"
   source_content         = <<-EOF
-    // Cumulonimbus Portal — storage client
+    // Cumulonimbus Portal - storage client
     // TODO: move SAS token to backend before going to prod
     const STORAGE_ACCOUNT = "${azurerm_storage_account.blob_sas_abuse.name}";
     const SAS_TOKEN = "${data.azurerm_storage_account_sas.overpermissive.sas}";

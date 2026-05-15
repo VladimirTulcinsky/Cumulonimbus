@@ -12,9 +12,9 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
 
     def get_hints(self):
         return {
-            1: "Browse to the web app endpoint and view the page source — developers sometimes leave credentials in JavaScript files.",
-            2: "The app.js file contains a SAS_TOKEN variable. A SAS token is a query string starting with '?sv=' that grants access to Azure Blob Storage.",
-            3: "Use the SAS token to list and read the private 'secrets' container: curl 'https://<account>.blob.core.windows.net/secrets?restype=container&comp=list&<sas_token_without_question_mark>'",
+            1: "Browse to the web app endpoint and view the page source. Developers sometimes leave credentials in JavaScript files — check app.js.",
+            2: "app.js contains a SAS_TOKEN variable (a query string starting with '?sv='). With it you can enumerate all containers: curl 'https://<account>.blob.core.windows.net/?restype=account&comp=list&<sas>'. No SAS? Brute-force container names with gobuster, ffuf, cloudbrute, or BlobHunter using SecLists wordlists (e.g. SecLists/Discovery/Cloud/azure-storage-containers.txt).",
+            3: "Use the SAS token to read the private 'secrets' container: curl 'https://<account>.blob.core.windows.net/secrets/flag.txt?<sas>'",
         }
 
     def get_flag(self):
