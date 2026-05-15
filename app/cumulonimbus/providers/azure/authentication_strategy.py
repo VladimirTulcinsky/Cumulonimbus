@@ -95,14 +95,17 @@ class AzureAuthenticationStrategy(AuthenticationStrategy):
         return os.environ.get("AZURE_TENANT_DOMAIN", "")
 
     def _resolve_tenant_domain(self, credentials, tenant_id: str) -> str:
-        """Look up the tenant's default domain. Tries two APIs in order."""
+        """Look up the tenant's default domain. Tries multiple APIs in order."""
         domain = self._domain_from_mgmt(credentials, tenant_id)
         if not domain:
-            domain = self._domain_from_graph(credentials)
+            domain = self._domain_from_graph_organization(credentials)
+        if not domain:
+            domain = self._domain_from_graph_domains(credentials)
         if domain:
             print(f"  Resolved tenant domain: {domain}")
         else:
             print("  WARNING: could not resolve tenant domain automatically.")
+            print("  To find your tenant domain: Azure Portal > Microsoft Entra ID > Overview > Primary domain")
             print("  Re-authenticate with: cnimbus azure authenticate ... --tenant-domain <domain>")
         return domain
 
@@ -115,16 +118,20 @@ class AzureAuthenticationStrategy(AuthenticationStrategy):
                 timeout=10,
             )
             r.raise_for_status()
-            for tenant in r.json().get("value", []):
-                if tenant.get("tenantId") == tenant_id:
-                    domain = tenant.get("defaultDomain") or (tenant.get("domains") or [""])[0]
+            tenants = r.json().get("value", [])
+            for tenant in tenants:
+                if tenant.get("tenantId", "").lower() == tenant_id.lower():
+                    domain = tenant.get("defaultDomain") or next(iter(tenant.get("domains", [])), "")
                     if domain:
                         return domain
-        except Exception:
-            pass
+                    print(f"  [debug] mgmt /tenants: tenant found but no domain fields (keys: {list(tenant.keys())})")
+                    return ""
+            print(f"  [debug] mgmt /tenants: returned {len(tenants)} entry(s), target tenant not matched")
+        except Exception as e:
+            print(f"  [debug] mgmt /tenants failed: {e}")
         return ""
 
-    def _domain_from_graph(self, credentials) -> str:
+    def _domain_from_graph_organization(self, credentials) -> str:
         try:
             token = credentials.get_token("https://graph.microsoft.com/.default").token
             r = requests.get(
@@ -137,8 +144,28 @@ class AzureAuthenticationStrategy(AuthenticationStrategy):
                 for domain in org.get("verifiedDomains", []):
                     if domain.get("isDefault"):
                         return domain.get("name", "")
-        except Exception:
-            pass
+        except Exception as e:
+            print(f"  [debug] graph /organization failed: {e}")
+        return ""
+
+    def _domain_from_graph_domains(self, credentials) -> str:
+        try:
+            token = credentials.get_token("https://graph.microsoft.com/.default").token
+            r = requests.get(
+                "https://graph.microsoft.com/v1.0/domains?$select=id,isDefault,isInitial",
+                headers={"Authorization": f"Bearer {token}"},
+                timeout=10,
+            )
+            r.raise_for_status()
+            domains = r.json().get("value", [])
+            default = next((d["id"] for d in domains if d.get("isDefault")), None)
+            if default:
+                return default
+            initial = next((d["id"] for d in domains if d.get("isInitial")), None)
+            if initial:
+                return initial
+        except Exception as e:
+            print(f"  [debug] graph /domains failed: {e}")
         return ""
 
     def write_credentials_to_file(self, client_id, client_secret, tenant_id, subscription_id, tenant_domain=None):
