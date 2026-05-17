@@ -90,25 +90,19 @@ resource "azurerm_windows_virtual_machine" "vm_cs" {
     version   = "latest"
   }
 
-  additional_unattend_content {
-    setting = "FirstLogonCommands"
-    content = "<FirstLogonCommands><SynchronousCommand><CommandLine>net user ytirucsboybytiruces IWillNotRememberThisPassword1. /add</CommandLine><Order>1</Order></SynchronousCommand><SynchronousCommand><CommandLine>net localgroup Administrators ytirucsboybytiruces /add</CommandLine><Order>2</Order></SynchronousCommand></FirstLogonCommands>"
-  }
 }
 
-resource "azurerm_virtual_machine_extension" "write_flag" {
-  name                       = "write-flag"
+resource "azurerm_virtual_machine_extension" "setup_vm" {
+  name                       = "setup-vm"
   virtual_machine_id         = azurerm_windows_virtual_machine.vm_cs.id
   publisher                  = "Microsoft.Compute"
   type                       = "CustomScriptExtension"
   type_handler_version       = "1.8"
   auto_upgrade_minor_version = true
 
-  settings = <<SETTINGS
-    {
-      "commandToExecute": "powershell.exe -Command \"Set-Content -Path 'C:/Users/Public/Desktop/flag.txt' -Value 'Cumulonimbus{CSStorageMustBeLockedDown}'\""
-    }
-  SETTINGS
+  settings = jsonencode({
+    commandToExecute = "cmd /c net user ytirucsboybytiruces IWillNotRememberThisPassword1. /add && cmd /c net localgroup Administrators ytirucsboybytiruces /add && powershell.exe -NoProfile -NonInteractive -Command \"Set-Content -Path 'C:/Users/Public/Desktop/flag.txt' -Value 'Cumulonimbus{CSStorageMustBeLockedDown}'\""
+  })
 }
 
 
