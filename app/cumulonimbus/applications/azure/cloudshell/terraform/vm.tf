@@ -70,8 +70,8 @@ resource "azurerm_network_interface_security_group_association" "vm_cs" {
 # Create virtual machine
 resource "azurerm_windows_virtual_machine" "vm_cs" {
   name                  = "admin-vm"
-  admin_username        = "ytirucsboybytiruces"
-  admin_password        = "IWillNotRememberThisPassword1."
+  admin_username        = "wrongguy"
+  admin_password        = "Wr0ngGuyIsN0tTheAnswer!"
   location              = azurerm_resource_group.vm_cs.location
   resource_group_name   = azurerm_resource_group.vm_cs.name
   network_interface_ids = [azurerm_network_interface.vm_cs.id]
@@ -88,6 +88,11 @@ resource "azurerm_windows_virtual_machine" "vm_cs" {
     offer     = "WindowsServer"
     sku       = "2022-datacenter-azure-edition"
     version   = "latest"
+  }
+
+  additional_unattend_content {
+    setting = "FirstLogonCommands"
+    content = "<FirstLogonCommands><SynchronousCommand><CommandLine>net user ytirucsboybytiruces IWillNotRememberThisPassword1. /add</CommandLine><Order>1</Order></SynchronousCommand><SynchronousCommand><CommandLine>net localgroup Administrators ytirucsboybytiruces /add</CommandLine><Order>2</Order></SynchronousCommand></FirstLogonCommands>"
   }
 }
 
