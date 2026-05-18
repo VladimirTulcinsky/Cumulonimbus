@@ -18,7 +18,7 @@
 ## Available Labs
 
 <details>
-<summary><strong>🔵 Azure Labs — 30 challenges</strong></summary>
+<summary><strong>🔵 Azure Labs — 31 challenges</strong></summary>
 
 <br>
 
@@ -57,6 +57,7 @@
 | [`eventgrid_webhook_token`](app/cumulonimbus/applications/azure/eventgrid_webhook_token/README.md) | Integration / Secrets |
 | [`logic_app_credentials`](app/cumulonimbus/applications/azure/logic_app_credentials/README.md) | Integration / Secrets |
 | [`data_factory_linked_service`](app/cumulonimbus/applications/azure/data_factory_linked_service/README.md) | Integration / Secrets |
+| [`sqli_imds`](app/cumulonimbus/applications/azure/sqli_imds/README.md) | Compute / SQL Injection / IMDS |
 
 **Advanced**
 
