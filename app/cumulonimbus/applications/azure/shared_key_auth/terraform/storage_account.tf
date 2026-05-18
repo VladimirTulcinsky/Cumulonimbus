@@ -3,17 +3,18 @@ resource "azurerm_resource_group" "ska_sa" {
   location = "West Europe"
 }
 
+resource "time_sleep" "ska_sa_rg_propagation" {
+  depends_on      = [azurerm_resource_group.ska_sa]
+  create_duration = "15s"
+}
 
 resource "azurerm_storage_account" "ska_sa" {
+  depends_on               = [time_sleep.ska_sa_rg_propagation]
   name                     = "stska${var.app_name}${random_integer.ska.result}"
   resource_group_name      = azurerm_resource_group.ska_sa.name
   location                 = azurerm_resource_group.ska_sa.location
   account_tier             = "Standard"
   account_replication_type = "LRS"
-  /* network_rules {
-    default_action = "Deny"
-    ip_rules       = [var.attacker_public_ip]
-  } */
 }
 
 
