@@ -1,6 +1,6 @@
 
 resource "azuread_user" "attacker" {
-  user_principal_name = "ska_attacker@${var.tenant_domain}"
+  user_principal_name = "ska-attacker-${random_integer.ska.result}@${var.tenant_domain}"
   display_name        = "Ska Attacker"
   password            = "IWillAttackSKA1."
 }
