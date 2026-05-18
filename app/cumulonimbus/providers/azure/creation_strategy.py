@@ -57,9 +57,6 @@ class AzureCreationStrategy(CreationStrategy):
             return_code, stdout, stderr = tf.destroy(
                 capture_output=False, **no_prompt, force=None, var={'client_id': os.environ['AZURE_CLIENT_ID'], 'client_secret': os.environ['AZURE_CLIENT_SECRET'], 'tenant_id': os.environ['AZURE_TENANT_ID'], 'subscription_id': os.environ['AZURE_SUBSCRIPTION_ID'], 'tenant_domain': os.environ.get('AZURE_TENANT_DOMAIN', '')})
 
-            outputs = tf.output()
-            application_configuration.pretty_print_tf_output(app_id, outputs)
-
             if stderr:
                 print("Are you sure you have the correct Azure credentials?")
                 raise CreationException(stderr)
@@ -67,4 +64,3 @@ class AzureCreationStrategy(CreationStrategy):
         except Exception as e:
             raise CreationException(e)
 
-# TEST
