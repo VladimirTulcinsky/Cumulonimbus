@@ -1,6 +1,6 @@
 resource "azurerm_resource_group" "ptp" {
   name     = "pass-the-prt-${random_id.suffix.hex}"
-  location = "westeurope"
+  location = "northeurope"
 }
 
 resource "time_sleep" "rg_propagation" {
