@@ -3,8 +3,6 @@ data "azurerm_client_config" "current" {}
 resource "azurerm_resource_group" "ska_kv" {
   name     = "ska-kv-rg"
   location = "West Europe"
-
-  depends_on = [azurerm_resource_provider_registration.microsoft_web, azurerm_resource_provider_registration.microsoft_keyvault]
 }
 
 resource "azurerm_key_vault" "ska_kv" {
