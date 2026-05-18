@@ -1,13 +1,16 @@
 FROM python:3.12-slim
 
-# Copy helper scripts to container
+# Copy helper scripts and banner to container
 ADD docker/dependencies /root/bin
+COPY docker/motd.sh /root/motd.sh
 
 # Install required software
 RUN /bin/bash -c "/root/bin/install-prereqs.sh" \
     && /bin/bash -c "/root/bin/install-aws2.sh" \
     && /bin/bash -c "/root/bin/install-azure.sh" \
-    && rm -rf /root/bin
+    && rm -rf /root/bin \
+    && chmod +x /root/motd.sh \
+    && echo 'source /root/motd.sh' >> /root/.bashrc
 
 # Install Cumulonimbus
 COPY ./app /root/app
