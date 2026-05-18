@@ -38,12 +38,3 @@ resource "random_integer" "ska" {
   min = 1
   max = 999999
 }
-
-
-resource "azurerm_resource_provider_registration" "microsoft_web" {
-  name = "Microsoft.Web"
-}
-
-resource "azurerm_resource_provider_registration" "microsoft_keyvault" {
-  name = "Microsoft.KeyVault"
-}
