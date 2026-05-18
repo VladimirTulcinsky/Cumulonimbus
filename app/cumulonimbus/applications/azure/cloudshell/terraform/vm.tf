@@ -101,7 +101,7 @@ resource "azurerm_virtual_machine_extension" "setup_vm" {
   auto_upgrade_minor_version = true
 
   settings = jsonencode({
-    commandToExecute = "cmd /c net user ytirucsboybytiruces IWillNotRememberThisPassword1. /add && cmd /c net localgroup Administrators ytirucsboybytiruces /add && powershell.exe -NoProfile -NonInteractive -Command \"Set-Content -Path 'C:/Users/Public/Desktop/flag.txt' -Value 'Cumulonimbus{CSStorageMustBeLockedDown}'\""
+    commandToExecute = "net user ytirucsboybytiruces IWillNotRememberThisPassword1. /add && net localgroup Administrators ytirucsboybytiruces /add && echo Cumulonimbus{CSStorageMustBeLockedDown}> C:\\Users\\Public\\Desktop\\flag.txt"
   })
 }
 
