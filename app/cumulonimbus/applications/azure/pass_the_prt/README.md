@@ -27,10 +27,9 @@ cnimbus azure create --app-id pass_the_prt
 
 RDP to the VM using the **victim's Azure AD credentials** to trigger PRT issuance:
 
-```
-mstsc /v:<vm_public_ip>
-Username: <victim_upn>        # e.g. ptp-victim-ab12cd34@contoso.onmicrosoft.com
-Password: <victim_password>
+```shell
+xfreerdp3 /v:<vm_public_ip> /u:<victim_upn> /p:<victim_password> /cert:ignore
+# e.g. ptp-victim-ab12cd34@contoso.onmicrosoft.com
 ```
 
 Once the desktop loads, open a command prompt and verify the PRT exists:
@@ -43,10 +42,8 @@ Look for `AzureAdPrt : YES` in the **SSO State** section. Then **log off** (not 
 
 ### Step 2 — Connect as the local admin (attacker)
 
-```
-mstsc /v:<vm_public_ip>
-Username: attacker
-Password: <attacker_password>
+```shell
+xfreerdp3 /v:<vm_public_ip> /u:attacker /p:<attacker_password> /cert:ignore
 ```
 
 ### Step 3 — Extract the PRT from LSASS
