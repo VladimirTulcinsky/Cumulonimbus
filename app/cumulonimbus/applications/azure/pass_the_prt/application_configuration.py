@@ -30,6 +30,7 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
         print(f"  Key Vault URI       : {output.get('keyvault_uri', {}).get('value', 'N/A')}")
         print(f"  Resource group      : {output.get('resource_group', {}).get('value', 'N/A')}")
         ip = output.get('vm_public_ip', {}).get('value', '<ip>')
+        pw = output.get('attacker_password', {}).get('value', '<attacker_password>')
         print(f"\nWait ~5 min, then RDP as local admin (autologon seeds the victim's PRT on first boot):")
-        print(f"  xfreerdp3 /v:{ip} /u:attacker /p:<attacker_password> /cert:ignore")
+        print(f"  xfreerdp3 /v:{ip} /u:attacker /p:{pw} /cert:ignore")
         print(f"Goal  : Extract the victim's PRT with Mimikatz, forge a browser cookie, read the Key Vault flag.")
