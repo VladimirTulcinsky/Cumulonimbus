@@ -15,6 +15,13 @@ explicitly assigned for.
 This is a common misunderstanding: control-plane roles that include key listing are
 effectively equivalent to full storage access.
 
+> **Note — complete this challenge via CLI only.**
+> The Azure portal now automatically uses storage account keys when the signed-in user
+> has a role that includes `listKeys` (such as `Storage Account Contributor`), so blobs
+> appear readable directly in the portal UI. This is a recent change in portal behaviour
+> and means the portal effectively exploits the vulnerability for you. To understand the
+> attack and learn the technique, follow the CLI steps below.
+
 ## Attack Path
 
 ```

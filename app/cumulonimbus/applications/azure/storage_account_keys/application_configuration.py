@@ -29,3 +29,7 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
         print("\nLogin as the attacker:")
         print("  az login --username <upn> --password <password>")
         print("\nGoal: Use the Storage Account Contributor role to bypass data-plane RBAC and read the flag.")
+        print("\nNOTE: Complete this challenge via CLI only.")
+        print("  The Azure portal now silently uses storage account keys when the signed-in user has")
+        print("  listKeys permission, so blobs appear readable in the portal without any exploitation.")
+        print("  Follow the CLI steps in the README to understand the actual attack technique.")
