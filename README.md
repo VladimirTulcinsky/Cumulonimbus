@@ -18,7 +18,7 @@
 ## Available Labs
 
 <details>
-<summary><strong>🔵 Azure Labs — 31 challenges</strong></summary>
+<summary><strong>🔵 Azure Labs — 32 challenges</strong></summary>
 
 <br>
 
@@ -67,6 +67,7 @@
 | [`foci`](app/cumulonimbus/applications/azure/foci/README.md) | Identity / OAuth Token Abuse |
 | [`shared_key_auth`](app/cumulonimbus/applications/azure/shared_key_auth/README.md) | Storage / Function App / Key Vault |
 | [`policy_privesc`](app/cumulonimbus/applications/azure/policy_privesc/README.md) | Governance / Privilege Escalation |
+| [`pass_the_prt`](app/cumulonimbus/applications/azure/pass_the_prt/README.md) | Identity / PRT Abuse / MFA Bypass |
 
 </details>
 
