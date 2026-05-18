@@ -51,3 +51,13 @@ variable "app_name" {
   type    = string
   default = "cumulonimbus"
 }
+
+variable "tenant_domain" {
+  type        = string
+  description = "Primary domain of the Azure AD tenant (e.g. contoso.onmicrosoft.com). Pass --tenant-domain when authenticating."
+
+  validation {
+    condition     = length(var.tenant_domain) > 0
+    error_message = "tenant_domain is required for this lab. Re-authenticate: cnimbus azure authenticate ... --tenant-domain <domain>"
+  }
+}
