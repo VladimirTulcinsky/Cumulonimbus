@@ -61,7 +61,7 @@ resource "azurerm_linux_web_app" "app" {
 data "azuread_client_config" "current" {}
 
 resource "azuread_user" "attacker" {
-  user_principal_name = "attacker-${random_id.suffix.hex}@${data.azuread_client_config.current.tenant_id}.onmicrosoft.com"
+  user_principal_name = "attacker-${random_id.suffix.hex}@${var.tenant_domain}"
   display_name        = "Cumulonimbus Attacker ${random_id.suffix.hex}"
   password            = "C@ttack3r!${random_id.suffix.hex}"
   force_password_change = false
