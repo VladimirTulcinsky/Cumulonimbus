@@ -87,6 +87,12 @@ resource "azurerm_windows_virtual_machine" "ptp" {
     sku       = "2022-datacenter-azure-edition"
     version   = "latest"
   }
+
+  # The AADLoginForWindows v2 (Secure VM Join) uses the managed identity to
+  # authenticate to Azure AD during device registration.
+  identity {
+    type = "SystemAssigned"
+  }
 }
 
 # Join the VM to Azure AD so Azure AD users can sign in interactively.
