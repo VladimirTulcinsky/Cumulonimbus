@@ -23,30 +23,15 @@ cnimbus azure create --app-id pass_the_prt
 
 ## Attack Walkthrough
 
-### Step 1 — Seed the victim's PRT (simulate the victim using the workstation)
+> **Note:** Wait ~5 minutes after `cnimbus azure create` completes. The deployment schedules a VM restart that runs an autologon session as the victim user — this is what seeds their PRT into LSASS before you connect.
 
-RDP to the VM using the **victim's Azure AD credentials** to trigger PRT issuance:
-
-```shell
-xfreerdp3 /v:<vm_public_ip> /u:<victim_upn> /p:<victim_password> /cert:ignore
-# e.g. ptp-victim-ab12cd34@contoso.onmicrosoft.com
-```
-
-Once the desktop loads, open a command prompt and verify the PRT exists:
-
-```cmd
-dsregcmd /status
-```
-
-Look for `AzureAdPrt : YES` in the **SSO State** section. Then **log off** (not disconnect) to end the session — the PRT remains cached in LSASS.
-
-### Step 2 — Connect as the local admin (attacker)
+### Step 1 — Connect as the local admin (attacker)
 
 ```shell
 xfreerdp3 /v:<vm_public_ip> /u:attacker /p:<attacker_password> /cert:ignore
 ```
 
-### Step 3 — Extract the PRT from LSASS
+### Step 2 — Extract the PRT from LSASS
 
 Open a command prompt **as Administrator** and launch Mimikatz:
 
@@ -63,7 +48,7 @@ From the output, copy two values:
 - **PRT** — the base64-encoded token
 - **ProofOfPossessionKey** — the encrypted session key blob
 
-### Step 4 — Decrypt the session key
+### Step 3 — Decrypt the session key
 
 Still in Mimikatz, elevate to SYSTEM context to access the machine's DPAPI master key, then decrypt:
 
@@ -76,7 +61,7 @@ Copy the two output values:
 - **Context**
 - **DerivedKey**
 
-### Step 5 — Generate a PRT cookie
+### Step 4 — Generate a PRT cookie
 
 ```
 dpapi::cloudapkd /context:<Context> /derivedkey:<DerivedKey> /prt:<PRT>
@@ -84,7 +69,7 @@ dpapi::cloudapkd /context:<Context> /derivedkey:<DerivedKey> /prt:<PRT>
 
 The output ends with a line starting `Signature with key:`. Copy the full value that follows — this is your signed PRT cookie.
 
-### Step 6 — Inject the cookie into a browser
+### Step 5 — Inject the cookie into a browser
 
 On **any machine** (including your own), open Microsoft Edge or Chrome in private/incognito mode and navigate to:
 
@@ -104,7 +89,7 @@ Double-click an empty row and add:
 
 Refresh the page. If the cookie persists, navigate again to `https://login.microsoftonline.com` — you will be automatically signed in as the victim user, **with no MFA prompt**.
 
-### Step 7 — Read the flag from Key Vault
+### Step 6 — Read the flag from Key Vault
 
 In the Azure portal (authenticated as victim):
 
@@ -117,7 +102,7 @@ Or via the Azure CLI with the access token obtained from the authenticated sessi
 az keyvault secret show --vault-name <keyvault_name> --name flag --query value -o tsv
 ```
 
-### Step 8 — Submit the flag
+### Step 7 — Submit the flag
 
 ```shell
 cnimbus azure validate --app-id pass_the_prt --flag "CUMULONIMBUS{...}"

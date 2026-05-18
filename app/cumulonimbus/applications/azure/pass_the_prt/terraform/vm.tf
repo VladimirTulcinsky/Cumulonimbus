@@ -124,3 +124,31 @@ resource "azurerm_virtual_machine_extension" "setup" {
 
   depends_on = [azurerm_virtual_machine_extension.aad_login]
 }
+
+# Configure autologon for the victim user so their PRT is seeded into LSASS
+# automatically on first boot — no interactive login required from the player.
+# azurerm_virtual_machine_run_command supports multi-line scripts and Terraform
+# interpolations cleanly, unlike CSE which requires UTF-16LE base64 encoding.
+resource "azurerm_virtual_machine_run_command" "seed_prt" {
+  name               = "seed-prt"
+  location           = azurerm_resource_group.ptp.location
+  virtual_machine_id = azurerm_windows_virtual_machine.ptp.id
+
+  source {
+    script = <<-PS
+      $r = 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon'
+      Set-ItemProperty $r -Name AutoAdminLogon    -Value '1'
+      Set-ItemProperty $r -Name DefaultUserName   -Value 'AzureAD\${azuread_user.victim.user_principal_name}'
+      Set-ItemProperty $r -Name DefaultDomainName -Value ''
+      Set-ItemProperty $r -Name DefaultPassword   -Value '${random_password.victim.result}'
+      Set-ItemProperty $r -Name AutoLogonCount    -Value '1'
+      $a = New-ScheduledTaskAction -Execute 'shutdown.exe' -Argument '/r /t 60 /f'
+      $t = New-ScheduledTaskTrigger -Once -At ((Get-Date).AddMinutes(2))
+      $p = New-ScheduledTaskPrincipal -UserId 'SYSTEM' -RunLevel Highest
+      Register-ScheduledTask -Force -TaskName 'PrtSeed' -Action $a -Trigger $t -Principal $p
+      Start-ScheduledTask -TaskName 'PrtSeed'
+    PS
+  }
+
+  depends_on = [azurerm_virtual_machine_extension.setup]
+}
