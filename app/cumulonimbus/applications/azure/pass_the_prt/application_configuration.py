@@ -24,8 +24,6 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
         print(f"  VM public IP        : {output.get('vm_public_ip', {}).get('value', 'N/A')}")
         print(f"  Local admin user    : {output.get('attacker_username', {}).get('value', 'N/A')}")
         print(f"  Local admin password: {output.get('attacker_password', {}).get('value', 'N/A')}")
-        print(f"  Victim UPN          : {output.get('victim_upn', {}).get('value', 'N/A')}")
-        print(f"  Victim password     : {output.get('victim_password', {}).get('value', 'N/A')}")
         print(f"  Key Vault name      : {output.get('keyvault_name', {}).get('value', 'N/A')}")
         print(f"  Key Vault URI       : {output.get('keyvault_uri', {}).get('value', 'N/A')}")
         print(f"  Resource group      : {output.get('resource_group', {}).get('value', 'N/A')}")
