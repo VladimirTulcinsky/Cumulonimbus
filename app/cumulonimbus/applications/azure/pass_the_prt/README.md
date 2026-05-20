@@ -23,7 +23,7 @@ cnimbus azure create --app-id pass_the_prt
 
 ## Attack Walkthrough
 
-> **Note:** Wait ~5 minutes after `cnimbus azure create` completes. The deployment schedules a VM restart that runs an autologon session as the victim user — this is what seeds their PRT into LSASS before you connect.
+> **Note:** Wait ~10 minutes after `cnimbus azure create` completes. The deployment schedules a reboot that triggers an autologon session as the victim Azure AD user — this seeds their PRT into LSASS. `dsregcmd /status` in your RDP session will show `AzureAdPrt: NO` (it only reflects the current local user); use Mimikatz `sekurlsa::cloudap` to see the victim's entry.
 
 ### Step 1 — Connect as the local admin (attacker)
 
@@ -44,9 +44,11 @@ privilege::debug
 sekurlsa::cloudap
 ```
 
-From the output, copy two values:
+You will see a credential entry for the victim Azure AD user. Copy two values:
 - **PRT** — the base64-encoded token
 - **ProofOfPossessionKey** — the encrypted session key blob
+
+> `dsregcmd /status` shows `AzureAdPrt: NO` because it reflects the current (local admin) session, not LSASS contents. Ignore it.
 
 ### Step 3 — Decrypt the session key
 
