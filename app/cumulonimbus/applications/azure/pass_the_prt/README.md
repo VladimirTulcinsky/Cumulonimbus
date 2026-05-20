@@ -28,7 +28,7 @@ cnimbus azure create --app-id pass_the_prt
 ### Step 1 — Connect as the local admin (attacker)
 
 ```shell
-xfreerdp3 /v:<vm_public_ip> /u:attacker /p:<attacker_password> /cert:ignore
+xfreerdp3 /v:<vm_public_ip> /u:attacker /p:<attacker_password> /d:. /cert:ignore
 ```
 
 ### Step 2 — Extract the PRT from LSASS
