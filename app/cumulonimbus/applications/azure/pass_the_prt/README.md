@@ -174,7 +174,15 @@ cnimbus azure validate --app-id pass_the_prt --flag "CUMULONIMBUS{...}"
 
 ## Why MFA does not help
 
-The PRT encodes the device claim (`DeviceId`, `TrustType: AzureAD`). Azure AD's token issuance engine treats a valid PRT cookie as proof that the user already satisfied MFA on a compliant device. Conditional access policies requiring MFA or device compliance are therefore silently bypassed.
+The PRT encodes the device claim (`DeviceId`, `TrustType: AzureAD`). Azure AD's token issuance engine treats a valid PRT cookie as proof that the user already satisfied MFA on a compliant device. Conditional access policies requiring MFA **or** compliant device are therefore silently bypassed.
+
+### Lab vs real world — MFA claims
+
+In this lab the victim authenticates via automated autologon (password only), so the PRT carries `amr: ["pwd"]` with no MFA claim. This is why **Security Defaults blocks ARM access** — it checks for the `mfa` amr specifically, and the device claim does not satisfy it.
+
+In a real corporate environment users authenticate interactively with MFA every day. Their PRT carries `amr: ["pwd", "mfa"]`. An attacker who steals that PRT inherits the MFA claim and can access **any** resource — including those protected by strict MFA-only policies — with no MFA prompt. This is the true power of the technique.
+
+The lab demonstrates the device-claim bypass (CA policies requiring compliant device). To avoid the Security Defaults limitation, disable Security Defaults and use a Conditional Access policy with "MFA or compliant device" — the Azure AD-joined device satisfies the compliant device branch without needing an MFA claim in the PRT.
 
 ## Teardown
 
