@@ -42,16 +42,12 @@ class AzureCreationStrategy(CreationStrategy):
         except Exception as e:
             raise CreationException(e)
 
-# TEST (clean up as lot of duplicate code)
     def destroy(self,
                 app_id,
                 credentials,
                 **kwargs):
 
         try:
-            application_configuration = get_application_configuration(
-                'azure', app_id)  # can't this be removed?
-            # # Get absolute path to the terraform directory
             cwd = get_path_to_azure_app(app_id)
             tf = Terraform(working_dir=cwd)
             no_prompt = {"auto-approve": True}

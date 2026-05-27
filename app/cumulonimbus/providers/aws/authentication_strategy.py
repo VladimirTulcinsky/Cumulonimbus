@@ -11,9 +11,9 @@ from cumulonimbus.providers.base.authentication_strategy import AuthenticationSt
 class AWSCredentials:
 
     def __init__(self, aws_access_key_id, aws_secret_access_key, aws_session_token=None, aws_region="eu-west-1"):
-        self.aws_access_key_id = aws_access_key_id,
-        self.aws_secret_access_key = aws_secret_access_key,
-        self.aws_session_token = aws_session_token,
+        self.aws_access_key_id = aws_access_key_id
+        self.aws_secret_access_key = aws_secret_access_key
+        self.aws_session_token = aws_session_token
         self.aws_region = aws_region
 
 
@@ -49,9 +49,6 @@ class AWSAuthenticationStrategy(AuthenticationStrategy):
 
             # Test querying for current user
             get_caller_identity(session)
-
-            # Writing credentials to file (container runs as root so permission should not be an issue)
-            # TODO: Maybe export to env variables instead?
 
             self.write_credentials_to_file(
                 aws_access_key_id, aws_secret_access_key, aws_session_token, region)

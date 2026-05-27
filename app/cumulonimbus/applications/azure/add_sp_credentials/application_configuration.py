@@ -49,7 +49,7 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
               output["user_password"]["value"])
         print(f""" [4] An application registration has been created for you with the name: {output["app_registration"]["value"]}. 
               This application has the application permission Group.ReadWrite.All and {output["user_name"]["value"]} is owner on the application registration.
-              With an administatror account you should remove this user from the owners of the application registration.
+              With an administrator account you should remove this user from the owners of the application registration.
               """)
         print(
             f"""Hint: Now the goal is to escalate your privileges to global admin by adding {output["user_name"]["value"]} to the group {output["admin_group"]["value"]}. 
