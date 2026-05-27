@@ -83,6 +83,7 @@ def authenticate(provider,
                                                  tenant_domain=tenant_domain)
 
         if not credentials:
+            print('Authentication failure: no credentials returned')
             return 101
 
     except Exception as e:
@@ -113,6 +114,7 @@ def destroy(provider, app_id):
         credentials = auth_strategy.get_credentials()
 
         if not credentials:
+            print('No credentials found. Please authenticate first')
             return 101
 
         creation_strategy = get_creation_strategy(provider)

@@ -21,10 +21,9 @@ def get_public_ip():
         response = requests.get("https://api.ipify.org", timeout=5)
         if response.status_code == 200:
             ip = response.text.strip()
-            # change this, used to be different before. CIDR notation for aws
-            return {"azure": ip, "aws": ip}
-    except:
-        pass
+                    return {"azure": ip, "aws": ip}
+    except Exception:
+        print("Warning: could not determine public IP — defaulting to 0.0.0.0. IP-restricted lab rules may not work correctly.")
     return {"azure": "0.0.0.0", "aws": "0.0.0.0"}
 
 
