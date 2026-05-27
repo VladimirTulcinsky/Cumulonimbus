@@ -25,7 +25,8 @@ class CumulonimbusParser:
                                                 help="Run {} against an Amazon Web Services account".format(global_variables.APP_NAME))
 
         aws_cmd_parser = aws_parser.add_subparsers(title="The command you want to run",
-                                                   dest="command")
+                                                   dest="command",
+                                                   required=True)
 
         aws_cmd_auth_parser = aws_cmd_parser.add_parser(
             "authenticate", help="Authenticate {} against an Amazon Web Services account".format(global_variables.APP_NAME))
@@ -43,7 +44,6 @@ class CumulonimbusParser:
         # Authentication parameters
         aws_auth_params = aws_cmd_auth_parser.add_argument_group(
             'Authentication parameters')
-
         aws_auth_params.add_argument('--access-key-id',
                                      action='store',
                                      default=None,
@@ -59,26 +59,26 @@ class CumulonimbusParser:
                                      default=None,
                                      dest='aws_session_token',
                                      help='AWS Session Token')
+        aws_auth_params.add_argument('-r', '--region',
+                                     action='store',
+                                     default='eu-west-1',
+                                     dest='region',
+                                     help='AWS region to deploy resources to (default: eu-west-1)')
 
         # Create parameters
-        aws_creation_params = aws_cmd_create_parser.add_argument_group(
-            'Creation parameters')
+        aws_creation_params = aws_cmd_create_parser.add_argument_group('Creation parameters')
         aws_creation_params.add_argument('--app-id', action='store', choices=global_variables.AWS_APP_LIST, required=True,
-                                         default="ec2_ssrf",
                                          dest='vulnerable_app_id',
                                          help='Cumulonimbus vulnerable AWS application id')
 
         # Destroy parameters
-        aws_destruction_params = aws_cmd_destroy_parser.add_argument_group(
-            'Destruction parameters')
+        aws_destruction_params = aws_cmd_destroy_parser.add_argument_group('Destruction parameters')
         aws_destruction_params.add_argument('--app-id', action='store', choices=global_variables.AWS_APP_LIST, required=True,
-                                            default="ec2_ssrf",
                                             dest='vulnerable_app_id',
                                             help='Cumulonimbus vulnerable AWS application id')
 
         # Validate parameters
-        aws_validate_params = aws_cmd_validate_parser.add_argument_group(
-            'Validation parameters')
+        aws_validate_params = aws_cmd_validate_parser.add_argument_group('Validation parameters')
         aws_validate_params.add_argument('--app-id', action='store', choices=global_variables.AWS_APP_LIST, required=True,
                                          dest='vulnerable_app_id',
                                          help='Cumulonimbus vulnerable AWS application id')
@@ -104,14 +104,6 @@ class CumulonimbusParser:
                                     dest='ttl_hours',
                                     help='Hours until the lab is automatically destroyed')
 
-        aws_additional_parser = aws_parser.add_argument_group(
-            'Additional arguments')
-        aws_additional_parser.add_argument('-r',
-                                           '--region',
-                                           dest='region',
-                                           nargs=1,
-                                           help='Name of region to deploy resources to. Defaults to eu-west-1')
-
     def _init_azure_parser(self):
         azure_parser = self.subparsers.add_parser("azure",
                                                   parents=[
@@ -135,9 +127,7 @@ class CumulonimbusParser:
         azure_cmd_ttl_parser = azure_cmd_parser.add_parser(
             "ttl", help="Schedule auto-destroy for an Azure application")
 
-        azure_auth_modes = azure_cmd_auth_parser.add_mutually_exclusive_group(
-            required=True)
-
+        azure_auth_modes = azure_cmd_auth_parser.add_mutually_exclusive_group(required=True)
         azure_auth_modes.add_argument('--service-principal',
                                       action='store_true',
                                       help='Run {} with an Azure Service Principal'.format(global_variables.APP_NAME))
@@ -151,7 +141,7 @@ class CumulonimbusParser:
         azure_auth_s_params.add_argument('--client-secret',
                                          action='store',
                                          dest='client_secret',
-                                         help='Client of the service principal')
+                                         help='Client secret of the service principal')
         azure_auth_s_params.add_argument('--tenant-id',
                                          action='store',
                                          dest='tenant_id',
@@ -164,26 +154,26 @@ class CumulonimbusParser:
                                          action='store',
                                          dest='tenant_domain',
                                          help='Primary domain of the Azure AD tenant (e.g. contoso.onmicrosoft.com)')
+        azure_auth_s_params.add_argument('-r', '--region',
+                                         action='store',
+                                         default='West Europe',
+                                         dest='region',
+                                         help='Azure region (location) to deploy resources to (default: West Europe)')
 
         # Create parameters
-        azure_creation_params = azure_cmd_create_parser.add_argument_group(
-            'Creation parameters')
+        azure_creation_params = azure_cmd_create_parser.add_argument_group('Creation parameters')
         azure_creation_params.add_argument('--app-id', action='store', choices=global_variables.AZURE_APP_LIST, required=True,
-                                           default="sa_public_access",
                                            dest='vulnerable_app_id',
                                            help='Cumulonimbus vulnerable Azure application id')
 
         # Destroy parameters
-        azure_destruction_params = azure_cmd_destroy_parser.add_argument_group(
-            'Destruction parameters')
+        azure_destruction_params = azure_cmd_destroy_parser.add_argument_group('Destruction parameters')
         azure_destruction_params.add_argument('--app-id', action='store', choices=global_variables.AZURE_APP_LIST, required=True,
-                                              default="sa_public_access",
                                               dest='vulnerable_app_id',
                                               help='Cumulonimbus vulnerable Azure application id')
 
         # Validate parameters
-        azure_validate_params = azure_cmd_validate_parser.add_argument_group(
-            'Validation parameters')
+        azure_validate_params = azure_cmd_validate_parser.add_argument_group('Validation parameters')
         azure_validate_params.add_argument('--app-id', action='store', choices=global_variables.AZURE_APP_LIST, required=True,
                                            dest='vulnerable_app_id',
                                            help='Cumulonimbus vulnerable Azure application id')
@@ -224,16 +214,10 @@ class CumulonimbusParser:
 
         v = vars(args)
         if v.get('provider') == 'aws':
-            if not v.get('command'):
-                self.parser.error(
-                    'You need to input a command, try -h or --help to get additional information')
             if v.get('command') == 'authenticate':
                 if not (v.get('aws_access_key_id') and v.get('aws_secret_access_key')):
                     self.parser.error(
                         'You need to provide an Access Key ID and Secret Access Key to authenticate')
-                if v.get('aws_access_keys') and not (v.get('aws_access_key_id') or v.get('aws_secret_access_key')):
-                    self.parser.error('When running with --access-keys, you must provide an Access Key ID '
-                                      'and Secret Access Key.')
         elif v.get('provider') == 'azure':
             if v.get('service_principal'):
                 missing = [f'--{f}' for f in ('tenant_id', 'subscription_id', 'tenant_domain') if not v.get(f)]

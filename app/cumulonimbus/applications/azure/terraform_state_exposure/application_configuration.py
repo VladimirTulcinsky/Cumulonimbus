@@ -2,6 +2,11 @@ from cumulonimbus.providers.base.application_configuration import ApplicationCon
 
 
 class ApplicationConfiguration(ApplicationConfigurationAbstract):
+    mitre_ttps = [
+        {"id": "T1552.001", "name": "Unsecured Credentials: Credentials in Files", "url": "https://attack.mitre.org/techniques/T1552/001/"},
+        {"id": "T1530", "name": "Data from Cloud Storage", "url": "https://attack.mitre.org/techniques/T1530/"},
+        {"id": "T1619", "name": "Cloud Storage Object Discovery", "url": "https://attack.mitre.org/techniques/T1619/"},
+    ]
     def configure_application(self, **kwargs):
         pass
 
@@ -31,3 +36,4 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
         print("Retrieve the state file directly (no credentials required):")
         print("  curl -o terraform.tfstate '{}'".format(output["state_blob_url"]["value"]))
         print("  cat terraform.tfstate | python3 -m json.tool | grep -A3 'sensitive'")
+        self.print_mitre_ttps()

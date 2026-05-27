@@ -25,3 +25,9 @@ variable "app_id" {
   type    = string
   default = "kinesis_shard_reader"
 }
+
+variable "region" {
+  type        = string
+  description = "AWS region to deploy resources to"
+  default     = "eu-west-1"
+}

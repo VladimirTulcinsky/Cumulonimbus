@@ -4,6 +4,11 @@ import os
 
 
 class ApplicationConfiguration(ApplicationConfigurationAbstract):
+    mitre_ttps = [
+        {"id": "T1552.005", "name": "Unsecured Credentials: Cloud Instance Metadata API", "url": "https://attack.mitre.org/techniques/T1552/005/"},
+        {"id": "T1530", "name": "Data from Cloud Storage", "url": "https://attack.mitre.org/techniques/T1530/"},
+        {"id": "T1078.004", "name": "Valid Accounts: Cloud Accounts", "url": "https://attack.mitre.org/techniques/T1078/004/"},
+    ]
     def configure_application(self, **kwargs):
         pass
 
@@ -31,3 +36,4 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
         print("[3] Key Vault name    : " + output["key_vault_name"]["value"])
         print("[4] Key Vault URI     : " + output["key_vault_uri"]["value"])
         print("[5] Resource group    : " + output["resource_group_name"]["value"])
+        self.print_mitre_ttps()

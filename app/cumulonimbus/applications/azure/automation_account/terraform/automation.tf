@@ -5,7 +5,7 @@ resource "random_integer" "automation_account" {
 
 resource "azurerm_resource_group" "automation_account" {
   name     = "automation-account-lab"
-  location = "West Europe"
+  location = var.location
 
   depends_on = [azurerm_resource_provider_registration.microsoft_automation]
 }

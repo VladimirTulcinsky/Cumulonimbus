@@ -2,6 +2,12 @@ from cumulonimbus.providers.base.application_configuration import ApplicationCon
 
 
 class ApplicationConfiguration(ApplicationConfigurationAbstract):
+    mitre_ttps = [
+        {"id": "T1078.004", "name": "Valid Accounts: Cloud Accounts", "url": "https://attack.mitre.org/techniques/T1078/004/"},
+        {"id": "T1548", "name": "Abuse Elevation Control Mechanism", "url": "https://attack.mitre.org/techniques/T1548/"},
+        {"id": "T1530", "name": "Data from Cloud Storage", "url": "https://attack.mitre.org/techniques/T1530/"},
+        {"id": "T1580", "name": "Cloud Infrastructure Discovery", "url": "https://attack.mitre.org/techniques/T1580/"},
+    ]
     def configure_application(self, **kwargs):
         pass
 
@@ -32,3 +38,4 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
         print("Configure the attacker profile:")
         print("  aws configure --profile attacker  # enter key id + secret, region: eu-west-1")
         print("  aws iam list-roles --profile attacker  # discover the high-privilege role")
+        self.print_mitre_ttps()

@@ -9,7 +9,7 @@ locals {
 
 resource "azurerm_resource_group" "rg" {
   name     = local.rg_name
-  location = "West Europe"
+  location = var.location
   tags = {
     app_id  = var.app_id
     managed = "terraform"

@@ -33,12 +33,12 @@ def run_from_cli():
             return 130
 
     elif args.get('command') == 'create':
-        create(provider=args.get('provider'),
-               app_id=args.get('vulnerable_app_id'))
+        return create(provider=args.get('provider'),
+                      app_id=args.get('vulnerable_app_id'))
 
     elif args.get('command') == 'destroy':
-        destroy(provider=args.get('provider'),
-                app_id=args.get('vulnerable_app_id'))
+        return destroy(provider=args.get('provider'),
+                       app_id=args.get('vulnerable_app_id'))
 
     elif args.get('command') == 'validate':
         return validate(provider=args.get('provider'),

@@ -4,6 +4,11 @@ import os
 
 
 class ApplicationConfiguration(ApplicationConfigurationAbstract):
+    mitre_ttps = [
+        {"id": "T1528", "name": "Steal Application Access Token", "url": "https://attack.mitre.org/techniques/T1528/"},
+        {"id": "T1566.002", "name": "Phishing: Spearphishing Link", "url": "https://attack.mitre.org/techniques/T1566/002/"},
+        {"id": "T1078.004", "name": "Valid Accounts: Cloud Accounts", "url": "https://attack.mitre.org/techniques/T1078/004/"},
+    ]
     def configure_application(self, **kwargs):
         """
         Given parameters, this runs code that is required for each vulnerable application to run correctly.
@@ -63,3 +68,4 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
             scope = "<The OAuth scopes you want to request to your victim e.g. offline_access contacts.read user.read mail.read mail.send files.readWrite.all files.read files.read.all openid profile AppRoleAssignment.ReadWrite.All>"
             redirecturi = "http://localhost:30662/gettoken" 
             """)
+        self.print_mitre_ttps()

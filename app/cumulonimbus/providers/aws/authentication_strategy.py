@@ -64,10 +64,18 @@ class AWSAuthenticationStrategy(AuthenticationStrategy):
     def get_credentials(self):
         print("Getting credentials for AWS")
 
+        config = configparser.ConfigParser()
+        config.read(global_variables.PATH_TO_AWS_CONFIG)
+        region = config.get('cumulonimbus', 'region', fallback='eu-west-1')
+
         session = boto3.Session(profile_name='cumulonimbus')
         credentials = session.get_credentials()
-        credentials = self.authenticate(aws_access_key_id=credentials.access_key,
-                                        aws_secret_access_key=credentials.secret_key, aws_session_token=credentials.token)
+        credentials = self.authenticate(
+            aws_access_key_id=credentials.access_key,
+            aws_secret_access_key=credentials.secret_key,
+            aws_session_token=credentials.token,
+            region=region,
+        )
         return credentials
 
     def write_credentials_to_file(self, aws_access_key_id, aws_secret_access_key, aws_session_token, region):

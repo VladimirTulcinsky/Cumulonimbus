@@ -2,6 +2,12 @@ from cumulonimbus.providers.base.application_configuration import ApplicationCon
 
 
 class ApplicationConfiguration(ApplicationConfigurationAbstract):
+    mitre_ttps = [
+        {"id": "T1190", "name": "Server-Side Request Forgery", "url": "https://attack.mitre.org/techniques/T1190/"},
+        {"id": "T1552.005", "name": "Unsecured Credentials: Cloud Instance Metadata API", "url": "https://attack.mitre.org/techniques/T1552/005/"},
+        {"id": "T1528", "name": "Steal Application Access Token", "url": "https://attack.mitre.org/techniques/T1528/"},
+        {"id": "T1530", "name": "Data from Cloud Storage", "url": "https://attack.mitre.org/techniques/T1530/"},
+    ]
     def configure_application(self, **kwargs):
         pass
 
@@ -31,3 +37,4 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
         print("Test the SSRF endpoint:")
         print("  curl '{}?url=http://169.254.169.254/metadata/instance?api-version=2021-02-01'".format(
             output["function_url"]["value"]))
+        self.print_mitre_ttps()

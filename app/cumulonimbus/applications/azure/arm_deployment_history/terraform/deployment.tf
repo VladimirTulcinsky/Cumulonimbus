@@ -5,7 +5,7 @@ resource "random_integer" "arm_deployment_history" {
 
 resource "azurerm_resource_group" "arm_deployment_history" {
   name     = "arm-deployment-history-lab"
-  location = "West Europe"
+  location = var.location
 }
 
 # A minimal ARM template deployment that passes the flag as a plain 'string'

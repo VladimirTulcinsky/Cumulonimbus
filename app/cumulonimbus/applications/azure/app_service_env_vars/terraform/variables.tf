@@ -61,3 +61,9 @@ variable "tenant_domain" {
     error_message = "tenant_domain is required for this lab. Re-authenticate: cnimbus azure authenticate ... --tenant-domain <domain>"
   }
 }
+
+variable "location" {
+  type        = string
+  description = "Azure region to deploy resources to"
+  default     = "West Europe"
+}

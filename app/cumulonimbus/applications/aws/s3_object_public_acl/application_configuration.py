@@ -2,6 +2,10 @@ from cumulonimbus.providers.base.application_configuration import ApplicationCon
 
 
 class ApplicationConfiguration(ApplicationConfigurationAbstract):
+    mitre_ttps = [
+        {"id": "T1530", "name": "Data from Cloud Storage", "url": "https://attack.mitre.org/techniques/T1530/"},
+        {"id": "T1619", "name": "Cloud Storage Object Discovery", "url": "https://attack.mitre.org/techniques/T1619/"},
+    ]
 
     def get_flag(self) -> str:
         return "CUMULONIMBUS{S3_0bj3ct_ACL_Publ1c_R3ad}"
@@ -24,3 +28,4 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
         print(f"  Bucket name   : {output.get('bucket_name', {}).get('value', 'N/A')}")
         print(f"  Flag URL      : {output.get('flag_object_url', {}).get('value', 'N/A')}")
         print("\nGoal: Access the publicly readable S3 object without any AWS credentials.")
+        self.print_mitre_ttps()

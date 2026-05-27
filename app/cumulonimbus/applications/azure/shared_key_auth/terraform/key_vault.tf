@@ -2,7 +2,7 @@ data "azurerm_client_config" "current" {}
 
 resource "azurerm_resource_group" "ska_kv" {
   name     = "ska-kv-rg"
-  location = "West Europe"
+  location = var.location
 }
 
 resource "azurerm_key_vault" "ska_kv" {

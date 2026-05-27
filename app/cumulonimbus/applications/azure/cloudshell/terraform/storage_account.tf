@@ -1,6 +1,6 @@
 resource "azurerm_resource_group" "iam_cs" {
   name     = "iam-cs-rg"
-  location = "West Europe"
+  location = var.location
 }
 
 resource "random_integer" "iam_cs" {

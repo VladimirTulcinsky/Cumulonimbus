@@ -2,6 +2,12 @@ from cumulonimbus.providers.base.application_configuration import ApplicationCon
 
 
 class ApplicationConfiguration(ApplicationConfigurationAbstract):
+    mitre_ttps = [
+        {"id": "T1548", "name": "Abuse Elevation Control Mechanism", "url": "https://attack.mitre.org/techniques/T1548/"},
+        {"id": "T1078.004", "name": "Valid Accounts: Cloud Accounts", "url": "https://attack.mitre.org/techniques/T1078/004/"},
+        {"id": "T1580", "name": "Cloud Infrastructure Discovery", "url": "https://attack.mitre.org/techniques/T1580/"},
+        {"id": "T1578", "name": "Modify Cloud Compute Infrastructure", "url": "https://attack.mitre.org/techniques/T1578/"},
+    ]
 
     def get_flag(self) -> str:
         return "CUMULONIMBUS{PolicyPrivEsc_DeployIfNotExists_OwnerRole}"
@@ -30,3 +36,4 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
         print(f"  Policy assignment ID    : {output.get('policy_assignment_id', {}).get('value', 'N/A')}")
         print(f"\nGoal: Escalate from Resource Policy Contributor to Owner on the target")
         print(f"      resource group and read the flag from the private storage blob.")
+        self.print_mitre_ttps()

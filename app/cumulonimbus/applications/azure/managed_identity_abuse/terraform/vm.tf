@@ -5,7 +5,7 @@ resource "random_integer" "managed_identity_abuse" {
 
 resource "azurerm_resource_group" "managed_identity_abuse" {
   name     = "managed-identity-abuse"
-  location = "West Europe"
+  location = var.location
 }
 
 resource "azurerm_virtual_network" "managed_identity_abuse" {

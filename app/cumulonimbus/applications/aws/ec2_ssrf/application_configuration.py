@@ -4,6 +4,12 @@ import os
 
 
 class ApplicationConfiguration(ApplicationConfigurationAbstract):
+    mitre_ttps = [
+        {"id": "T1190", "name": "Exploit Public-Facing Application", "url": "https://attack.mitre.org/techniques/T1190/"},
+        {"id": "T1552.005", "name": "Cloud Instance Metadata API", "url": "https://attack.mitre.org/techniques/T1552/005/"},
+        {"id": "T1078.004", "name": "Valid Accounts: Cloud Accounts", "url": "https://attack.mitre.org/techniques/T1078/004/"},
+        {"id": "T1530", "name": "Data from Cloud Storage", "url": "https://attack.mitre.org/techniques/T1530/"},
+    ]
     def configure_application(self, **kwargs):
         """
         Given parameters, this runs code that is required for each vulnerable application to run correctly.
@@ -55,3 +61,4 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
         print("[2] aws_secret_access_key:" +
               output["attacker_aws_secret_access_key"]["value"])
         print("These credentials are valid for the application: {}".format(app_id))
+        self.print_mitre_ttps()

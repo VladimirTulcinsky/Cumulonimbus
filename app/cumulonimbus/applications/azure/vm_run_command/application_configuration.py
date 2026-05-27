@@ -2,6 +2,12 @@ from cumulonimbus.providers.base.application_configuration import ApplicationCon
 
 
 class ApplicationConfiguration(ApplicationConfigurationAbstract):
+    mitre_ttps = [
+        {"id": "T1059", "name": "Command and Scripting Interpreter", "url": "https://attack.mitre.org/techniques/T1059/"},
+        {"id": "T1078.004", "name": "Valid Accounts: Cloud Accounts", "url": "https://attack.mitre.org/techniques/T1078/004/"},
+        {"id": "T1021", "name": "Remote Services", "url": "https://attack.mitre.org/techniques/T1021/"},
+        {"id": "T1548", "name": "Privilege Escalation", "url": "https://attack.mitre.org/techniques/T1548/"},
+    ]
 
     def get_flag(self) -> str:
         return "CUMULONIMBUS{VM_RunC0mm4nd_Arb1tr4ry_Exec}"
@@ -28,3 +34,4 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
         print("\nLogin as the attacker:")
         print("  az login --username <upn> --password <password>")
         print("\nGoal: Execute commands on the VM via RunCommand to read the flag.")
+        self.print_mitre_ttps()

@@ -2,6 +2,12 @@ from cumulonimbus.providers.base.application_configuration import ApplicationCon
 
 
 class ApplicationConfiguration(ApplicationConfigurationAbstract):
+    mitre_ttps = [
+        {"id": "T1021", "name": "Remote Services", "url": "https://attack.mitre.org/techniques/T1021/"},
+        {"id": "T1078.004", "name": "Valid Accounts: Cloud Accounts", "url": "https://attack.mitre.org/techniques/T1078/004/"},
+        {"id": "T1059", "name": "Command and Scripting Interpreter", "url": "https://attack.mitre.org/techniques/T1059/"},
+        {"id": "T1570", "name": "Lateral Movement", "url": "https://attack.mitre.org/techniques/T1570/"},
+    ]
 
     def get_flag(self) -> str:
         return "CUMULONIMBUS{SSM_S3ss10n_M4n4g3r_Sh3ll_4cc3ss}"
@@ -30,3 +36,4 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
         print("\nNote: The Session Manager plugin for the AWS CLI must be installed.")
         print("  https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-working-with-install-plugin.html")
         print("\nGoal: Open a shell on the EC2 instance via SSM and read /root/flag.txt.")
+        self.print_mitre_ttps()

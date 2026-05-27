@@ -2,6 +2,11 @@ from cumulonimbus.providers.base.application_configuration import ApplicationCon
 
 
 class ApplicationConfiguration(ApplicationConfigurationAbstract):
+    mitre_ttps = [
+        {"id": "T1530", "name": "Data from Cloud Storage", "url": "https://attack.mitre.org/techniques/T1530/"},
+        {"id": "T1619", "name": "Cloud Storage Object Discovery", "url": "https://attack.mitre.org/techniques/T1619/"},
+        {"id": "T1552.001", "name": "Unsecured Credentials: Credentials in Files", "url": "https://attack.mitre.org/techniques/T1552/001/"},
+    ]
     def configure_application(self, **kwargs):
         pass
 
@@ -32,3 +37,4 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
         print("  aws configure --profile attacker  # region: eu-west-1")
         print("  aws s3api list-object-versions --bucket '{}' --profile attacker".format(
             output["bucket_name"]["value"]))
+        self.print_mitre_ttps()

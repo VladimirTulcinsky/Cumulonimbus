@@ -61,3 +61,9 @@ variable "app_name" {
   description = "Name of the application that will be used in the resource names and complemented with a random number"
   default     = "cumulonimbus"
 }
+
+variable "location" {
+  type        = string
+  description = "Azure region to deploy resources to"
+  default     = "West Europe"
+}

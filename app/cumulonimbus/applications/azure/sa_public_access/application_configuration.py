@@ -4,6 +4,10 @@ import os
 
 
 class ApplicationConfiguration(ApplicationConfigurationAbstract):
+    mitre_ttps = [
+        {"id": "T1619", "name": "Cloud Storage Object Discovery", "url": "https://attack.mitre.org/techniques/T1619/"},
+        {"id": "T1530", "name": "Data from Cloud Storage", "url": "https://attack.mitre.org/techniques/T1530/"},
+    ]
     def configure_application(self, **kwargs):
         """
         Given parameters, this runs code that is required for each vulnerable application to run correctly.
@@ -37,3 +41,4 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
         print(f"  ./cloud_enum.py -k cumulonimbus{cid}prd --disable-aws --disable-gcp")
         print(f"  # Also try other environments: dev, tst, uat, stg")
         print(f"  # e.g. ./cloud_enum.py -k cumulonimbus{cid}dev --disable-aws --disable-gcp")
+        self.print_mitre_ttps()
