@@ -18,7 +18,7 @@
 ## Available Labs
 
 <details>
-<summary><strong>🔵 Azure Labs — 32 challenges</strong></summary>
+<summary><strong>🔵 Azure Labs — 34 challenges</strong></summary>
 
 <br>
 
@@ -28,6 +28,7 @@
 |--------|----------|
 | [`sa_public_access`](app/cumulonimbus/applications/azure/sa_public_access/README.md) | Storage Misconfiguration |
 | [`blob_sas_abuse`](app/cumulonimbus/applications/azure/blob_sas_abuse/README.md) | Storage / Credential Exposure |
+| [`device_code_phishing`](app/cumulonimbus/applications/azure/device_code_phishing/README.md) | Identity / OAuth Phishing |
 | [`app_service_env_vars`](app/cumulonimbus/applications/azure/app_service_env_vars/README.md) | Web / Secrets |
 | [`container_instance_env`](app/cumulonimbus/applications/azure/container_instance_env/README.md) | Containers / Secrets |
 | [`container_app_env_vars`](app/cumulonimbus/applications/azure/container_app_env_vars/README.md) | Containers / Secrets |
@@ -58,6 +59,7 @@
 | [`logic_app_credentials`](app/cumulonimbus/applications/azure/logic_app_credentials/README.md) | Integration / Secrets |
 | [`data_factory_linked_service`](app/cumulonimbus/applications/azure/data_factory_linked_service/README.md) | Integration / Secrets |
 | [`sqli_imds`](app/cumulonimbus/applications/azure/sqli_imds/README.md) | Compute / SQL Injection / IMDS |
+| [`dynamic_groups_abuse`](app/cumulonimbus/applications/azure/dynamic_groups_abuse/README.md) | Identity / Privilege Escalation |
 
 **Advanced**
 
