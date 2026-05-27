@@ -55,6 +55,9 @@ def run_from_cli():
                    app_id=args.get('vulnerable_app_id'),
                    hours=args.get('ttl_hours'))
 
+    elif args.get('command') == 'list':
+        return list_labs(provider=args.get('provider'))
+
 
 def authenticate(provider,
                  profile=None,
@@ -200,6 +203,17 @@ def ttl(provider, app_id, hours):
     except Exception as e:
         print(f'TTL failure: {e}')
         return 101
+
+
+def list_labs(provider):
+    if provider == 'aws':
+        labs = sorted(global_variables.AWS_APP_LIST)
+    else:
+        labs = sorted(global_variables.AZURE_APP_LIST)
+    print(f"Available {provider.upper()} labs ({len(labs)}):")
+    for lab in labs:
+        print(f"  {lab}")
+    return 0
 
 
 def validate(provider, app_id, submitted_flag):

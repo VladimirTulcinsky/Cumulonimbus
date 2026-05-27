@@ -190,7 +190,7 @@ cnimbus aws   destroy --app-id <app-id>
 
 ```shell
 cnimbus azure validate --app-id <app-id> --flag "CUMULONIMBUS{...}"
-cnimbus aws   validate --app-id <app-id> --flag "Cumulonimbus{...}"
+cnimbus aws   validate --app-id <app-id> --flag "CUMULONIMBUS{...}"
 ```
 
 ### Get a hint
@@ -199,6 +199,21 @@ cnimbus aws   validate --app-id <app-id> --flag "Cumulonimbus{...}"
 # Level 1 = gentle nudge, 2 = moderate, 3 = explicit
 cnimbus azure hint --app-id <app-id> --level 1
 cnimbus aws   hint --app-id <app-id> --level 2
+```
+
+### Schedule auto-destroy (TTL)
+
+```shell
+# Automatically destroy the lab after N hours
+cnimbus azure ttl --app-id <app-id> --hours 4
+cnimbus aws   ttl --app-id <app-id> --hours 4
+```
+
+### List available labs
+
+```shell
+cnimbus azure list
+cnimbus aws   list
 ```
 
 ---

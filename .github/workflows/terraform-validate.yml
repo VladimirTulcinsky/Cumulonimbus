@@ -71,6 +71,9 @@ jobs:
           - aws/appconfig_deployment
           - azure/monitor_action_group
           - azure/data_factory_linked_service
+          - azure/pass_the_prt
+          - azure/policy_privesc
+          - azure/sqli_imds
 
     steps:
       - uses: actions/checkout@v4
