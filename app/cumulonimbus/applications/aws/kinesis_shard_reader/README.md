@@ -60,3 +60,10 @@ The attacker IAM user has the following permissions:
 - Apply fine-grained IAM policies restricting `kinesis:GetRecords` to specific stream ARNs and legitimate consumer roles only.
 - Enable server-side encryption on Kinesis Data Streams using KMS.
 - Monitor `GetRecords` calls via CloudTrail and alert on unexpected consumers accessing production streams.
+
+## MITRE ATT&CK Mapping
+
+| Technique ID | Technique Name | Tactic |
+|---|---|---|
+| [T1530](https://attack.mitre.org/techniques/T1530/) | Data from Cloud Storage | Collection |
+| [T1619](https://attack.mitre.org/techniques/T1619/) | Cloud Storage Object Discovery | Discovery |

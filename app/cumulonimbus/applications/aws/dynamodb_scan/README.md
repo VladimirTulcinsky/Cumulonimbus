@@ -45,3 +45,10 @@ The attacker IAM user has the following permissions:
 - Apply fine-grained DynamoDB IAM conditions to restrict which tables and even which items a principal can access (`dynamodb:LeadingKeys` condition).
 - Enable DynamoDB encryption at rest using customer-managed KMS keys.
 - Use CloudTrail to audit `dynamodb:Scan` calls on sensitive tables and alert on unexpected access patterns.
+
+## MITRE ATT&CK Mapping
+
+| Technique ID | Technique Name | Tactic |
+|---|---|---|
+| [T1619](https://attack.mitre.org/techniques/T1619/) | Cloud Storage Object Discovery | Discovery |
+| [T1530](https://attack.mitre.org/techniques/T1530/) | Data from Cloud Storage | Collection |

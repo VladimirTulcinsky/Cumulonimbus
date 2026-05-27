@@ -15,6 +15,12 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
             3: "Run: aws ecs list-tasks --cluster <cluster-name>, then: aws ecs execute-command --cluster <cluster> --task <task-id> --container app --interactive --command 'cat /flag.txt'",
         }
 
+    mitre_ttps = [
+        {"id": "T1609", "name": "Container Administration Command", "url": "https://attack.mitre.org/techniques/T1609/"},
+        {"id": "T1552.005", "name": "Unsecured Credentials: Cloud Instance Metadata API", "url": "https://attack.mitre.org/techniques/T1552/005/"},
+        {"id": "T1078.004", "name": "Valid Accounts: Cloud Accounts", "url": "https://attack.mitre.org/techniques/T1078/004/"},
+    ]
+
     def configure_application(self, **kwargs):
         pass
 
@@ -25,3 +31,4 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
         print(f"  Cluster Name      : {output.get('cluster_name', {}).get('value', 'N/A')}")
         print(f"  Service Name      : {output.get('service_name', {}).get('value', 'N/A')}")
         print("\nGoal: Use ECS Exec to open an interactive shell inside the running container and read the flag.")
+        self.print_mitre_ttps()

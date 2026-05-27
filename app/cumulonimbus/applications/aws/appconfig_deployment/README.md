@@ -60,3 +60,10 @@ The attacker IAM user has the following permissions:
 - Apply least-privilege IAM: restrict `appconfig:GetHostedConfigurationVersion` to specific application and profile ARNs, and only grant it to application roles that need it.
 - Enable AWS Config rules to detect AppConfig profiles containing potential credential patterns.
 - Rotate any credentials that may have been exposed through AppConfig.
+
+## MITRE ATT&CK Mapping
+
+| Technique ID | Technique Name | Tactic |
+|---|---|---|
+| [T1552](https://attack.mitre.org/techniques/T1552/) | Unsecured Credentials | Credential Access |
+| [T1083](https://attack.mitre.org/techniques/T1083/) | File and Directory Discovery | Discovery |
