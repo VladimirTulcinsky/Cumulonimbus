@@ -28,14 +28,16 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
     def pretty_print_tf_output(self, app_id, output):
         if not output:
             return
+        def val(key):
+            return output.get(key, {}).get("value", "N/A")
         print("###############################################")
         print("#             Required Information            #")
         print("###############################################")
-        print("[1] Tenant domain      : " + output["domain_name"]["value"])
-        print("[2] Victim username    : " + output["user_name"]["value"])
-        print("[3] Victim password    : " + output["user_password"]["value"])
-        print("[4] Storage account    : " + output["storage_account_name"]["value"])
-        print("[5] Container name     : " + output["container_name"]["value"])
+        print("[1] Tenant domain      : " + val("domain_name"))
+        print("[2] Victim username    : " + val("user_name"))
+        print("[3] Victim password    : " + val("user_password"))
+        print("[4] Storage account    : " + val("storage_account_name"))
+        print("[5] Container name     : " + val("container_name"))
         print("")
         print("Step 1 — Install the victim simulator dependency (once):")
         print("  pip install playwright && playwright install chromium")
@@ -51,5 +53,10 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
         print("      --username {} \\".format(output["user_name"]["value"]))
         print("      --password '{}'".format(output["user_password"]["value"]))
         print("")
-        print("Step 4 — Use the captured token to read the flag from the storage account.")
+        print("Step 4 — Use the captured token to read the flag:")
+        print("  TOKEN=$(python3 -c \"import json; d=json.load(open('/tmp/dcp_token.json')); print(d['access_token'])\")")
+        print("  curl -s -H \"Authorization: Bearer $TOKEN\" \\")
+        print("       -H \"x-ms-version: 2020-04-08\" \\")
+        print("       \"https://{}.blob.core.windows.net/{}/flag.txt\"".format(
+            val("storage_account_name"), val("container_name")))
         self.print_mitre_ttps()
