@@ -12,8 +12,8 @@ class AzureCredentials:
                  client_id=None, client_secret=None,
                  tenant_id=None, subscription_id=None):
 
-        self.client_id = client_id,
-        self.client_secret = client_secret,
+        self.client_id = client_id
+        self.client_secret = client_secret
         self.tenant_id = tenant_id
         self.subscription_context = subscription_id
 
