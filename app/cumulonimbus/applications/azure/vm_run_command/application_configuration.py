@@ -26,7 +26,9 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
         pass
 
     def pretty_print_tf_output(self, app_id, output):
-        print("\n=== VM RunCommand Lab ===")
+        print("###############################################")
+        print("#             Required Information            #")
+        print("###############################################")
         print(f"  Attacker UPN     : {output.get('attacker_upn', {}).get('value', 'N/A')}")
         print(f"  Attacker password: {output.get('attacker_password', {}).get('value', 'N/A')}")
         print(f"  VM name          : {output.get('vm_name', {}).get('value', 'N/A')}")

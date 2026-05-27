@@ -24,7 +24,9 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
         pass
 
     def pretty_print_tf_output(self, app_id, output):
-        print("\n=== S3 Object Public ACL Lab ===")
+        print("###############################################")
+        print("#             Required Information            #")
+        print("###############################################")
         print(f"  Bucket name   : {output.get('bucket_name', {}).get('value', 'N/A')}")
         print(f"  Flag URL      : {output.get('flag_object_url', {}).get('value', 'N/A')}")
         print("\nGoal: Access the publicly readable S3 object without any AWS credentials.")

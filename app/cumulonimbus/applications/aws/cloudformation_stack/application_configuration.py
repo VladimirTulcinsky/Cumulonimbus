@@ -25,7 +25,9 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
         pass
 
     def pretty_print_tf_output(self, app_id, output):
-        print("\n=== CloudFormation Stack Lab ===")
+        print("###############################################")
+        print("#             Required Information            #")
+        print("###############################################")
         print(f"  Stack name        : {output.get('stack_name', {}).get('value', 'N/A')}")
         print(f"  Attacker user     : {output.get('attacker_username', {}).get('value', 'N/A')}")
         print(f"  Access key ID     : {output.get('attacker_access_key_id', {}).get('value', 'N/A')}")

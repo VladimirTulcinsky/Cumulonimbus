@@ -24,7 +24,9 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
         pass
 
     def pretty_print_tf_output(self, app_id, output):
-        print("\n=== SQS Public Receive Policy Lab ===")
+        print("###############################################")
+        print("#             Required Information            #")
+        print("###############################################")
         print(f"  Queue name : {output.get('queue_name', {}).get('value', 'N/A')}")
         print(f"  Queue URL  : {output.get('queue_url', {}).get('value', 'N/A')}")
         print("\nGoal: Receive messages from the publicly readable SQS queue without credentials.")

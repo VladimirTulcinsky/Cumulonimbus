@@ -24,7 +24,9 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
         pass
 
     def pretty_print_tf_output(self, app_id, output):
-        print("\n=== Container App Env Vars Lab ===")
+        print("###############################################")
+        print("#             Required Information            #")
+        print("###############################################")
         print(f"  Attacker Client ID     : {output.get('attacker_client_id', {}).get('value', 'N/A')}")
         print(f"  Attacker Client Secret : {output.get('attacker_client_secret', {}).get('value', 'N/A')}")
         print(f"  Resource Group         : {output.get('resource_group_name', {}).get('value', 'N/A')}")

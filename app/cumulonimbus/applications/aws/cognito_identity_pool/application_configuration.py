@@ -25,7 +25,9 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
         pass
 
     def pretty_print_tf_output(self, app_id, output):
-        print("\n=== Cognito Identity Pool Lab ===")
+        print("###############################################")
+        print("#             Required Information            #")
+        print("###############################################")
         print(f"  Identity pool ID : {output.get('identity_pool_id', {}).get('value', 'N/A')}")
         print(f"  Account ID       : {output.get('account_id', {}).get('value', 'N/A')}")
         print(f"  Region           : {output.get('region', {}).get('value', 'N/A')}")

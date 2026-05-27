@@ -25,7 +25,9 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
         pass
 
     def pretty_print_tf_output(self, app_id, output):
-        print("\n=== App Configuration Secrets Lab ===")
+        print("###############################################")
+        print("#             Required Information            #")
+        print("###############################################")
         print(f"  Attacker UPN        : {output.get('attacker_upn', {}).get('value', 'N/A')}")
         print(f"  Attacker password   : {output.get('attacker_password', {}).get('value', 'N/A')}")
         print(f"  Config store name   : {output.get('config_store_name', {}).get('value', 'N/A')}")
