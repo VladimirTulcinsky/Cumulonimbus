@@ -1,6 +1,54 @@
 #!/usr/bin/env python3
 import argparse
+import sys
 import cumulonimbus.global_variables as global_variables
+
+
+AWS_REGIONS = [
+    'eu-west-1', 'eu-west-2', 'eu-west-3', 'eu-central-1', 'eu-north-1',
+    'us-east-1', 'us-east-2', 'us-west-1', 'us-west-2',
+    'ap-southeast-1', 'ap-southeast-2', 'ap-northeast-1', 'ap-northeast-2',
+    'ca-central-1', 'sa-east-1',
+]
+
+AZURE_REGIONS = [
+    'West Europe', 'North Europe',
+    'East US', 'East US 2', 'West US', 'West US 2', 'West US 3', 'Central US',
+    'UK South', 'UK West',
+    'Southeast Asia', 'East Asia',
+    'Australia East', 'Australia Southeast',
+    'Canada Central', 'Brazil South',
+    'Japan East', 'France Central',
+    'Germany West Central', 'Switzerland North', 'Norway East',
+]
+
+
+class _RegionEnrichedParser(argparse.ArgumentParser):
+    """ArgumentParser that appends the allowed region list to any --region error."""
+
+    def error(self, message):
+        if '--region' in message or ('-r' in message and 'region' in message.lower()):
+            # Detect provider by inspecting registered choices on the region action
+            region_action = next(
+                (a for a in self._actions if getattr(a, 'dest', '') == 'region'),
+                None,
+            )
+            choices = getattr(region_action, 'choices', None) or []
+            if choices:
+                col_width = max(len(r) for r in choices) + 2
+                cols = 3
+                lines = []
+                row = []
+                for i, r in enumerate(choices):
+                    row.append(r.ljust(col_width))
+                    if len(row) == cols:
+                        lines.append('  ' + ''.join(row))
+                        row = []
+                if row:
+                    lines.append('  ' + ''.join(row))
+                region_hint = '\nAllowed --region values:\n' + '\n'.join(lines) + '\n'
+                sys.stderr.write(region_hint + '\n')
+        super().error(message)
 
 
 class CumulonimbusParser:
@@ -26,7 +74,8 @@ class CumulonimbusParser:
 
         aws_cmd_parser = aws_parser.add_subparsers(title="The command you want to run",
                                                    dest="command",
-                                                   required=True)
+                                                   required=True,
+                                                   parser_class=_RegionEnrichedParser)
 
         aws_cmd_auth_parser = aws_cmd_parser.add_parser(
             "authenticate", help="Authenticate {} against an Amazon Web Services account".format(global_variables.APP_NAME))
@@ -64,8 +113,10 @@ class CumulonimbusParser:
         aws_auth_params.add_argument('-r', '--region',
                                      action='store',
                                      required=True,
+                                     choices=AWS_REGIONS,
+                                     metavar='REGION',
                                      dest='region',
-                                     help='AWS region to deploy resources to (e.g. eu-west-1, us-east-1, ap-southeast-1)')
+                                     help='AWS region to deploy resources to. Allowed values: ' + ', '.join(AWS_REGIONS))
 
         # Create parameters
         aws_creation_params = aws_cmd_create_parser.add_argument_group('Creation parameters')
@@ -114,7 +165,8 @@ class CumulonimbusParser:
 
         azure_cmd_parser = azure_parser.add_subparsers(
             title="The command you want to run", dest="command", required=True,
-            help="The command you want to run (authenticate, create, destroy, validate, hint, ttl, list)")
+            help="The command you want to run (authenticate, create, destroy, validate, hint, ttl, list)",
+            parser_class=_RegionEnrichedParser)
 
         azure_cmd_auth_parser = azure_cmd_parser.add_parser(
             "authenticate", help="Authenticate {} against an Azure account".format(global_variables.APP_NAME))
@@ -161,8 +213,10 @@ class CumulonimbusParser:
         azure_auth_s_params.add_argument('-r', '--region',
                                          action='store',
                                          required=True,
+                                         choices=AZURE_REGIONS,
+                                         metavar='REGION',
                                          dest='region',
-                                         help='Azure region (location) to deploy resources to (e.g. "West Europe", "East US", "Southeast Asia")')
+                                         help='Azure region to deploy resources to. Allowed values: ' + ', '.join(AZURE_REGIONS))
 
         # Create parameters
         azure_creation_params = azure_cmd_create_parser.add_argument_group('Creation parameters')
