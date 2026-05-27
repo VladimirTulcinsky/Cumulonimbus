@@ -21,7 +21,7 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
         }
 
     def get_flag(self):
-        return "Cumulonimbus{CSStorageMustBeLockedDown}"
+        return "CUMULONIMBUS{CSStorageMustBeLockedDown}"
 
     def pretty_print_tf_output(self, app_id, output):
         """

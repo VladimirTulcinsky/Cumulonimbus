@@ -35,6 +35,6 @@ resource "azurerm_key_vault_secret" "fapp-secret" {
 resource "azurerm_key_vault_secret" "flag" {
   depends_on   = [time_sleep.kv_rbac_propagation]
   name         = "flag"
-  value        = "Cumulonimbus{SharedKeyAuthorizationShouldBeDisabled}."
+  value        = "CUMULONIMBUS{SharedKeyAuthorizationShouldBeDisabled}"
   key_vault_id = azurerm_key_vault.ska_kv.id
 }
