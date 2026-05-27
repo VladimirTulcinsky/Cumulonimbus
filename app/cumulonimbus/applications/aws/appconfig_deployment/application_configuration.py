@@ -15,6 +15,11 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
             3: "Run: aws appconfig list-applications, aws appconfig list-configuration-profiles --application-id <id>, then aws appconfig get-hosted-configuration-version --application-id <id> --configuration-profile-id <id> --version-number 1 /tmp/config.json && cat /tmp/config.json",
         }
 
+    mitre_ttps = [
+        {"id": "T1552", "name": "Unsecured Credentials", "url": "https://attack.mitre.org/techniques/T1552/"},
+        {"id": "T1083", "name": "File and Directory Discovery", "url": "https://attack.mitre.org/techniques/T1083/"},
+    ]
+
     def configure_application(self, **kwargs):
         pass
 
@@ -26,3 +31,4 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
         print(f"  Application Name       : {output.get('application_name', {}).get('value', 'N/A')}")
         print(f"  Configuration Profile  : {output.get('configuration_profile_id', {}).get('value', 'N/A')}")
         print("\nGoal: Download the AppConfig hosted configuration version and find the flag embedded in the JSON.")
+        self.print_mitre_ttps()

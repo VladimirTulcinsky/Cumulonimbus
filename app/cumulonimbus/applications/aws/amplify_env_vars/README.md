@@ -44,3 +44,11 @@ The attacker IAM user has the following permissions:
 - Store secrets in AWS Secrets Manager or SSM Parameter Store (SecureString) and retrieve them at runtime using the application's execution role.
 - Apply least-privilege IAM: restrict `amplify:GetApp` to specific app ARNs and limit who can call it.
 - Audit existing Amplify apps: `aws amplify list-apps --query 'apps[].{name:name,envVars:environmentVariables}'` to check for exposed secrets.
+
+## MITRE ATT&CK Mapping
+
+| Technique ID | Technique Name | Tactic |
+|---|---|---|
+| [T1552.001](https://attack.mitre.org/techniques/T1552/001/) | Unsecured Credentials: Credentials in Files | Credential Access |
+| [T1083](https://attack.mitre.org/techniques/T1083/) | File and Directory Discovery | Discovery |
+| [T1530](https://attack.mitre.org/techniques/T1530/) | Data from Cloud Storage | Collection |

@@ -71,3 +71,11 @@ sudo dpkg -i session-manager-plugin.deb
 - If ECS Exec is required, restrict access using IAM conditions (e.g., specific cluster/task ARNs).
 - Enable CloudTrail logging for `ecs:ExecuteCommand` events and alert on unexpected usage.
 - Use VPC endpoints for SSM Messages to avoid internet exposure.
+
+## MITRE ATT&CK Mapping
+
+| Technique ID | Technique Name | Tactic |
+|---|---|---|
+| [T1609](https://attack.mitre.org/techniques/T1609/) | Container Administration Command | Execution |
+| [T1552.005](https://attack.mitre.org/techniques/T1552/005/) | Unsecured Credentials: Cloud Instance Metadata API | Credential Access |
+| [T1078.004](https://attack.mitre.org/techniques/T1078/004/) | Valid Accounts: Cloud Accounts | Defense Evasion |

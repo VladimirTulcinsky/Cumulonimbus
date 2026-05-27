@@ -15,6 +15,11 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
             3: "Run: aws dynamodb list-tables, then: aws dynamodb scan --table-name <table-name>",
         }
 
+    mitre_ttps = [
+        {"id": "T1619", "name": "Cloud Storage Object Discovery", "url": "https://attack.mitre.org/techniques/T1619/"},
+        {"id": "T1530", "name": "Data from Cloud Storage", "url": "https://attack.mitre.org/techniques/T1530/"},
+    ]
+
     def configure_application(self, **kwargs):
         pass
 
@@ -24,3 +29,4 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
         print(f"  Secret Access Key : {output.get('attacker_secret_access_key', {}).get('value', 'N/A')}")
         print(f"  Table Name        : {output.get('table_name', {}).get('value', 'N/A')}")
         print("\nGoal: Scan the DynamoDB table and retrieve the flag stored in a table item.")
+        self.print_mitre_ttps()
