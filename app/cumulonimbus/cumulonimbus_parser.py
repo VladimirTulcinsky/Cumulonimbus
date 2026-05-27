@@ -40,6 +40,8 @@ class CumulonimbusParser:
             "hint", help="Get a hint for an Amazon Web Services application")
         aws_cmd_ttl_parser = aws_cmd_parser.add_parser(
             "ttl", help="Schedule auto-destroy for an Amazon Web Services application")
+        aws_cmd_parser.add_parser(
+            "list", help="List available Amazon Web Services lab IDs")
 
         # Authentication parameters
         aws_auth_params = aws_cmd_auth_parser.add_argument_group(
@@ -112,7 +114,7 @@ class CumulonimbusParser:
 
         azure_cmd_parser = azure_parser.add_subparsers(
             title="The command you want to run", dest="command", required=True,
-            help="The command you want to run (authenticate, create, destroy, validate, hint, ttl)")
+            help="The command you want to run (authenticate, create, destroy, validate, hint, ttl, list)")
 
         azure_cmd_auth_parser = azure_cmd_parser.add_parser(
             "authenticate", help="Authenticate {} against an Azure account".format(global_variables.APP_NAME))
@@ -126,6 +128,8 @@ class CumulonimbusParser:
             "hint", help="Get a hint for an Azure application")
         azure_cmd_ttl_parser = azure_cmd_parser.add_parser(
             "ttl", help="Schedule auto-destroy for an Azure application")
+        azure_cmd_parser.add_parser(
+            "list", help="List available Azure lab IDs")
 
         azure_auth_modes = azure_cmd_auth_parser.add_mutually_exclusive_group(required=True)
         azure_auth_modes.add_argument('--service-principal',
