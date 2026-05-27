@@ -35,7 +35,7 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
         }
 
     def get_flag(self):
-        return "Cumulonimbus{Th4tW4sCh33sy}"
+        return "CUMULONIMBUS{Th4tW4sCh33sy}"
 
     def pretty_print_tf_output(self, app_id, output):
         """
