@@ -95,3 +95,4 @@ class AzureAuthenticationStrategy(AuthenticationStrategy):
             f.write("AZURE_SUBSCRIPTION_ID=" + str(subscription_id or '') + "\n")
             f.write("AZURE_TENANT_DOMAIN=" + str(tenant_domain or '') + "\n")
             f.write("AZURE_LOCATION=" + str(location or 'West Europe') + "\n")
+        os.chmod(global_variables.PATH_TO_AZURE_CREDENTIALS, 0o600)

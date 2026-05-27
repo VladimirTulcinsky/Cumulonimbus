@@ -82,7 +82,9 @@ class AWSAuthenticationStrategy(AuthenticationStrategy):
             f.write("aws_secret_access_key = " + str(aws_secret_access_key or '') + "\n")
             if aws_session_token:
                 f.write("aws_session_token = " + aws_session_token + "\n")
+        os.chmod(global_variables.PATH_TO_AWS_CREDENTIALS, 0o600)
 
         with open(global_variables.PATH_TO_AWS_CONFIG, "w") as f:
             f.write("[cumulonimbus]\n")
             f.write("region = " + region)
+        os.chmod(global_variables.PATH_TO_AWS_CONFIG, 0o600)
