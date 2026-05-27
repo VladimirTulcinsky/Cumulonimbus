@@ -63,9 +63,9 @@ class CumulonimbusParser:
                                      help='AWS Session Token')
         aws_auth_params.add_argument('-r', '--region',
                                      action='store',
-                                     default='eu-west-1',
+                                     required=True,
                                      dest='region',
-                                     help='AWS region to deploy resources to (default: eu-west-1)')
+                                     help='AWS region to deploy resources to (e.g. eu-west-1, us-east-1, ap-southeast-1)')
 
         # Create parameters
         aws_creation_params = aws_cmd_create_parser.add_argument_group('Creation parameters')
@@ -160,9 +160,9 @@ class CumulonimbusParser:
                                          help='Primary domain of the Azure AD tenant (e.g. contoso.onmicrosoft.com)')
         azure_auth_s_params.add_argument('-r', '--region',
                                          action='store',
-                                         default='West Europe',
+                                         required=True,
                                          dest='region',
-                                         help='Azure region (location) to deploy resources to (default: West Europe)')
+                                         help='Azure region (location) to deploy resources to (e.g. "West Europe", "East US", "Southeast Asia")')
 
         # Create parameters
         azure_creation_params = azure_cmd_create_parser.add_argument_group('Creation parameters')

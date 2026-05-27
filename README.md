@@ -166,11 +166,13 @@ You need a cloud account with sufficient permissions before deploying labs.
 cnimbus azure authenticate --service-principal \
   --client-id <id> --client-secret <secret> \
   --tenant-id <tenant> --subscription-id <subscription> \
-  --tenant-domain <domain>          # e.g. contoso.onmicrosoft.com
+  --tenant-domain <domain> \        # e.g. contoso.onmicrosoft.com
+  --region "West Europe"            # required: Azure region to deploy to
 
 # AWS
 cnimbus aws authenticate \
   --access-key-id <key-id> --secret-access-key <secret> \
+  --region eu-west-1 \              # required: AWS region to deploy to
   [--session-token <token>]
 ```
 
