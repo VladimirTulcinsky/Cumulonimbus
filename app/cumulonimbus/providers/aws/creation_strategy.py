@@ -1,6 +1,8 @@
 from python_terraform import *
 from .utils import get_path_to_aws_app, pretty_print_tf_output
 import cumulonimbus.global_variables as global_variables
+import os
+import shutil
 
 from cumulonimbus.providers.base.creation_strategy import CreationStrategy, CreationException
 from cumulonimbus.providers.base.application_configuration_factory import get_application_configuration
@@ -69,6 +71,16 @@ class AWSCreationStrategy(CreationStrategy):
                 raise CreationException(stderr)
 
             print(f"Successfully destroyed AWS application: {app_id}")
+            _cleanup_terraform_state(cwd)
 
         except Exception as e:
             raise CreationException(e)
+
+
+def _cleanup_terraform_state(cwd):
+    for name in (".terraform", "terraform.tfstate", "terraform.tfstate.backup"):
+        path = os.path.join(cwd, name)
+        if os.path.isdir(path):
+            shutil.rmtree(path)
+        elif os.path.isfile(path):
+            os.remove(path)
