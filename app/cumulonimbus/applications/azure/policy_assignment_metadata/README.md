@@ -53,3 +53,10 @@ The attacker service principal has:
 - The metadata field is intended for categorization tags (e.g., `category`, `version`) only.
 - Conduct a subscription-wide audit: `az policy assignment list --query "[?metadata]" -o table` to identify assignments with populated metadata fields.
 - Store internal reference tokens in Azure Key Vault and reference them via managed identity at runtime.
+
+## MITRE ATT&CK Mapping
+
+| Technique ID | Technique Name | Tactic |
+|---|---|---|
+| [T1552](https://attack.mitre.org/techniques/T1552/) | Unsecured Credentials | Credential Access |
+| [T1083](https://attack.mitre.org/techniques/T1083/) | File and Directory Discovery | Discovery |

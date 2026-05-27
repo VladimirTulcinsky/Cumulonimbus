@@ -50,3 +50,10 @@ The attacker service principal has:
 - If bearer token authentication is required, store the token in Key Vault and inject it via a secure mechanism at alert dispatch time.
 - Audit all Action Groups with `az monitor action-group list --query "[].webhookReceivers"` across subscriptions to identify embedded tokens.
 - Apply least-privilege RBAC to limit who can read Action Group definitions.
+
+## MITRE ATT&CK Mapping
+
+| Technique ID | Technique Name | Tactic |
+|---|---|---|
+| [T1552](https://attack.mitre.org/techniques/T1552/) | Unsecured Credentials | Credential Access |
+| [T1083](https://attack.mitre.org/techniques/T1083/) | File and Directory Discovery | Discovery |

@@ -50,3 +50,10 @@ The attacker service principal has:
 - Deployment Scripts should only output non-sensitive status information.
 - Consider using `protectedSettings` patterns or Key Vault references for any sensitive data generated during provisioning.
 - Review existing Deployment Script resources with `az deployment-scripts list` across all subscriptions to audit for sensitive output exposure.
+
+## MITRE ATT&CK Mapping
+
+| Technique ID | Technique Name | Tactic |
+|---|---|---|
+| [T1552.001](https://attack.mitre.org/techniques/T1552/001/) | Unsecured Credentials: Credentials in Files | Credential Access |
+| [T1530](https://attack.mitre.org/techniques/T1530/) | Data from Cloud Storage | Collection |

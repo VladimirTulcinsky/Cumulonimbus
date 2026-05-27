@@ -50,3 +50,10 @@ The attacker service principal has:
 - Use Azure Container Apps secrets (`az containerapp secret set`) combined with `secretRef` environment variable references — secret values are not returned in read operations.
 - For highly sensitive secrets, reference Azure Key Vault secrets via managed identity.
 - Audit Container App definitions for plaintext secrets using Azure Policy or Defender for Cloud.
+
+## MITRE ATT&CK Mapping
+
+| Technique ID | Technique Name | Tactic |
+|---|---|---|
+| [T1552.001](https://attack.mitre.org/techniques/T1552/001/) | Unsecured Credentials: Credentials in Files | Credential Access |
+| [T1083](https://attack.mitre.org/techniques/T1083/) | File and Directory Discovery | Discovery |

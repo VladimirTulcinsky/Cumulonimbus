@@ -16,6 +16,12 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
             3: "Two paths: (1) roadtx — use the Clear key: `roadtx prtauth --prt <PRT> --prt-sessionkey <Clear_key> --resource https://vault.azure.net/`, then read the flag with the token saved to .roadtools_auth. (2) Browser cookie — use the Derived Key: `dpapi::cloudapkd /context:<Context> /derivedkey:<DerivedKey> /prt:<PRT>`, inject cookie `x-ms-RefreshTokenCredential` on login.microsoftonline.com (HttpOnly+Secure), enter the victim UPN when prompted.",
         }
 
+    mitre_ttps = [
+        {"id": "T1550.001", "name": "Use Alternate Authentication Material: Application Access Token", "url": "https://attack.mitre.org/techniques/T1550/001/"},
+        {"id": "T1078.004", "name": "Valid Accounts: Cloud Accounts", "url": "https://attack.mitre.org/techniques/T1078/004/"},
+        {"id": "T1528", "name": "Steal Application Access Token", "url": "https://attack.mitre.org/techniques/T1528/"},
+    ]
+
     def configure_application(self, **kwargs):
         pass
 
@@ -32,3 +38,4 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
         print(f"\nWait ~10 min after deploy (autologon seeds the victim's PRT on first boot), then RDP as local admin:")
         print(f"  xfreerdp3 /v:{ip} /u:attacker /p:{pw} /d:. /cert:ignore")
         print(f"Goal  : Extract the victim's PRT with Mimikatz, forge a browser cookie, read the Key Vault flag.")
+        self.print_mitre_ttps()

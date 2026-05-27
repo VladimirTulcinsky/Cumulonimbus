@@ -15,6 +15,11 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
             3: "Run: az monitor action-group list --resource-group <rg>, then: az monitor action-group show --name <name> --resource-group <rg> --query 'webhookReceivers'",
         }
 
+    mitre_ttps = [
+        {"id": "T1552", "name": "Unsecured Credentials", "url": "https://attack.mitre.org/techniques/T1552/"},
+        {"id": "T1083", "name": "File and Directory Discovery", "url": "https://attack.mitre.org/techniques/T1083/"},
+    ]
+
     def configure_application(self, **kwargs):
         pass
 
@@ -25,3 +30,4 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
         print(f"  Resource Group         : {output.get('resource_group_name', {}).get('value', 'N/A')}")
         print(f"  Action Group Name      : {output.get('action_group_name', {}).get('value', 'N/A')}")
         print("\nGoal: Inspect the Action Group webhook receiver URL to find the embedded authentication token.")
+        self.print_mitre_ttps()

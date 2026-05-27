@@ -15,6 +15,11 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
             3: "Run: az policy assignment list --resource-group <rg> --query '[].{name:name,metadata:metadata}', then inspect the metadata field for the flag.",
         }
 
+    mitre_ttps = [
+        {"id": "T1552", "name": "Unsecured Credentials", "url": "https://attack.mitre.org/techniques/T1552/"},
+        {"id": "T1083", "name": "File and Directory Discovery", "url": "https://attack.mitre.org/techniques/T1083/"},
+    ]
+
     def configure_application(self, **kwargs):
         pass
 
@@ -25,3 +30,4 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
         print(f"  Resource Group          : {output.get('resource_group_name', {}).get('value', 'N/A')}")
         print(f"  Policy Assignment Name  : {output.get('policy_assignment_name', {}).get('value', 'N/A')}")
         print("\nGoal: Read the policy assignment metadata to find the flag embedded by the platform team.")
+        self.print_mitre_ttps()

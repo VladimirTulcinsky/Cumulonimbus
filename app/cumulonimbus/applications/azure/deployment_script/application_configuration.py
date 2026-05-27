@@ -15,6 +15,11 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
             3: "Run: az deployment-scripts list --resource-group <rg>, then: az deployment-scripts show --name <name> --resource-group <rg> --query outputs",
         }
 
+    mitre_ttps = [
+        {"id": "T1552.001", "name": "Unsecured Credentials: Credentials in Files", "url": "https://attack.mitre.org/techniques/T1552/001/"},
+        {"id": "T1530", "name": "Data from Cloud Storage", "url": "https://attack.mitre.org/techniques/T1530/"},
+    ]
+
     def configure_application(self, **kwargs):
         pass
 
@@ -25,3 +30,4 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
         print(f"  Resource Group         : {output.get('resource_group_name', {}).get('value', 'N/A')}")
         print(f"  Deployment Script Name : {output.get('deployment_script_name', {}).get('value', 'N/A')}")
         print("\nGoal: Retrieve the Deployment Script outputs to find the flag.")
+        self.print_mitre_ttps()
