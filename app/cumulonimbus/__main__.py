@@ -83,7 +83,8 @@ def authenticate(provider,
                                                  client_id=client_id,
                                                  client_secret=client_secret,
                                                  subscription_id=subscription_id,
-                                                 tenant_domain=tenant_domain)
+                                                 tenant_domain=tenant_domain,
+                                                 region=region)
 
         if not credentials:
             print('Authentication failure: no credentials returned')
