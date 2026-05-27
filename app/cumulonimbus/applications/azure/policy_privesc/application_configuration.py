@@ -26,7 +26,9 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
         pass
 
     def pretty_print_tf_output(self, app_id, output):
-        print("\n=== Azure Policy Privilege Escalation Lab ===")
+        print("###############################################")
+        print("#             Required Information            #")
+        print("###############################################")
         print(f"  Attacker UPN            : {output.get('policyuser_upn', {}).get('value', 'N/A')}")
         print(f"  Attacker password       : {output.get('policyuser_password', {}).get('value', 'N/A')}")
         print(f"  Subscription ID         : {output.get('subscription_id', {}).get('value', 'N/A')}")

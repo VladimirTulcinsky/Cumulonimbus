@@ -24,7 +24,9 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
         pass
 
     def pretty_print_tf_output(self, app_id, output):
-        print("\n=== DynamoDB Scan Lab ===")
+        print("###############################################")
+        print("#             Required Information            #")
+        print("###############################################")
         print(f"  Access Key ID     : {output.get('attacker_access_key_id', {}).get('value', 'N/A')}")
         print(f"  Secret Access Key : {output.get('attacker_secret_access_key', {}).get('value', 'N/A')}")
         print(f"  Table Name        : {output.get('table_name', {}).get('value', 'N/A')}")

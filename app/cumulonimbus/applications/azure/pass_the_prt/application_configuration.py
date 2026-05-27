@@ -26,7 +26,9 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
         pass
 
     def pretty_print_tf_output(self, app_id, output):
-        print("\n=== Pass-the-PRT Lab ===")
+        print("###############################################")
+        print("#             Required Information            #")
+        print("###############################################")
         print(f"  VM public IP        : {output.get('vm_public_ip', {}).get('value', 'N/A')}")
         print(f"  Local admin user    : {output.get('attacker_username', {}).get('value', 'N/A')}")
         print(f"  Local admin password: {output.get('attacker_password', {}).get('value', 'N/A')}")

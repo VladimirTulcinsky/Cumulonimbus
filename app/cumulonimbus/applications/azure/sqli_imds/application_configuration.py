@@ -29,7 +29,9 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
         os.system("ssh-keygen -t rsa -b 4096 -f {} -N ''".format(key_pair_path))
 
     def pretty_print_tf_output(self, app_id, output):
-        print("\n=== SQL Injection → IMDS Token Exfiltration Lab ===")
+        print("###############################################")
+        print("#             Required Information            #")
+        print("###############################################")
         print(f"  VM public IP      : {output.get('vm_public_ip', {}).get('value', 'N/A')}")
         print(f"  Key Vault name    : {output.get('keyvault_name', {}).get('value', 'N/A')}")
         print(f"  Key Vault URI     : {output.get('keyvault_uri', {}).get('value', 'N/A')}")
