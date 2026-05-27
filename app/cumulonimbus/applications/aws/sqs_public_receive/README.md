@@ -69,5 +69,5 @@ aws sqs get-queue-attributes \
 
 | Technique | ID |
 |---|---|
-| Data from Cloud Storage | T1530 |
-| Cloud Infrastructure Discovery | T1580 |
+| Data from Cloud Storage | [T1530](https://attack.mitre.org/techniques/T1530/) |
+| Cloud Infrastructure Discovery | [T1580](https://attack.mitre.org/techniques/T1580/) |

@@ -58,6 +58,6 @@ The response contains:
 
 | Technique | ID |
 |---|---|
-| Exploit Public-Facing Application | T1190 |
-| Cloud Infrastructure Discovery | T1580 |
-| Data from Cloud Storage | T1530 |
+| Exploit Public-Facing Application | [T1190](https://attack.mitre.org/techniques/T1190/) |
+| Cloud Infrastructure Discovery | [T1580](https://attack.mitre.org/techniques/T1580/) |
+| Data from Cloud Storage | [T1530](https://attack.mitre.org/techniques/T1530/) |

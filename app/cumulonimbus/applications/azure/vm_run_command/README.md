@@ -85,7 +85,7 @@ az vm run-command invoke \
 
 | Technique | ID |
 |---|---|
-| Command and Scripting Interpreter | T1059 |
-| Valid Accounts: Cloud Accounts | T1078.004 |
-| Remote Services | T1021 |
-| Privilege Escalation | T1548 |
+| Command and Scripting Interpreter | [T1059](https://attack.mitre.org/techniques/T1059/) |
+| Valid Accounts: Cloud Accounts | [T1078.004](https://attack.mitre.org/techniques/T1078/004/) |
+| Remote Services | [T1021](https://attack.mitre.org/techniques/T1021/) |
+| Privilege Escalation | [T1548](https://attack.mitre.org/techniques/T1548/) |

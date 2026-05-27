@@ -61,6 +61,6 @@ aws s3 cp s3://${BUCKET}/flag.txt - --no-sign-request
 
 | Technique | ID |
 |---|---|
-| Data from Cloud Storage | T1530 |
-| Cloud Storage Object Discovery | T1619 |
-| Valid Accounts: Cloud Accounts | T1078.004 |
+| Data from Cloud Storage | [T1530](https://attack.mitre.org/techniques/T1530/) |
+| Cloud Storage Object Discovery | [T1619](https://attack.mitre.org/techniques/T1619/) |
+| Valid Accounts: Cloud Accounts | [T1078.004](https://attack.mitre.org/techniques/T1078/004/) |

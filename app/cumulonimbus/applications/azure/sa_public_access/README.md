@@ -102,5 +102,5 @@ curl "https://cumulonimbusXXXXprd.blob.core.windows.net/secrets/flag.txt"
 
 | Technique | ID |
 |---|---|
-| Cloud Storage Object Discovery | T1619 |
-| Data from Cloud Storage | T1530 |
+| Cloud Storage Object Discovery | [T1619](https://attack.mitre.org/techniques/T1619/) |
+| Data from Cloud Storage | [T1530](https://attack.mitre.org/techniques/T1530/) |

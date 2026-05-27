@@ -89,6 +89,6 @@ Use the access token with the Graph API to escalate privileges.
 
 | Technique | ID |
 |---|---|
-| Steal Application Access Token | T1528 |
-| Phishing: Spearphishing Link | T1566.002 |
-| Valid Accounts: Cloud Accounts | T1078.004 |
+| Steal Application Access Token | [T1528](https://attack.mitre.org/techniques/T1528/) |
+| Phishing: Spearphishing Link | [T1566.002](https://attack.mitre.org/techniques/T1566/002/) |
+| Valid Accounts: Cloud Accounts | [T1078.004](https://attack.mitre.org/techniques/T1078/004/) |

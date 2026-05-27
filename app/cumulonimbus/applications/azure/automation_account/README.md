@@ -100,7 +100,7 @@ az automation job stream list \
 
 | Technique | ID |
 |---|---|
-| Steal Application Access Token | T1528 |
-| Unsecured Credentials: Cloud Instance Metadata API | T1552.005 |
-| Data from Cloud Storage | T1530 |
-| Valid Accounts: Cloud Accounts | T1078.004 |
+| Steal Application Access Token | [T1528](https://attack.mitre.org/techniques/T1528/) |
+| Unsecured Credentials: Cloud Instance Metadata API | [T1552.005](https://attack.mitre.org/techniques/T1552/005/) |
+| Data from Cloud Storage | [T1530](https://attack.mitre.org/techniques/T1530/) |
+| Valid Accounts: Cloud Accounts | [T1078.004](https://attack.mitre.org/techniques/T1078/004/) |

@@ -90,7 +90,7 @@ curl -X POST "https://graph.microsoft.com/v1.0/groups/<group-id>/members/\$ref" 
 
 | Technique | ID |
 |---|---|
-| Steal Application Access Token | T1528 |
-| Phishing | T1566 |
-| Use Alternate Authentication Material: Application Access Token | T1550.001 |
-| Valid Accounts: Cloud Accounts | T1078.004 |
+| Steal Application Access Token | [T1528](https://attack.mitre.org/techniques/T1528/) |
+| Phishing | [T1566](https://attack.mitre.org/techniques/T1566/) |
+| Use Alternate Authentication Material: Application Access Token | [T1550.001](https://attack.mitre.org/techniques/T1550/001/) |
+| Valid Accounts: Cloud Accounts | [T1078.004](https://attack.mitre.org/techniques/T1078/004/) |
