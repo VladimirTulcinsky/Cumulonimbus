@@ -53,3 +53,10 @@ The attacker service principal has:
 - Link APIM Named Values to Azure Key Vault secrets instead of storing values inline.
 - Apply least-privilege RBAC — avoid granting broad Reader access on resource groups containing APIM instances.
 - Audit Named Values regularly to ensure secrets are not stored in plaintext.
+
+## MITRE ATT&CK Mapping
+
+| Technique ID | Technique Name | Tactic |
+|---|---|---|
+| [T1552](https://attack.mitre.org/techniques/T1552/) | Unsecured Credentials | Credential Access |
+| [T1083](https://attack.mitre.org/techniques/T1083/) | File and Directory Discovery | Discovery |

@@ -15,6 +15,11 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
             3: "Run: az apim nv list --service-name <apim-name> --resource-group <rg>, then: az apim nv show --service-name <apim-name> --resource-group <rg> --named-value-id flag-key --query value -o tsv",
         }
 
+    mitre_ttps = [
+        {"id": "T1552", "name": "Unsecured Credentials", "url": "https://attack.mitre.org/techniques/T1552/"},
+        {"id": "T1083", "name": "File and Directory Discovery", "url": "https://attack.mitre.org/techniques/T1083/"},
+    ]
+
     def configure_application(self, **kwargs):
         pass
 
@@ -26,3 +31,4 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
         print(f"  APIM Name              : {output.get('apim_name', {}).get('value', 'N/A')}")
         print(f"  Named Value ID         : {output.get('named_value_id', {}).get('value', 'N/A')}")
         print("\nGoal: Read the plaintext Named Value in Azure API Management to retrieve the flag.")
+        self.print_mitre_ttps()

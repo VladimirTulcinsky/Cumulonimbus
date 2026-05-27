@@ -18,6 +18,12 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
             3: "The VM has a system-assigned managed identity. Query the IMDS endpoint from within xp_cmdshell: `curl -s -H 'Metadata:true' 'http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=https://vault.azure.net'`. Use the access_token to call the Key Vault REST API and read the secret named 'flag'.",
         }
 
+    mitre_ttps = [
+        {"id": "T1190", "name": "Exploit Public-Facing Application", "url": "https://attack.mitre.org/techniques/T1190/"},
+        {"id": "T1552.005", "name": "Unsecured Credentials: Cloud Instance Metadata API", "url": "https://attack.mitre.org/techniques/T1552/005/"},
+        {"id": "T1078.004", "name": "Valid Accounts: Cloud Accounts", "url": "https://attack.mitre.org/techniques/T1078/004/"},
+    ]
+
     def configure_application(self, **kwargs):
         key_pair_path = utils.get_key_pair_path('sqli_imds')
         os.system("ssh-keygen -t rsa -b 4096 -f {} -N ''".format(key_pair_path))
@@ -30,3 +36,4 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
         print(f"  Resource group    : {output.get('resource_group', {}).get('value', 'N/A')}")
         print(f"\nTarget: http://{output.get('vm_public_ip', {}).get('value', '<ip>')}")
         print(f"Goal  : Read the 'flag' secret from the Key Vault using the VM's managed identity token.")
+        self.print_mitre_ttps()

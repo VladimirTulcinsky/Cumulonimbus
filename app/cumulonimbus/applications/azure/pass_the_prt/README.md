@@ -189,3 +189,11 @@ The lab demonstrates the device-claim bypass (CA policies requiring compliant de
 ```shell
 cnimbus azure destroy --app-id pass_the_prt
 ```
+
+## MITRE ATT&CK Mapping
+
+| Technique ID | Technique Name | Tactic |
+|---|---|---|
+| [T1550.001](https://attack.mitre.org/techniques/T1550/001/) | Use Alternate Authentication Material: Application Access Token | Defense Evasion |
+| [T1078.004](https://attack.mitre.org/techniques/T1078/004/) | Valid Accounts: Cloud Accounts | Defense Evasion |
+| [T1528](https://attack.mitre.org/techniques/T1528/) | Steal Application Access Token | Credential Access |

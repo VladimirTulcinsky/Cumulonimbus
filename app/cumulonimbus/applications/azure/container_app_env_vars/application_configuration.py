@@ -15,6 +15,11 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
             3: "Run: az containerapp show --name <app-name> --resource-group <rg> --query 'properties.template.containers[0].env'",
         }
 
+    mitre_ttps = [
+        {"id": "T1552.001", "name": "Unsecured Credentials: Credentials in Files", "url": "https://attack.mitre.org/techniques/T1552/001/"},
+        {"id": "T1083", "name": "File and Directory Discovery", "url": "https://attack.mitre.org/techniques/T1083/"},
+    ]
+
     def configure_application(self, **kwargs):
         pass
 
@@ -26,3 +31,4 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
         print(f"  Container App Name     : {output.get('container_app_name', {}).get('value', 'N/A')}")
         print(f"  Container App FQDN     : {output.get('container_app_fqdn', {}).get('value', 'N/A')}")
         print("\nGoal: Inspect the Container App definition to find the flag stored in an environment variable.")
+        self.print_mitre_ttps()

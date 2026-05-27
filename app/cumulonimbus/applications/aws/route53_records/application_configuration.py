@@ -15,6 +15,11 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
             3: "Run: aws route53 list-hosted-zones, then: aws route53 list-resource-record-sets --hosted-zone-id <zone-id>",
         }
 
+    mitre_ttps = [
+        {"id": "T1016", "name": "System Network Configuration Discovery", "url": "https://attack.mitre.org/techniques/T1016/"},
+        {"id": "T1590.002", "name": "Gather Victim Network Information: DNS", "url": "https://attack.mitre.org/techniques/T1590/002/"},
+    ]
+
     def configure_application(self, **kwargs):
         pass
 
@@ -25,3 +30,4 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
         print(f"  Hosted Zone ID    : {output.get('hosted_zone_id', {}).get('value', 'N/A')}")
         print(f"  Hosted Zone Name  : {output.get('hosted_zone_name', {}).get('value', 'N/A')}")
         print("\nGoal: Enumerate the Route53 hosted zone and retrieve the flag hidden in a DNS record.")
+        self.print_mitre_ttps()

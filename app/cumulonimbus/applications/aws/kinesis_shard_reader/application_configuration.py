@@ -15,6 +15,11 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
             3: "Run: aws kinesis list-streams, then get-shard-iterator with --shard-iterator-type TRIM_HORIZON, then aws kinesis get-records --shard-iterator <iterator>. Records are base64-encoded.",
         }
 
+    mitre_ttps = [
+        {"id": "T1530", "name": "Data from Cloud Storage", "url": "https://attack.mitre.org/techniques/T1530/"},
+        {"id": "T1619", "name": "Cloud Storage Object Discovery", "url": "https://attack.mitre.org/techniques/T1619/"},
+    ]
+
     def configure_application(self, **kwargs):
         pass
 
@@ -24,3 +29,4 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
         print(f"  Secret Access Key : {output.get('attacker_secret_access_key', {}).get('value', 'N/A')}")
         print(f"  Stream Name       : {output.get('stream_name', {}).get('value', 'N/A')}")
         print("\nGoal: Read records from the Kinesis Data Stream shard and decode the flag.")
+        self.print_mitre_ttps()

@@ -15,6 +15,11 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
             3: "Run: az datafactory linked-service list --factory-name <name> --resource-group <rg>, then: az datafactory linked-service show --factory-name <name> --linked-service-name DataLakeConnection --resource-group <rg> --query 'typeProperties.connectionString'",
         }
 
+    mitre_ttps = [
+        {"id": "T1552", "name": "Unsecured Credentials", "url": "https://attack.mitre.org/techniques/T1552/"},
+        {"id": "T1083", "name": "File and Directory Discovery", "url": "https://attack.mitre.org/techniques/T1083/"},
+    ]
+
     def configure_application(self, **kwargs):
         pass
 
@@ -26,3 +31,4 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
         print(f"  Data Factory Name      : {output.get('data_factory_name', {}).get('value', 'N/A')}")
         print(f"  Linked Service Name    : {output.get('linked_service_name', {}).get('value', 'N/A')}")
         print("\nGoal: Read the Data Factory linked service definition to extract the cleartext storage account key.")
+        self.print_mitre_ttps()

@@ -59,3 +59,10 @@ The attacker service principal has:
 - Enable Azure Defender for Resource Manager to detect unusual enumeration of Data Factory linked services.
 - Rotate the exposed storage account key immediately and update the linked service to use Key Vault.
 - Audit all linked services: `az datafactory linked-service list --query "[?properties.typeProperties.connectionString]"` to find inline credentials.
+
+## MITRE ATT&CK Mapping
+
+| Technique ID | Technique Name | Tactic |
+|---|---|---|
+| [T1552](https://attack.mitre.org/techniques/T1552/) | Unsecured Credentials | Credential Access |
+| [T1083](https://attack.mitre.org/techniques/T1083/) | File and Directory Discovery | Discovery |

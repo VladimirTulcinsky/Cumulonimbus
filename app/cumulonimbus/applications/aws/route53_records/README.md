@@ -43,3 +43,10 @@ The attacker IAM user has the following permissions:
 - Do not store secrets, tokens, or sensitive strings in DNS records.
 - Apply least-privilege IAM policies — restrict Route53 access to specific hosted zones using resource ARNs.
 - Audit hosted zone records periodically for sensitive data exposure.
+
+## MITRE ATT&CK Mapping
+
+| Technique ID | Technique Name | Tactic |
+|---|---|---|
+| [T1016](https://attack.mitre.org/techniques/T1016/) | System Network Configuration Discovery | Discovery |
+| [T1590.002](https://attack.mitre.org/techniques/T1590/002/) | Gather Victim Network Information: DNS | Reconnaissance |
