@@ -74,6 +74,8 @@ jobs:
           - azure/pass_the_prt
           - azure/policy_privesc
           - azure/sqli_imds
+          - azure/device_code_phishing
+          - azure/dynamic_groups_abuse
 
     steps:
       - uses: actions/checkout@v4
