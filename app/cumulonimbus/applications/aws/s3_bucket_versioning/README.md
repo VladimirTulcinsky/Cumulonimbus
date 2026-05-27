@@ -81,6 +81,6 @@ cat original_config.json
 
 | Technique | ID |
 |---|---|
-| Data from Cloud Storage | T1530 |
-| Cloud Storage Object Discovery | T1619 |
-| Unsecured Credentials: Credentials in Files | T1552.001 |
+| Data from Cloud Storage | [T1530](https://attack.mitre.org/techniques/T1530/) |
+| Cloud Storage Object Discovery | [T1619](https://attack.mitre.org/techniques/T1619/) |
+| Unsecured Credentials: Credentials in Files | [T1552.001](https://attack.mitre.org/techniques/T1552/001/) |

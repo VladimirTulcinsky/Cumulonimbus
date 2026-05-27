@@ -77,6 +77,6 @@ az ad group member add \
 
 | Technique | ID |
 |---|---|
-| Additional Cloud Credentials | T1098.001 |
-| Valid Accounts: Cloud Accounts | T1078.004 |
-| Account Manipulation | T1098 |
+| Additional Cloud Credentials | [T1098.001](https://attack.mitre.org/techniques/T1098/001/) |
+| Valid Accounts: Cloud Accounts | [T1078.004](https://attack.mitre.org/techniques/T1078/004/) |
+| Account Manipulation | [T1098](https://attack.mitre.org/techniques/T1098/) |

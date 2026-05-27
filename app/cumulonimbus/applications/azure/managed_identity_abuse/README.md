@@ -79,9 +79,9 @@ curl -H "Authorization: Bearer <access_token>" \
 
 | Technique | ID |
 |---|---|
-| Steal Application Access Token | T1528 |
-| Cloud Instance Metadata API | T1552.005 |
-| Valid Accounts: Cloud Accounts | T1078.004 |
+| Steal Application Access Token | [T1528](https://attack.mitre.org/techniques/T1528/) |
+| Cloud Instance Metadata API | [T1552.005](https://attack.mitre.org/techniques/T1552/005/) |
+| Valid Accounts: Cloud Accounts | [T1078.004](https://attack.mitre.org/techniques/T1078/004/) |
 
 ## References
 

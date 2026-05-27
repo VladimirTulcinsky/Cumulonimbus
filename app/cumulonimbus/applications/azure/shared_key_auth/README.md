@@ -102,7 +102,7 @@ az keyvault secret show --vault-name <kv-name> --name flag \
 
 | Technique | ID |
 |---|---|
-| Unsecured Credentials: Credentials in Files | T1552.001 |
-| Cloud Instance Metadata API | T1552.005 |
-| Steal Application Access Token | T1528 |
-| Account Manipulation | T1098 |
+| Unsecured Credentials: Credentials in Files | [T1552.001](https://attack.mitre.org/techniques/T1552/001/) |
+| Cloud Instance Metadata API | [T1552.005](https://attack.mitre.org/techniques/T1552/005/) |
+| Steal Application Access Token | [T1528](https://attack.mitre.org/techniques/T1528/) |
+| Account Manipulation | [T1098](https://attack.mitre.org/techniques/T1098/) |

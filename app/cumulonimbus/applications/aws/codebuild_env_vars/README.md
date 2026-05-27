@@ -74,6 +74,6 @@ The `DEPLOY_API_KEY` entry contains the flag.
 
 | Technique | ID |
 |---|---|
-| Unsecured Credentials: Credentials in Files | T1552.001 |
-| Cloud Infrastructure Discovery | T1580 |
-| Valid Accounts: Cloud Accounts | T1078.004 |
+| Unsecured Credentials: Credentials in Files | [T1552.001](https://attack.mitre.org/techniques/T1552/001/) |
+| Cloud Infrastructure Discovery | [T1580](https://attack.mitre.org/techniques/T1580/) |
+| Valid Accounts: Cloud Accounts | [T1078.004](https://attack.mitre.org/techniques/T1078/004/) |

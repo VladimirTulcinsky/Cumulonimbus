@@ -89,7 +89,7 @@ cat out.txt
 
 | Technique | ID |
 |---|---|
-| Valid Accounts: Cloud Accounts | T1078.004 |
-| Abuse Elevation Control Mechanism | T1548 |
-| Data from Cloud Storage | T1530 |
-| Cloud Infrastructure Discovery | T1580 |
+| Valid Accounts: Cloud Accounts | [T1078.004](https://attack.mitre.org/techniques/T1078/004/) |
+| Abuse Elevation Control Mechanism | [T1548](https://attack.mitre.org/techniques/T1548/) |
+| Data from Cloud Storage | [T1530](https://attack.mitre.org/techniques/T1530/) |
+| Cloud Infrastructure Discovery | [T1580](https://attack.mitre.org/techniques/T1580/) |

@@ -89,7 +89,7 @@ cat /tmp/flag.txt
 
 | Technique | ID |
 |---|---|
-| Valid Accounts: Cloud Accounts | T1078.004 |
-| Unsecured Credentials | T1552 |
-| Data from Cloud Storage | T1530 |
-| Privilege Escalation | T1548 |
+| Valid Accounts: Cloud Accounts | [T1078.004](https://attack.mitre.org/techniques/T1078/004/) |
+| Unsecured Credentials | [T1552](https://attack.mitre.org/techniques/T1552/) |
+| Data from Cloud Storage | [T1530](https://attack.mitre.org/techniques/T1530/) |
+| Privilege Escalation | [T1548](https://attack.mitre.org/techniques/T1548/) |

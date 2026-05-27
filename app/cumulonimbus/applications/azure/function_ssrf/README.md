@@ -71,7 +71,7 @@ curl -H "Authorization: Bearer ${TOKEN}" \
 
 | Technique | ID |
 |---|---|
-| Server-Side Request Forgery | T1190 |
-| Unsecured Credentials: Cloud Instance Metadata API | T1552.005 |
-| Steal Application Access Token | T1528 |
-| Data from Cloud Storage | T1530 |
+| Server-Side Request Forgery | [T1190](https://attack.mitre.org/techniques/T1190/) |
+| Unsecured Credentials: Cloud Instance Metadata API | [T1552.005](https://attack.mitre.org/techniques/T1552/005/) |
+| Steal Application Access Token | [T1528](https://attack.mitre.org/techniques/T1528/) |
+| Data from Cloud Storage | [T1530](https://attack.mitre.org/techniques/T1530/) |

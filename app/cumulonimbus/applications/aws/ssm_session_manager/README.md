@@ -86,7 +86,7 @@ sudo cat /root/flag.txt
 
 | Technique | ID |
 |---|---|
-| Remote Services | T1021 |
-| Valid Accounts: Cloud Accounts | T1078.004 |
-| Command and Scripting Interpreter | T1059 |
-| Lateral Movement | T1570 |
+| Remote Services | [T1021](https://attack.mitre.org/techniques/T1021/) |
+| Valid Accounts: Cloud Accounts | [T1078.004](https://attack.mitre.org/techniques/T1078/004/) |
+| Command and Scripting Interpreter | [T1059](https://attack.mitre.org/techniques/T1059/) |
+| Lateral Movement | [T1570](https://attack.mitre.org/techniques/T1570/) |

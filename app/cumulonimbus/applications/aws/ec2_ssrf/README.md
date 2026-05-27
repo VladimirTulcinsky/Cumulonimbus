@@ -61,7 +61,7 @@ AWS_ACCESS_KEY_ID=<id> AWS_SECRET_ACCESS_KEY=<secret> AWS_SESSION_TOKEN=<token> 
 
 | Technique | ID |
 |---|---|
-| Exploit Public-Facing Application | T1190 |
-| Cloud Instance Metadata API | T1552.005 |
-| Valid Accounts: Cloud Accounts | T1078.004 |
-| Data from Cloud Storage | T1530 |
+| Exploit Public-Facing Application | [T1190](https://attack.mitre.org/techniques/T1190/) |
+| Cloud Instance Metadata API | [T1552.005](https://attack.mitre.org/techniques/T1552/005/) |
+| Valid Accounts: Cloud Accounts | [T1078.004](https://attack.mitre.org/techniques/T1078/004/) |
+| Data from Cloud Storage | [T1530](https://attack.mitre.org/techniques/T1530/) |

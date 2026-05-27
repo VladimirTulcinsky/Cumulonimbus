@@ -95,6 +95,6 @@ aws ssm get-parameter \
 
 | Technique | ID |
 |---|---|
-| Valid Accounts: Cloud Accounts | T1078.004 |
-| Cloud Infrastructure Discovery | T1580 |
-| Privilege Escalation via Cloud Services | T1548 |
+| Valid Accounts: Cloud Accounts | [T1078.004](https://attack.mitre.org/techniques/T1078/004/) |
+| Cloud Infrastructure Discovery | [T1580](https://attack.mitre.org/techniques/T1580/) |
+| Privilege Escalation via Cloud Services | [T1548](https://attack.mitre.org/techniques/T1548/) |

@@ -79,6 +79,6 @@ aws s3 cp s3://<flag_bucket>/secret/flag.txt -
 
 | Technique | ID |
 |---|---|
-| Valid Accounts: Cloud Accounts | T1078.004 |
-| Steal Application Access Token | T1528 |
-| Data from Cloud Storage | T1530 |
+| Valid Accounts: Cloud Accounts | [T1078.004](https://attack.mitre.org/techniques/T1078/004/) |
+| Steal Application Access Token | [T1528](https://attack.mitre.org/techniques/T1528/) |
+| Data from Cloud Storage | [T1530](https://attack.mitre.org/techniques/T1530/) |

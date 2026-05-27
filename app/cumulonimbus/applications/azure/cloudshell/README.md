@@ -93,6 +93,6 @@ type C:\Users\Public\Desktop\flag.txt
 
 | Technique | ID |
 |---|---|
-| Data from Cloud Storage | T1530 |
-| Unsecured Credentials: Credentials in Files | T1552.001 |
-| Valid Accounts: Cloud Accounts | T1078.004 |
+| Data from Cloud Storage | [T1530](https://attack.mitre.org/techniques/T1530/) |
+| Unsecured Credentials: Credentials in Files | [T1552.001](https://attack.mitre.org/techniques/T1552/001/) |
+| Valid Accounts: Cloud Accounts | [T1078.004](https://attack.mitre.org/techniques/T1078/004/) |

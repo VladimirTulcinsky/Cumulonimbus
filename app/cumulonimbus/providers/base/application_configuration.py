@@ -41,6 +41,17 @@ class ApplicationConfigurationAbstract(metaclass=ABCMeta):
         """
         return {}
 
+    mitre_ttps = []
+
+    def print_mitre_ttps(self):
+        if not self.mitre_ttps:
+            return
+        print("\n###############################################")
+        print("#         MITRE ATT&CK Techniques            #")
+        print("###############################################")
+        for ttp in self.mitre_ttps:
+            print(f"[{ttp['id']}] {ttp['name']}: {ttp['url']}")
+
 
 class ConfigurationException(Exception):
     def __init__(self, message, errors=None):
