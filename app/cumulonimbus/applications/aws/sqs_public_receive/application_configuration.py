@@ -2,6 +2,10 @@ from cumulonimbus.providers.base.application_configuration import ApplicationCon
 
 
 class ApplicationConfiguration(ApplicationConfigurationAbstract):
+    mitre_ttps = [
+        {"id": "T1530", "name": "Data from Cloud Storage", "url": "https://attack.mitre.org/techniques/T1530/"},
+        {"id": "T1580", "name": "Cloud Infrastructure Discovery", "url": "https://attack.mitre.org/techniques/T1580/"},
+    ]
 
     def get_flag(self) -> str:
         return "CUMULONIMBUS{SQS_Publ1c_R3s0urc3_P0l1cy_R3c31v3}"
@@ -24,3 +28,4 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
         print(f"  Queue name : {output.get('queue_name', {}).get('value', 'N/A')}")
         print(f"  Queue URL  : {output.get('queue_url', {}).get('value', 'N/A')}")
         print("\nGoal: Receive messages from the publicly readable SQS queue without credentials.")
+        self.print_mitre_ttps()

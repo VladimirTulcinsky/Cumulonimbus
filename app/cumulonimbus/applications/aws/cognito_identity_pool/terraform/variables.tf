@@ -26,3 +26,9 @@ variable "app_id" {
   type    = string
   default = "cognito_identity_pool"
 }
+
+variable "region" {
+  type        = string
+  description = "AWS region to deploy resources to"
+  default     = "eu-west-1"
+}

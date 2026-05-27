@@ -20,6 +20,7 @@ class AWSCreationStrategy(CreationStrategy):
             tf = Terraform(working_dir=cwd)
             return_code, stdout, stderr = tf.init(capture_output=False)
             no_prompt = {"auto-approve": True}
+            region = getattr(credentials, 'aws_region', 'eu-west-1')
             return_code, stdout, stderr = tf.apply(
                 skip_plan=True,
                 **no_prompt,
@@ -30,6 +31,7 @@ class AWSCreationStrategy(CreationStrategy):
                     'shared_credentials_files': global_variables.PATH_TO_AWS_CREDENTIALS,
                     'shared_config_files': global_variables.PATH_TO_AWS_CONFIG,
                     'attacker_public_ip': global_variables.ATTACKER_PUBLIC_IP['aws'],
+                    'region': region,
                 }
             )
 
@@ -50,6 +52,7 @@ class AWSCreationStrategy(CreationStrategy):
             cwd = get_path_to_aws_app(app_id)
             tf = Terraform(working_dir=cwd)
             no_prompt = {"auto-approve": True}
+            region = getattr(credentials, 'aws_region', 'eu-west-1')
             return_code, stdout, stderr = tf.destroy(
                 capture_output=False,
                 **no_prompt,
@@ -57,6 +60,7 @@ class AWSCreationStrategy(CreationStrategy):
                 var={
                     'shared_credentials_files': global_variables.PATH_TO_AWS_CREDENTIALS,
                     'shared_config_files': global_variables.PATH_TO_AWS_CONFIG,
+                    'region': region,
                 }
             )
 

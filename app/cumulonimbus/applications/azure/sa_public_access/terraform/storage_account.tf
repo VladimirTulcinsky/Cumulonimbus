@@ -6,7 +6,7 @@ resource "random_integer" "sa_public_access" {
 
 resource "azurerm_resource_group" "sa_public_access" {
   name     = "sa-public-access"
-  location = "West Europe"
+  location = var.location
 }
 
 # Storage account to serve static content

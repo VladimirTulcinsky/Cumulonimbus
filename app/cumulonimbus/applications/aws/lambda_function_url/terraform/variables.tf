@@ -26,3 +26,9 @@ variable "app_id" {
   type    = string
   default = "lambda_function_url"
 }
+
+variable "region" {
+  type        = string
+  description = "AWS region to deploy resources to"
+  default     = "eu-west-1"
+}

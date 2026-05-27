@@ -25,3 +25,9 @@ variable "app_id" {
   type    = string
   default = "route53_records"
 }
+
+variable "region" {
+  type        = string
+  description = "AWS region to deploy resources to"
+  default     = "eu-west-1"
+}

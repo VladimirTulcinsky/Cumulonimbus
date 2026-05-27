@@ -5,7 +5,7 @@ resource "random_integer" "terraform_state_exposure" {
 
 resource "azurerm_resource_group" "terraform_state_exposure" {
   name     = "terraform-state-lab"
-  location = "West Europe"
+  location = var.location
 }
 
 # Misconfiguration: Terraform backend storage with public blob access enabled.

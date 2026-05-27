@@ -2,6 +2,12 @@ from cumulonimbus.providers.base.application_configuration import ApplicationCon
 
 
 class ApplicationConfiguration(ApplicationConfigurationAbstract):
+    mitre_ttps = [
+        {"id": "T1552.001", "name": "Unsecured Credentials: Credentials in Files", "url": "https://attack.mitre.org/techniques/T1552/001/"},
+        {"id": "T1078.004", "name": "Valid Accounts: Cloud Accounts", "url": "https://attack.mitre.org/techniques/T1078/004/"},
+        {"id": "T1530", "name": "Data from Cloud Storage", "url": "https://attack.mitre.org/techniques/T1530/"},
+        {"id": "T1619", "name": "Cloud Storage Object Discovery", "url": "https://attack.mitre.org/techniques/T1619/"},
+    ]
     def configure_application(self, **kwargs):
         pass
 
@@ -31,3 +37,4 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
         print("")
         print("Start by downloading the public config file:")
         print("  curl -s '{}' | python3 -m json.tool".format(output["config_blob_url"]["value"]))
+        self.print_mitre_ttps()

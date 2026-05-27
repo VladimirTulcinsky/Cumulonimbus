@@ -30,3 +30,9 @@ variable "app_id" {
   description = "Name of the application"
   default     = "iam_privesc"
 }
+
+variable "region" {
+  type        = string
+  description = "AWS region to deploy resources to"
+  default     = "eu-west-1"
+}

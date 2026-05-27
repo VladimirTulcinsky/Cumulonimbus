@@ -4,6 +4,11 @@ import os
 
 
 class ApplicationConfiguration(ApplicationConfigurationAbstract):
+    mitre_ttps = [
+        {"id": "T1552.001", "name": "Unsecured Credentials: Credentials in Files", "url": "https://attack.mitre.org/techniques/T1552/001/"},
+        {"id": "T1619", "name": "Cloud Storage Object Discovery", "url": "https://attack.mitre.org/techniques/T1619/"},
+        {"id": "T1530", "name": "Data from Cloud Storage", "url": "https://attack.mitre.org/techniques/T1530/"},
+    ]
     def configure_application(self, **kwargs):
         pass
 
@@ -31,3 +36,4 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
         print("[3] Storage account   : " + output["storage_account_name"]["value"])
         print("")
         print("Start by browsing to the web endpoint and inspecting app.js.")
+        self.print_mitre_ttps()

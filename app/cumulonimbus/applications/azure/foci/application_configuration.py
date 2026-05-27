@@ -4,6 +4,12 @@ import os
 
 
 class ApplicationConfiguration(ApplicationConfigurationAbstract):
+    mitre_ttps = [
+        {"id": "T1528", "name": "Steal Application Access Token", "url": "https://attack.mitre.org/techniques/T1528/"},
+        {"id": "T1566", "name": "Phishing", "url": "https://attack.mitre.org/techniques/T1566/"},
+        {"id": "T1550.001", "name": "Use Alternate Authentication Material: Application Access Token", "url": "https://attack.mitre.org/techniques/T1550/001/"},
+        {"id": "T1078.004", "name": "Valid Accounts: Cloud Accounts", "url": "https://attack.mitre.org/techniques/T1078/004/"},
+    ]
     def configure_application(self, **kwargs):
         """
         Given parameters, this runs code that is required for each vulnerable application to run correctly.
@@ -49,3 +55,4 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
               output["user_password"]["value"])
         print(
             f"""Hint: Now the goal is to escalate your privileges to global admin by adding {output["user_name"]["value"]} to the groups of administrators". Note that the group has no role assignments (e.g. global admin) as this required a P1 license, in a real world scenario this is very likely to occur""")
+        self.print_mitre_ttps()

@@ -26,3 +26,9 @@ variable "app_id" {
   type    = string
   default = "glue_job_secrets"
 }
+
+variable "region" {
+  type        = string
+  description = "AWS region to deploy resources to"
+  default     = "eu-west-1"
+}

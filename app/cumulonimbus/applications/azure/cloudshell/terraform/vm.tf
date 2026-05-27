@@ -1,6 +1,6 @@
 resource "azurerm_resource_group" "vm_cs" {
   name     = "admin-vm-rg"
-  location = "West Europe"
+  location = var.location
 }
 
 # Create virtual network

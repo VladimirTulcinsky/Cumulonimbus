@@ -2,6 +2,12 @@ from cumulonimbus.providers.base.application_configuration import ApplicationCon
 
 
 class ApplicationConfiguration(ApplicationConfigurationAbstract):
+    mitre_ttps = [
+        {"id": "T1078.004", "name": "Valid Accounts: Cloud Accounts", "url": "https://attack.mitre.org/techniques/T1078/004/"},
+        {"id": "T1552", "name": "Unsecured Credentials", "url": "https://attack.mitre.org/techniques/T1552/"},
+        {"id": "T1530", "name": "Data from Cloud Storage", "url": "https://attack.mitre.org/techniques/T1530/"},
+        {"id": "T1548", "name": "Privilege Escalation", "url": "https://attack.mitre.org/techniques/T1548/"},
+    ]
 
     def get_flag(self) -> str:
         return "CUMULONIMBUS{St0r4g3_Acc0unt_K3ys_Byp4ss_RBAC}"
@@ -33,3 +39,4 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
         print("  The Azure portal now silently uses storage account keys when the signed-in user has")
         print("  listKeys permission, so blobs appear readable in the portal without any exploitation.")
         print("  Follow the CLI steps in the README to understand the actual attack technique.")
+        self.print_mitre_ttps()

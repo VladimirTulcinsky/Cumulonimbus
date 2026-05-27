@@ -4,6 +4,11 @@ import os
 
 
 class ApplicationConfiguration(ApplicationConfigurationAbstract):
+    mitre_ttps = [
+        {"id": "T1098.001", "name": "Additional Cloud Credentials", "url": "https://attack.mitre.org/techniques/T1098/001/"},
+        {"id": "T1078.004", "name": "Valid Accounts: Cloud Accounts", "url": "https://attack.mitre.org/techniques/T1078/004/"},
+        {"id": "T1098", "name": "Account Manipulation", "url": "https://attack.mitre.org/techniques/T1098/"},
+    ]
     def configure_application(self, **kwargs):
         """
         Given parameters, this runs code that is required for each vulnerable application to run correctly.
@@ -50,3 +55,4 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
             f"""Hint: Now the goal is to escalate your privileges to global admin by adding {output["user_name"]["value"]} to the group {output["admin_group"]["value"]}. 
             Note that the group has no role assignments (e.g. global admin) as this required a P1 license, in a real world scenario this is very likely to occur.
             The other user in the group {output["admin_group"]["value"]} is just a random account because there's a requirement to have at least one owner""")
+        self.print_mitre_ttps()

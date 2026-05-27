@@ -30,3 +30,9 @@ variable "app_id" {
   description = "Name of the application"
   default     = "s3_public_access"
 }
+
+variable "region" {
+  type        = string
+  description = "AWS region to deploy resources to"
+  default     = "eu-west-1"
+}

@@ -1,6 +1,6 @@
 resource "azurerm_resource_group" "ska_sa" {
   name     = "ska-sa-rg"
-  location = "West Europe"
+  location = var.location
 }
 
 resource "time_sleep" "ska_sa_rg_propagation" {

@@ -51,3 +51,9 @@ variable "app_name" {
   type    = string
   default = "cumulonimbus"
 }
+
+variable "location" {
+  type        = string
+  description = "Azure region to deploy resources to"
+  default     = "West Europe"
+}

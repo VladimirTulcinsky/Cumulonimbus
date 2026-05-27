@@ -2,6 +2,11 @@ from cumulonimbus.providers.base.application_configuration import ApplicationCon
 
 
 class ApplicationConfiguration(ApplicationConfigurationAbstract):
+    mitre_ttps = [
+        {"id": "T1552.001", "name": "Unsecured Credentials: Credentials in Files", "url": "https://attack.mitre.org/techniques/T1552/001/"},
+        {"id": "T1580", "name": "Cloud Infrastructure Discovery", "url": "https://attack.mitre.org/techniques/T1580/"},
+        {"id": "T1530", "name": "Data from Cloud Storage", "url": "https://attack.mitre.org/techniques/T1530/"},
+    ]
 
     def get_flag(self) -> str:
         return "CUMULONIMBUS{St3pFunct10ns_3x3cut10n_H1st0ry_L34k}"
@@ -28,3 +33,4 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
         print("\nConfigure the attacker profile:")
         print("  aws configure --profile attacker   # region: eu-west-1")
         print("\nGoal: Retrieve the flag from a past Step Functions execution's input data.")
+        self.print_mitre_ttps()

@@ -2,6 +2,11 @@ from cumulonimbus.providers.base.application_configuration import ApplicationCon
 
 
 class ApplicationConfiguration(ApplicationConfigurationAbstract):
+    mitre_ttps = [
+        {"id": "T1552.001", "name": "Unsecured Credentials: Credentials in Files", "url": "https://attack.mitre.org/techniques/T1552/001/"},
+        {"id": "T1580", "name": "Cloud Infrastructure Discovery", "url": "https://attack.mitre.org/techniques/T1580/"},
+        {"id": "T1078.004", "name": "Valid Accounts: Cloud Accounts", "url": "https://attack.mitre.org/techniques/T1078/004/"},
+    ]
 
     def get_flag(self) -> str:
         return "CUMULONIMBUS{VM_3xt3ns10n_S3tt1ngs_Pl41nt3xt}"
@@ -28,3 +33,4 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
         print("\nLogin as the attacker:")
         print("  az login --username <upn> --password <password>")
         print("\nGoal: Read the VM extension settings to find the flag embedded in commandToExecute.")
+        self.print_mitre_ttps()

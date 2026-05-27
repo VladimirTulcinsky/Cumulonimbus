@@ -2,6 +2,12 @@ from cumulonimbus.providers.base.application_configuration import ApplicationCon
 
 
 class ApplicationConfiguration(ApplicationConfigurationAbstract):
+    mitre_ttps = [
+        {"id": "T1528", "name": "Steal Application Access Token", "url": "https://attack.mitre.org/techniques/T1528/"},
+        {"id": "T1552.005", "name": "Unsecured Credentials: Cloud Instance Metadata API", "url": "https://attack.mitre.org/techniques/T1552/005/"},
+        {"id": "T1530", "name": "Data from Cloud Storage", "url": "https://attack.mitre.org/techniques/T1530/"},
+        {"id": "T1078.004", "name": "Valid Accounts: Cloud Accounts", "url": "https://attack.mitre.org/techniques/T1078/004/"},
+    ]
     def configure_application(self, **kwargs):
         pass
 
@@ -35,3 +41,4 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
         print("  az automation runbook list --automation-account-name '{}' --resource-group '{}'".format(
             output["automation_account_name"]["value"],
             output["resource_group_name"]["value"]))
+        self.print_mitre_ttps()

@@ -5,7 +5,7 @@ resource "random_integer" "blob_sas_abuse" {
 
 resource "azurerm_resource_group" "blob_sas_abuse" {
   name     = "blob-sas-abuse"
-  location = "West Europe"
+  location = var.location
 }
 
 resource "azurerm_storage_account" "blob_sas_abuse" {

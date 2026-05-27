@@ -31,3 +31,9 @@ variable "app_id" {
   description = "Name of the application, here: ec2_ssrf"
   default     = "ec2_ssrf"
 }
+
+variable "region" {
+  type        = string
+  description = "AWS region to deploy resources to"
+  default     = "eu-west-1"
+}

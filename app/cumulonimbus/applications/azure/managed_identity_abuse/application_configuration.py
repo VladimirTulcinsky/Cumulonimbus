@@ -4,6 +4,11 @@ import os
 
 
 class ApplicationConfiguration(ApplicationConfigurationAbstract):
+    mitre_ttps = [
+        {"id": "T1528", "name": "Steal Application Access Token", "url": "https://attack.mitre.org/techniques/T1528/"},
+        {"id": "T1552.005", "name": "Cloud Instance Metadata API", "url": "https://attack.mitre.org/techniques/T1552/005/"},
+        {"id": "T1078.004", "name": "Valid Accounts: Cloud Accounts", "url": "https://attack.mitre.org/techniques/T1078/004/"},
+    ]
     def configure_application(self, **kwargs):
         key_pair_path = utils.get_key_pair_path('managed_identity_abuse')
         os.system("ssh-keygen -t rsa -b 4096 -f {} -N ''".format(key_pair_path))
@@ -42,3 +47,4 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
         print("    --scripts \"curl -s -H 'Metadata: true' \\")
         print("      'http://169.254.169.254/metadata/identity/oauth2/token")
         print("       ?api-version=2018-02-01&resource=https://storage.azure.com/'\"")
+        self.print_mitre_ttps()

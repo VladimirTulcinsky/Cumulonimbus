@@ -25,7 +25,7 @@ resource "azuread_application_password" "portal" {
 
 resource "azurerm_resource_group" "exposed_app_registration" {
   name     = "exposed-app-reg-lab"
-  location = "West Europe"
+  location = var.location
 }
 
 resource "azurerm_storage_account" "flag" {

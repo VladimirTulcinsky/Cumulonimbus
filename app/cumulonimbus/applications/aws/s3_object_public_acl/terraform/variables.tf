@@ -26,3 +26,9 @@ variable "app_id" {
   type    = string
   default = "s3_object_public_acl"
 }
+
+variable "region" {
+  type        = string
+  description = "AWS region to deploy resources to"
+  default     = "eu-west-1"
+}

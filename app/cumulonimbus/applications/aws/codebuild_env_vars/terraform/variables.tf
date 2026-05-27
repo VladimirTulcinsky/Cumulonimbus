@@ -26,3 +26,9 @@ variable "app_id" {
   type    = string
   default = "codebuild_env_vars"
 }
+
+variable "region" {
+  type        = string
+  description = "AWS region to deploy resources to"
+  default     = "eu-west-1"
+}

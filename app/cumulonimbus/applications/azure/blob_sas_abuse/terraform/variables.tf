@@ -58,3 +58,9 @@ variable "app_name" {
   description = "Base name used in resource naming"
   default     = "cumulonimbus"
 }
+
+variable "location" {
+  type        = string
+  description = "Azure region to deploy resources to"
+  default     = "West Europe"
+}

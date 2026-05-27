@@ -2,6 +2,11 @@ from cumulonimbus.providers.base.application_configuration import ApplicationCon
 
 
 class ApplicationConfiguration(ApplicationConfigurationAbstract):
+    mitre_ttps = [
+        {"id": "T1078.004", "name": "Valid Accounts: Cloud Accounts", "url": "https://attack.mitre.org/techniques/T1078/004/"},
+        {"id": "T1580", "name": "Cloud Infrastructure Discovery", "url": "https://attack.mitre.org/techniques/T1580/"},
+        {"id": "T1548", "name": "Privilege Escalation via Cloud Services", "url": "https://attack.mitre.org/techniques/T1548/"},
+    ]
 
     def get_flag(self) -> str:
         return "CUMULONIMBUS{STS_Assum3_R0l3_W1ldcard_Pr1ncipal}"
@@ -28,3 +33,4 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
         print("\nConfigure the attacker profile:")
         print("  aws configure --profile attacker   # region: eu-west-1")
         print("\nGoal: Assume the misconfigured role and retrieve the flag from SSM.")
+        self.print_mitre_ttps()

@@ -4,6 +4,11 @@ import os
 
 
 class ApplicationConfiguration(ApplicationConfigurationAbstract):
+    mitre_ttps = [
+        {"id": "T1530", "name": "Data from Cloud Storage", "url": "https://attack.mitre.org/techniques/T1530/"},
+        {"id": "T1552.001", "name": "Unsecured Credentials: Credentials in Files", "url": "https://attack.mitre.org/techniques/T1552/001/"},
+        {"id": "T1078.004", "name": "Valid Accounts: Cloud Accounts", "url": "https://attack.mitre.org/techniques/T1078/004/"},
+    ]
     def configure_application(self, **kwargs):
         """
         Given parameters, this runs code that is required for each vulnerable application to run correctly.
@@ -42,3 +47,4 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
               output["user_name"]["value"])
         print("[3] The password is: " +
               output["user_password"]["value"])
+        self.print_mitre_ttps()
