@@ -70,15 +70,16 @@ class AzureAuthenticationStrategy(AuthenticationStrategy):
             raise AuthenticationException(e)
 
     def get_credentials(self):
-        try:
-            return AzureCredentials(
-                client_id=os.environ["AZURE_CLIENT_ID"],
-                client_secret=os.environ["AZURE_CLIENT_SECRET"],
-                tenant_id=os.environ["AZURE_TENANT_ID"],
-                subscription_id=os.environ["AZURE_SUBSCRIPTION_ID"],
-            )
-        except KeyError:
-            print("No Azure credentials found. Please authenticate first: cnimbus azure authenticate ...")
+        missing = [k for k in ("AZURE_CLIENT_ID", "AZURE_CLIENT_SECRET", "AZURE_TENANT_ID", "AZURE_SUBSCRIPTION_ID") if not os.environ.get(k)]
+        if missing:
+            print(f"No Azure credentials found. Please authenticate first: cnimbus azure authenticate ...")
+            return None
+        return AzureCredentials(
+            client_id=os.environ["AZURE_CLIENT_ID"],
+            client_secret=os.environ["AZURE_CLIENT_SECRET"],
+            tenant_id=os.environ["AZURE_TENANT_ID"],
+            subscription_id=os.environ["AZURE_SUBSCRIPTION_ID"],
+        )
 
     def get_tenant_domain(self):
         return os.environ.get("AZURE_TENANT_DOMAIN", "")
@@ -87,11 +88,10 @@ class AzureAuthenticationStrategy(AuthenticationStrategy):
         return os.environ.get("AZURE_LOCATION", "West Europe")
 
     def write_credentials_to_file(self, client_id, client_secret, tenant_id, subscription_id, tenant_domain=None, location='West Europe'):
-        f = open(global_variables.PATH_TO_AZURE_CREDENTIALS, "w")
-        f.write("AZURE_CLIENT_ID=" + str(client_id or '') + "\n")
-        f.write("AZURE_CLIENT_SECRET=" + str(client_secret or '') + "\n")
-        f.write("AZURE_TENANT_ID=" + str(tenant_id or '') + "\n")
-        f.write("AZURE_SUBSCRIPTION_ID=" + str(subscription_id or '') + "\n")
-        f.write("AZURE_TENANT_DOMAIN=" + str(tenant_domain or '') + "\n")
-        f.write("AZURE_LOCATION=" + str(location or 'West Europe') + "\n")
-        f.close()
+        with open(global_variables.PATH_TO_AZURE_CREDENTIALS, "w") as f:
+            f.write("AZURE_CLIENT_ID=" + str(client_id or '') + "\n")
+            f.write("AZURE_CLIENT_SECRET=" + str(client_secret or '') + "\n")
+            f.write("AZURE_TENANT_ID=" + str(tenant_id or '') + "\n")
+            f.write("AZURE_SUBSCRIPTION_ID=" + str(subscription_id or '') + "\n")
+            f.write("AZURE_TENANT_DOMAIN=" + str(tenant_domain or '') + "\n")
+            f.write("AZURE_LOCATION=" + str(location or 'West Europe') + "\n")

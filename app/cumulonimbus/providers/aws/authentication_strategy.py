@@ -76,18 +76,13 @@ class AWSAuthenticationStrategy(AuthenticationStrategy):
         return credentials
 
     def write_credentials_to_file(self, aws_access_key_id, aws_secret_access_key, aws_session_token, region):
+        with open(global_variables.PATH_TO_AWS_CREDENTIALS, "w") as f:
+            f.write("[cumulonimbus]\n")
+            f.write("aws_access_key_id = " + str(aws_access_key_id or '') + "\n")
+            f.write("aws_secret_access_key = " + str(aws_secret_access_key or '') + "\n")
+            if aws_session_token:
+                f.write("aws_session_token = " + aws_session_token + "\n")
 
-        f = open(global_variables.PATH_TO_AWS_CREDENTIALS, "w")
-        f.write("[cumulonimbus]\n")
-        f.write("aws_access_key_id = " +
-                str(aws_access_key_id or '') + "\n")
-        f.write("aws_secret_access_key = " +
-                str(aws_secret_access_key or '') + "\n")
-        if aws_session_token:
-            f.write("aws_session_token = " + aws_session_token + "\n")
-        f.close()
-
-        f = open(global_variables.PATH_TO_AWS_CONFIG, "w")
-        f.write("[cumulonimbus]\n")
-        f.write("region = " + region)
-        f.close()
+        with open(global_variables.PATH_TO_AWS_CONFIG, "w") as f:
+            f.write("[cumulonimbus]\n")
+            f.write("region = " + region)

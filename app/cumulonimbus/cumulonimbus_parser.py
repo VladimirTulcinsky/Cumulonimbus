@@ -112,7 +112,7 @@ class CumulonimbusParser:
 
         azure_cmd_parser = azure_parser.add_subparsers(
             title="The command you want to run", dest="command", required=True,
-            help="The command you want to run (authenticate, create, destroy, validate)")
+            help="The command you want to run (authenticate, create, destroy, validate, hint, ttl)")
 
         azure_cmd_auth_parser = azure_cmd_parser.add_parser(
             "authenticate", help="Authenticate {} against an Azure account".format(global_variables.APP_NAME))
