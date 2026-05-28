@@ -20,53 +20,75 @@ from playwright.sync_api import sync_playwright
 
 DEVICE_LOGIN_URL = "https://microsoft.com/devicelogin"
 
+SUCCESS_PHRASES = [
+    "You have signed in",
+    "You're signed in",
+    "signed in to",
+    "You have approved",
+    "authentication complete",
+]
+
 
 def simulate(tenant: str, user_code: str, username: str, password: str):
-
     print()
     print("[*] Starting headless browser (Playwright / Chromium)...")
     print(f"[*] Navigating to {DEVICE_LOGIN_URL}")
 
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=True)
-        context = browser.new_context()
-        page = context.new_page()
+        page = browser.new_context().new_page()
+        page.set_default_timeout(30000)
 
-        # Step 1: Navigate to device login and submit the user code
-        page.goto(DEVICE_LOGIN_URL, wait_until="networkidle")
+        page.goto(DEVICE_LOGIN_URL, wait_until="domcontentloaded")
+
+        # Step 1: submit the user code
+        page.wait_for_selector("input[name='otc']", timeout=15000)
         page.fill("input[name='otc']", user_code)
         print(f"[*] Submitting user code: {user_code}")
-        page.click("input[type='submit']")
-        page.wait_for_load_state("networkidle")
+        page.locator("input[type='submit']").click()
 
-        # Step 2: Enter username
-        if page.locator("input[type='email']").count() > 0:
-            print(f"[*] Entering victim username: {username}")
-            page.fill("input[type='email']", username)
-            page.click("input[type='submit']")
-            page.wait_for_load_state("networkidle")
+        # Drive through the remaining Microsoft login pages in a loop.
+        # After credentials, Microsoft shows an app-confirmation page
+        # ("Are you trying to sign in to Microsoft Office?") that must be
+        # clicked through before a token is issued. The loop handles that
+        # page and any other prompts (KMSI, etc.) generically.
+        deadline = time.time() + 90
+        while time.time() < deadline:
+            try:
+                page.wait_for_load_state("domcontentloaded", timeout=5000)
+            except Exception:
+                pass
 
-        # Step 3: Enter password
-        if page.locator("input[type='password']").count() > 0:
-            print("[*] Entering victim password...")
-            page.fill("input[type='password']", password)
-            page.click("input[type='submit']")
-            page.wait_for_load_state("networkidle")
+            content = page.content()
 
-        # Step 4: Handle "Stay signed in?" prompt if present
-        try:
-            stay_btn = page.locator("input[type='submit'][value='Yes']")
-            if stay_btn.count() > 0:
-                stay_btn.click()
-                page.wait_for_load_state("networkidle")
-        except Exception:
-            pass
+            if any(phrase in content for phrase in SUCCESS_PHRASES):
+                break
 
-        # Confirm success — the page should show a completion message
+            if page.locator("input[type='email']").count() > 0:
+                print(f"[*] Entering username: {username}")
+                page.fill("input[type='email']", username)
+                page.locator("input[type='submit']").click()
+                continue
+
+            if page.locator("input[type='password']").count() > 0:
+                print("[*] Entering password...")
+                page.fill("input[type='password']", password)
+                page.locator("input[type='submit']").click()
+                continue
+
+            # App confirmation, KMSI, or any other submit-driven prompt
+            submit = page.locator("input[type='submit']")
+            if submit.count() > 0:
+                print("[*] Advancing through prompt...")
+                submit.first.click()
+                continue
+
+            time.sleep(1)
+
         content = page.content()
         browser.close()
 
-    if any(phrase in content for phrase in ["signed in", "approved", "You have signed", "success"]):
+    if any(phrase in content for phrase in SUCCESS_PHRASES):
         print()
         print("╔══════════════════════════════════════════════════════════════╗")
         print("║  ✓  VICTIM AUTHENTICATION COMPLETE                          ║")
@@ -75,8 +97,9 @@ def simulate(tenant: str, user_code: str, username: str, password: str):
         print("[+] The attacker's phish.py should now receive the access token.")
     else:
         print()
-        print("[!] Could not confirm authentication — check credentials or MFA settings.")
-        print("    If the tenant has MFA / Conditional Access, disable it first.")
+        print("[!] Could not confirm authentication — timed out or unexpected page.")
+        print("    Check that credentials are correct and MFA / Conditional Access")
+        print("    is not blocking the sign-in.")
         sys.exit(1)
 
 
