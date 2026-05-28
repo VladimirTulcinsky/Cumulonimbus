@@ -3,15 +3,12 @@
 victim_simulator.py - Automated Victim for Device Code Phishing
 
 Headlessly simulates a victim clicking a device code phishing link and
-completing authentication. Requires Playwright:
-
-    pip install playwright
-    playwright install chromium
+completing authentication using a pre-installed Playwright / Chromium.
 
 Usage:
   python3 victim_simulator.py \\
-      --tenant <tenant_id_or_domain> \\
-      --code   <USER_CODE_from_phish.py> \\
+      --tenant   <tenant_id_or_domain> \\
+      --code     <USER_CODE_from_phish.py> \\
       --username <victim@domain> \\
       --password '<password>'
 """
@@ -19,17 +16,12 @@ Usage:
 import argparse
 import sys
 import time
+from playwright.sync_api import sync_playwright
 
 DEVICE_LOGIN_URL = "https://microsoft.com/devicelogin"
 
 
 def simulate(tenant: str, user_code: str, username: str, password: str):
-    try:
-        from playwright.sync_api import sync_playwright
-    except ImportError:
-        print("[!] Playwright not installed. Run:")
-        print("      pip install playwright && playwright install chromium")
-        sys.exit(1)
 
     print()
     print("[*] Starting headless browser (Playwright / Chromium)...")

