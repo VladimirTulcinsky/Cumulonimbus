@@ -46,6 +46,7 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
         print("  cd cumulonimbus/applications/azure/device_code_phishing/tools")
         print("  python3 phish.py \\")
         print("      --tenant          {} \\".format(val("domain_name")))
+        print("      --storage-account {} \\".format(val("storage_account_name")))
         print("      --victim-username {} \\".format(val("user_name")))
         print("      --victim-password '{}'".format(val("user_password")))
         print("")
