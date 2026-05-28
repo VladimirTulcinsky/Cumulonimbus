@@ -43,7 +43,7 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
         print("  docker exec -it cumulonimbus bash")
         print("")
         print("Step 1 — Terminal 1: run the phishing tool")
-        print("  cd app/cumulonimbus/applications/azure/device_code_phishing/tools")
+        print("  cd cumulonimbus/applications/azure/device_code_phishing/tools")
         print("  python3 phish.py \\")
         print("      --tenant          {} \\".format(val("domain_name")))
         print("      --victim-username {} \\".format(val("user_name")))

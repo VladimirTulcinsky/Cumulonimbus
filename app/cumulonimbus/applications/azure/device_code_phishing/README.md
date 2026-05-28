@@ -59,7 +59,7 @@ Note the victim username, password, and storage account name from the output.
 ### Step 2 — Run the phishing tool (Terminal 1)
 
 ```bash
-cd app/cumulonimbus/applications/azure/device_code_phishing/tools
+cd cumulonimbus/applications/azure/device_code_phishing/tools
 python3 phish.py --tenant <tenant_domain>
 ```
 
