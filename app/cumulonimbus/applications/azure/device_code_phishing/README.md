@@ -23,12 +23,8 @@ The lab ships two Python scripts in `tools/`:
 | `phish.py` | Attacker | Initiates device code flow, displays phishing message, polls for token |
 | `victim_simulator.py` | Victim (automated) | Headless Playwright browser that enters the code and authenticates as the victim |
 
-### One-time setup
-
-```bash
-pip install playwright requests
-playwright install chromium
-```
+Both scripts run out of the box inside the Cumulonimbus Docker container —
+Playwright and its Chromium dependencies are pre-installed.
 
 ## Attack Path
 

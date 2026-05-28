@@ -47,7 +47,11 @@ pip3 install boto3 \
   python-terraform \
   requests \
   python-dotenv \
-  azure-identity
+  azure-identity \
+  playwright
+
+playwright install-deps chromium
+playwright install chromium
 
 echo -e "\n\nSoftware Pre-reqs Installation Complete!\n\n"
 
