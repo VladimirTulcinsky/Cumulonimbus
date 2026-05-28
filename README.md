@@ -127,14 +127,20 @@ The easiest way to run Cumulonimbus is via the Docker container, which bundles a
 dependencies (Terraform, AWS CLI, Azure CLI).
 
 ```shell
-docker run -it cumulonimbuscloud/cumulonimbus:latest
+docker run -it --name cumulonimbus cumulonimbuscloud/cumulonimbus:latest
 ```
 
 Or build locally:
 
 ```shell
 docker build -t cumulonimbus .
-docker run -it cumulonimbus
+docker run -it --name cumulonimbus cumulonimbus
+```
+
+To open a second terminal in the same container (needed for labs that require two parallel terminals), run this **on your host machine**:
+
+```shell
+docker exec -it cumulonimbus bash
 ```
 
 ---

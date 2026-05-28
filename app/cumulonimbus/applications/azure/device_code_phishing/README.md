@@ -66,7 +66,15 @@ python3 phish.py --tenant <tenant_domain>
 The tool prints a phishing message containing the verification URL and user code.
 Keep this terminal open — it polls Azure AD until the victim authenticates.
 
-### Step 3 — Simulate the victim (Terminal 2)
+### Step 3 — Open a second terminal and simulate the victim
+
+On your **host machine**, open a new terminal and attach to the running container:
+
+```bash
+docker exec -it cumulonimbus bash
+```
+
+Then run the victim simulator:
 
 ```bash
 python3 victim_simulator.py \

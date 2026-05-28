@@ -18,7 +18,7 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
     def get_hints(self):
         return {
             1: "Navigate to the lab's tools/ directory and run phish.py with your tenant domain. It initiates a device code flow and prints a realistic phishing message with the user code. Keep this terminal open — it polls for the victim's token.",
-            2: "In a second terminal (docker exec -it $(hostname) bash), run victim_simulator.py with the user code printed by phish.py and the victim credentials provided above. It uses a headless Chromium browser to automatically complete the device code authentication as the victim.",
+            2: "Open a second terminal on your host machine and run: docker exec -it cumulonimbus bash. Then run victim_simulator.py with the user code printed by phish.py and the victim credentials provided above. It uses a headless Chromium browser to automatically complete the device code authentication as the victim.",
             3: "Once phish.py prints 'TOKEN CAPTURED', use the saved token to read the flag: TOKEN=$(python3 -c \"import json; d=json.load(open('/tmp/dcp_token.json')); print(d['access_token'])\") && curl -H \"Authorization: Bearer $TOKEN\" -H \"x-ms-version: 2020-04-08\" \"https://<storage_account>.blob.core.windows.net/sensitive-data/flag.txt\"",
         }
 
@@ -39,8 +39,8 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
         print("[4] Storage account    : " + val("storage_account_name"))
         print("[5] Container name     : " + val("container_name"))
         print("")
-        print("Open a second tab in this container:")
-        print("  docker exec -it $(hostname) bash")
+        print("To open a second terminal inside the container, run this on your HOST machine:")
+        print("  docker exec -it cumulonimbus bash")
         print("")
         print("Step 1 — Terminal 1: run the phishing tool")
         print("  cd app/cumulonimbus/applications/azure/device_code_phishing/tools")
