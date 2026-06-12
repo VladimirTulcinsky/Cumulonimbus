@@ -217,10 +217,13 @@ cnimbus aws authenticate \
 
 The session name is appended to the collision-prone resource names of every lab
 you deploy, so `alice` and `bob` can each run the same lab in the same tenant
-without clashing. It is normalised to **letters and digits only, max 12
-characters** (anything else is stripped/truncated, and you're told the final
-value) before being persisted to `.data/session.json`. Leave it blank if you
-are the only person using the credentials.
+without clashing. You type **letters and digits only, up to 8 characters** (the
+human part — anything else is stripped/truncated), and a short random tag is
+appended automatically, e.g. `vt` is stored as `vt7f3a`. The tag means even two
+people who both pick `vt` get distinct resource names, so you don't have to
+coordinate unique names across the group. The result is persisted to
+`.data/session.json` and reused for both `create` and `destroy`. Leave it blank
+if you are the only person using the credentials.
 
 ---
 

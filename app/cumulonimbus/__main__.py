@@ -32,10 +32,11 @@ def run_from_cli():
         raw_name = args.get('name_suffix')
         if raw_name is not None:
             suffix = cumulonimbus_utils.set_name_suffix(raw_name)
-            if suffix and suffix != raw_name.strip().lower():
-                print(f"Session name normalised to '{suffix}' "
-                      f"(letters/digits only, max {cumulonimbus_utils.NAME_SUFFIX_MAX_LENGTH} chars).")
-            elif raw_name.strip() and not suffix:
+            label = cumulonimbus_utils.sanitize_name_label(raw_name)
+            if suffix:
+                print(f"Session name: {suffix} (your '{label}' plus a random tag so "
+                      "it stays unique even if someone else picks the same name).")
+            elif raw_name.strip():
                 print("Session name had no letters or digits — ignored.")
         try:
             authenticate(provider=args.get('provider'),
