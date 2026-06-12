@@ -11,6 +11,12 @@
 > Charges will be incurred. Always destroy labs when you are done:
 > `cnimbus <provider> destroy --app-id <app-id>`
 
+> 🎓 **Run a CTF for a class or team:** one tenant/account can be shared by a
+> whole group — hand out a **single** set of credentials and have each person
+> pick a unique *session name*. Everyone plays the same labs in the same tenant
+> without their resources colliding, and nobody needs their own cloud
+> subscription. See [Sharing one set of credentials (classroom / CTF mode)](#sharing-one-set-of-credentials-classroom--ctf-mode).
+
 </div>
 
 ---
