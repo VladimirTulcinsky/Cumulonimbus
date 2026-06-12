@@ -24,6 +24,10 @@ def _print_banner():
     suffix = cumulonimbus_utils.get_name_suffix()
     if suffix:
         print(f"  Session name: {suffix}  (resources are namespaced with this)")
+    else:
+        print("  Tip: running a CTF for a class? Share ONE set of credentials and")
+        print("  give each person a session name (set during Authenticate) so you")
+        print("  can all play in the same tenant/account without collisions.")
     print("  Type the number of an option and press Enter. Ctrl-C to quit.")
     print()
 
