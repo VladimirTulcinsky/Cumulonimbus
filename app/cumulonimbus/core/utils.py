@@ -12,13 +12,19 @@ def get_session_file():
     return os.path.join(global_variables.ROOT_DIR, '.data', 'session.json')
 
 
+# Max length of a session name once normalised. Kept short because the suffix
+# is appended to length-constrained cloud resource names (e.g. AWS IAM names
+# and Entra mail nicknames cap at 64 chars, on top of each lab's base name).
+NAME_SUFFIX_MAX_LENGTH = 12
+
+
 def sanitize_name_suffix(value):
     """Normalise a player/team identifier into a token that is safe to embed in
     cloud resource names (lowercase alphanumeric, capped length)."""
     if not value:
         return ''
     token = re.sub(r'[^a-z0-9]', '', str(value).lower())
-    return token[:12]
+    return token[:NAME_SUFFIX_MAX_LENGTH]
 
 
 def set_name_suffix(value):

@@ -29,8 +29,14 @@ def run_from_cli():
     cumulonimbus_utils.create_data_directory()
 
     if args.get('command') == 'authenticate':
-        if args.get('name_suffix') is not None:
-            cumulonimbus_utils.set_name_suffix(args.get('name_suffix'))
+        raw_name = args.get('name_suffix')
+        if raw_name is not None:
+            suffix = cumulonimbus_utils.set_name_suffix(raw_name)
+            if suffix and suffix != raw_name.strip().lower():
+                print(f"Session name normalised to '{suffix}' "
+                      f"(letters/digits only, max {cumulonimbus_utils.NAME_SUFFIX_MAX_LENGTH} chars).")
+            elif raw_name.strip() and not suffix:
+                print("Session name had no letters or digits — ignored.")
         try:
             authenticate(provider=args.get('provider'),
                          aws_access_key_id=args.get('aws_access_key_id'),
