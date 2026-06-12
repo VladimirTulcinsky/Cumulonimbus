@@ -1,5 +1,5 @@
 resource "azurerm_resource_group" "vm_cs" {
-  name     = "admin-vm-rg"
+  name     = "admin-vm-rg${local.name_suffix_dash}"
   location = var.location
 }
 

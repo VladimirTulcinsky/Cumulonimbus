@@ -1,5 +1,5 @@
 resource "azurerm_resource_group" "ska_sa" {
-  name     = "ska-sa-rg"
+  name     = "ska-sa-rg${local.name_suffix_dash}"
   location = var.location
 }
 

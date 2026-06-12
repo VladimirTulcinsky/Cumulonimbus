@@ -8,9 +8,9 @@ resource "random_password" "attacker" {
 }
 
 resource "azuread_user" "attacker" {
-  user_principal_name   = "aa-attacker@${var.tenant_domain}"
-  display_name          = "AA Attacker"
-  mail_nickname         = "aa-attacker"
+  user_principal_name   = "aa-attacker${local.name_suffix_dash}@${var.tenant_domain}"
+  display_name          = "AA Attacker${local.name_suffix_dash}"
+  mail_nickname         = "aa-attacker${local.name_suffix_dash}"
   password              = random_password.attacker.result
   force_password_change = false
 }

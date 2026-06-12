@@ -25,7 +25,7 @@ data "aws_ami" "ubuntu" {
 }
 
 resource "aws_key_pair" "ssrf-key-pair" {
-  key_name   = "ssrf-key-pair"
+  key_name   = "ssrf-key-pair${local.name_suffix_dash}"
   public_key = file("./../../../../.data/.ssh/${var.app_id}.pub")
 }
 
@@ -96,12 +96,12 @@ resource "aws_instance" "ssrf" {
 # }
 
 resource "aws_iam_instance_profile" "ssrf" {
-  name = "ssrf"
+  name = "ssrf${local.name_suffix_dash}"
   role = aws_iam_role.ssrf.name
 }
 
 resource "aws_iam_role" "ssrf" {
-  name = "EC2AssumeRole"
+  name = "EC2AssumeRole${local.name_suffix_dash}"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17",

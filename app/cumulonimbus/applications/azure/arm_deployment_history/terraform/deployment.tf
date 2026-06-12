@@ -4,7 +4,7 @@ resource "random_integer" "arm_deployment_history" {
 }
 
 resource "azurerm_resource_group" "arm_deployment_history" {
-  name     = "arm-deployment-history-lab"
+  name     = "arm-deployment-history-lab${local.name_suffix_dash}"
   location = var.location
 }
 
@@ -73,9 +73,9 @@ resource "random_password" "attacker" {
 }
 
 resource "azuread_user" "attacker" {
-  user_principal_name   = "arm-auditor@${var.tenant_domain}"
-  display_name          = "ARM Auditor"
-  mail_nickname         = "arm-auditor"
+  user_principal_name   = "arm-auditor${local.name_suffix_dash}@${var.tenant_domain}"
+  display_name          = "ARM Auditor${local.name_suffix_dash}"
+  mail_nickname         = "arm-auditor${local.name_suffix_dash}"
   password              = random_password.attacker.result
   force_password_change = false
 }

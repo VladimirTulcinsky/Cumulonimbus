@@ -1,7 +1,7 @@
 data "azurerm_client_config" "current" {}
 
 resource "azurerm_resource_group" "ska_kv" {
-  name     = "ska-kv-rg"
+  name     = "ska-kv-rg${local.name_suffix_dash}"
   location = var.location
 }
 

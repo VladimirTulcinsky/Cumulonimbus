@@ -4,7 +4,7 @@ resource "random_integer" "automation_account" {
 }
 
 resource "azurerm_resource_group" "automation_account" {
-  name     = "automation-account-lab"
+  name     = "automation-account-lab${local.name_suffix_dash}"
   location = var.location
 
   depends_on = [azurerm_resource_provider_registration.microsoft_automation]

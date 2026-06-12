@@ -6,7 +6,7 @@ resource "random_integer" "keyvault_misconfig" {
 }
 
 resource "azurerm_resource_group" "keyvault_misconfig" {
-  name     = "keyvault-misconfig"
+  name     = "keyvault-misconfig${local.name_suffix_dash}"
   location = var.location
 
   depends_on = [azurerm_resource_provider_registration.microsoft_keyvault]
