@@ -10,10 +10,12 @@ one tenant/account without their resources colliding.
 """
 
 import getpass
+import textwrap
 
 import cumulonimbus.global_variables as global_variables
 import cumulonimbus.core.utils as cumulonimbus_utils
 from cumulonimbus.cumulonimbus_parser import AWS_REGIONS, AZURE_REGIONS
+from cumulonimbus.lab_info import AZURE_LAB_INFO
 
 
 def _print_banner():
@@ -109,11 +111,11 @@ def _choose_play():
 
     Returns 'azure', 'aws', or None when the user chooses to quit.
     """
-    options = ["Azure", "AWS", "Quit"]
+    options = ["Azure", "AWS (work in progress)", "Quit"]
     choice = _choose("What do you want to play?", options)
     if choice == "Azure":
         return "azure"
-    if choice == "AWS":
+    if choice.startswith("AWS"):
         return "aws"
     return None
 
@@ -261,10 +263,53 @@ def _do_ttl(provider):
     ttl(provider=provider, app_id=app_id, hours=hours)
 
 
+def _show_lab_info(app_id):
+    info = AZURE_LAB_INFO.get(app_id)
+    print()
+    if not info:
+        print(f"  No description is available for '{app_id}' yet.")
+        return
+    wrap = textwrap.TextWrapper(width=74, initial_indent="    ",
+                                subsequent_indent="    ")
+    print(f"  {info['name']}  [{app_id}]")
+    print(f"  Difficulty: {info['difficulty']}   |   Category: {info['category']}")
+    print("\n  What it is:")
+    print(wrap.fill(info['summary']))
+    print("\n  Objective:")
+    print(wrap.fill(info['objective']))
+    print(f"\n  Start it from the menu, or: cnimbus azure create --app-id {app_id}")
+
+
 def _do_list(provider):
     from cumulonimbus.__main__ import list_labs
 
-    list_labs(provider=provider)
+    if provider != "azure":
+        # Other providers don't have the descriptive catalog yet.
+        list_labs(provider=provider)
+        return
+
+    labs = sorted(global_variables.AZURE_APP_LIST)
+    labels = [
+        f"{lab}  —  {AZURE_LAB_INFO.get(lab, {}).get('difficulty', '?')}"
+        for lab in labs
+    ]
+    label_to_app = dict(zip(labels, labs))
+    print(f"\n{len(labs)} Azure labs available. Pick one to read a short, "
+          "spoiler-free summary and its objective.")
+    while True:
+        choice = _choose("Azure labs", labels, allow_back=True)
+        if choice is None:
+            return
+        _show_lab_info(label_to_app[choice])
+
+
+def _print_aws_wip():
+    print()
+    print("  " + "-" * 56)
+    print("  🚧  AWS labs are a WORK IN PROGRESS on this build.")
+    print("  This release focuses on Azure. AWS labs are being developed")
+    print("  on a separate branch and are not playable here yet.")
+    print("  " + "-" * 56)
 
 
 def _do_session_name(provider):
@@ -277,7 +322,7 @@ _ACTIONS = [
     ("Start a lab", _do_create),
     ("Get a hint", _do_hint),
     ("Submit a flag", _do_validate),
-    ("List available labs", _do_list),
+    ("Browse labs / get lab info", _do_list),
     ("Schedule auto-destroy (TTL)", _do_ttl),
     ("Destroy a lab", _do_destroy),
     ("Set / change my session name", _do_session_name),
@@ -317,6 +362,10 @@ def run_shell():
         if provider is None:
             print("Goodbye.")
             return 0
+        if provider == "aws":
+            # AWS is a work in progress on this Azure-focused branch.
+            _print_aws_wip()
+            continue
         if _provider_menu(provider) == "quit":
             print("Goodbye.")
             return 0

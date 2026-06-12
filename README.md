@@ -23,6 +23,12 @@
 
 ## Available Labs
 
+> 🚧 **AWS labs are a work in progress.** This branch focuses on **Azure**.
+> The AWS labs below remain in the repository for reference, but are being
+> developed on a separate branch (`aws-labs`) and are **not playable from this
+> build** — the interactive shell shows a work-in-progress notice if you pick
+> AWS.
+
 <details>
 <summary><strong>🔵 Azure Labs — 34 challenges</strong></summary>
 
@@ -80,7 +86,7 @@
 </details>
 
 <details>
-<summary><strong>🟠 AWS Labs — 24 challenges</strong></summary>
+<summary><strong>🟠 AWS Labs — 24 challenges (🚧 work in progress — not playable on this branch)</strong></summary>
 
 <br>
 
