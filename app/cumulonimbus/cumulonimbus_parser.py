@@ -117,6 +117,11 @@ class CumulonimbusParser:
                                      metavar='REGION',
                                      dest='region',
                                      help='AWS region to deploy resources to. Allowed values: ' + ', '.join(AWS_REGIONS))
+        aws_auth_params.add_argument('--session-name',
+                                     action='store',
+                                     default=None,
+                                     dest='name_suffix',
+                                     help='Optional per-player identifier used to namespace deployed resources, so multiple users can share one account without collisions (e.g. your initials or team name)')
 
         # Create parameters
         aws_creation_params = aws_cmd_create_parser.add_argument_group('Creation parameters')
@@ -217,6 +222,11 @@ class CumulonimbusParser:
                                          metavar='REGION',
                                          dest='region',
                                          help='Azure region to deploy resources to. Allowed values: ' + ', '.join(AZURE_REGIONS))
+        azure_auth_s_params.add_argument('--session-name',
+                                         action='store',
+                                         default=None,
+                                         dest='name_suffix',
+                                         help='Optional per-player identifier used to namespace deployed resources, so multiple users can share one tenant without collisions (e.g. your initials or team name)')
 
         # Create parameters
         azure_creation_params = azure_cmd_create_parser.add_argument_group('Creation parameters')
