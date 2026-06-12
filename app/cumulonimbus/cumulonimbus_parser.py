@@ -121,7 +121,7 @@ class CumulonimbusParser:
                                      action='store',
                                      default=None,
                                      dest='name_suffix',
-                                     help='Optional per-player identifier used to namespace deployed resources, so multiple users can share one account without collisions (e.g. your initials or team name)')
+                                     help='Optional per-player identifier used to namespace deployed resources, so multiple users can share one account without collisions. Letters/digits only, max 12 chars (e.g. your initials or team name)')
 
         # Create parameters
         aws_creation_params = aws_cmd_create_parser.add_argument_group('Creation parameters')
@@ -226,7 +226,7 @@ class CumulonimbusParser:
                                          action='store',
                                          default=None,
                                          dest='name_suffix',
-                                         help='Optional per-player identifier used to namespace deployed resources, so multiple users can share one tenant without collisions (e.g. your initials or team name)')
+                                         help='Optional per-player identifier used to namespace deployed resources, so multiple users can share one tenant without collisions. Letters/digits only, max 12 chars (e.g. your initials or team name)')
 
         # Create parameters
         azure_creation_params = azure_cmd_create_parser.add_argument_group('Creation parameters')

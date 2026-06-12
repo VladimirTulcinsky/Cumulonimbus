@@ -215,10 +215,12 @@ cnimbus aws authenticate \
   --region eu-west-1 --session-name bob
 ```
 
-The session name (lowercased, alphanumeric, persisted in `.data/session.json`)
-is appended to the collision-prone resource names of every lab you deploy, so
-`alice` and `bob` can each run the same lab in the same tenant without clashing.
-Leave it blank if you are the only person using the credentials.
+The session name is appended to the collision-prone resource names of every lab
+you deploy, so `alice` and `bob` can each run the same lab in the same tenant
+without clashing. It is normalised to **letters and digits only, max 12
+characters** (anything else is stripped/truncated, and you're told the final
+value) before being persisted to `.data/session.json`. Leave it blank if you
+are the only person using the credentials.
 
 ---
 
