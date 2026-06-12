@@ -127,8 +127,10 @@ def _setup_session_name():
     print("CTF together — each person should pick a unique name (their initials,")
     print("a team name, etc.) so nobody's lab collides with anybody else's.")
     print("Leave it blank if you are the only one using these credentials.")
-    print(f"(Letters and digits only, up to {cumulonimbus_utils.NAME_SUFFIX_MAX_LENGTH} "
-          "characters — e.g. 'vt', 'team3', 'aliceb'.)")
+    print(f"(Letters and digits only, up to {cumulonimbus_utils.NAME_SUFFIX_LABEL_MAX} "
+          "characters — e.g. 'vt', 'team3', 'aliceb'. A short random tag is")
+    print("added automatically, so two people who pick the same name still get")
+    print("unique resources.)")
     current = cumulonimbus_utils.get_name_suffix()
     raw = _prompt_optional(
         f"Session name{f' [{current}]' if current else ''}"
@@ -136,12 +138,11 @@ def _setup_session_name():
     if not raw and current:
         return current
     suffix = cumulonimbus_utils.set_name_suffix(raw)
+    label = cumulonimbus_utils.sanitize_name_label(raw)
     if suffix:
-        if suffix != raw.strip().lower():
-            print(f"  Note: session name normalised to '{suffix}' "
-                  f"(letters/digits only, max {cumulonimbus_utils.NAME_SUFFIX_MAX_LENGTH} chars).")
-        else:
-            print(f"  Session name set to: {suffix}")
+        print(f"  Session name: {suffix}  (your '{label}' plus a random tag for uniqueness)")
+        if label != raw.strip().lower():
+            print(f"    (your input was shortened/cleaned to '{label}'.)")
     elif raw.strip():
         print("  That name has no letters or digits, so no session name was set "
               "(resources use only their random suffix).")

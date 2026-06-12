@@ -1,6 +1,7 @@
 import cumulonimbus.global_variables as global_variables
 import json
 import os
+import random
 import re
 
 
@@ -12,25 +13,39 @@ def get_session_file():
     return os.path.join(global_variables.ROOT_DIR, '.data', 'session.json')
 
 
-# Max length of a session name once normalised. Kept short because the suffix
-# is appended to length-constrained cloud resource names (e.g. AWS IAM names
-# and Entra mail nicknames cap at 64 chars, on top of each lab's base name).
-NAME_SUFFIX_MAX_LENGTH = 12
+# The session name suffix has two parts: a human-chosen label and a short
+# random tag appended for uniqueness, so two people who pick the same label
+# (e.g. both "vt") still get distinct resource names. Both are kept short
+# because the suffix is appended to length-constrained cloud resource names
+# (e.g. AWS IAM names and Entra mail nicknames cap at 64 chars, on top of each
+# lab's base name).
+NAME_SUFFIX_LABEL_MAX = 8
+NAME_SUFFIX_TAG_LENGTH = 4
+_TAG_ALPHABET = "abcdefghijklmnopqrstuvwxyz0123456789"
 
 
-def sanitize_name_suffix(value):
-    """Normalise a player/team identifier into a token that is safe to embed in
-    cloud resource names (lowercase alphanumeric, capped length)."""
+def sanitize_name_label(value):
+    """Normalise the human-chosen part of a session name into a token safe to
+    embed in cloud resource names (lowercase alphanumeric, capped length).
+    Returns '' if nothing usable remains."""
     if not value:
         return ''
-    token = re.sub(r'[^a-z0-9]', '', str(value).lower())
-    return token[:NAME_SUFFIX_MAX_LENGTH]
+    return re.sub(r'[^a-z0-9]', '', str(value).lower())[:NAME_SUFFIX_LABEL_MAX]
+
+
+def _random_tag():
+    return ''.join(random.choice(_TAG_ALPHABET) for _ in range(NAME_SUFFIX_TAG_LENGTH))
 
 
 def set_name_suffix(value):
-    """Persist the per-player name suffix so subsequent create/destroy commands
-    namespace their resources consistently. Returns the sanitized value."""
-    suffix = sanitize_name_suffix(value)
+    """Persist the per-player name suffix used to namespace resources.
+
+    The stored suffix is the sanitized human label plus a short random tag, so
+    two people sharing one tenant/account who pick the same label still get
+    distinct resource names. The tag is generated once and stays stable for a
+    given label on this install, so create and destroy produce matching names.
+    Returns the full suffix ('' when no usable label was given)."""
+    label = sanitize_name_label(value)
     path = get_session_file()
     data = {}
     if os.path.exists(path):
@@ -39,6 +54,16 @@ def set_name_suffix(value):
                 data = json.load(f)
         except (ValueError, OSError):
             data = {}
+
+    if not label:
+        suffix = ''
+    elif data.get('session_label') == label and data.get('name_suffix'):
+        # Same label as before — keep the existing tag so names stay stable.
+        suffix = data['name_suffix']
+    else:
+        suffix = label + _random_tag()
+
+    data['session_label'] = label
     data['name_suffix'] = suffix
     os.makedirs(os.path.dirname(path), exist_ok=True)
     with open(path, 'w') as f:
