@@ -7,6 +7,21 @@ from cumulonimbus.providers.base.application_configuration_factory import get_ap
 
 
 def run_from_cli():
+    import sys
+
+    # Launch the guided interactive shell when invoked with no arguments or the
+    # explicit `shell` subcommand. Everything else falls through to the normal
+    # flag-based parser so existing scripts keep working unchanged.
+    cli_args = sys.argv[1:]
+    if not cli_args or cli_args[0] == 'shell':
+        from cumulonimbus.shell import run_shell
+        cumulonimbus_utils.create_data_directory()
+        try:
+            return run_shell()
+        except (KeyboardInterrupt, EOFError):
+            print("\nGoodbye.")
+            return 130
+
     parser = CumulonimbusParser()
     args = parser.parse_args()
     args = args.__dict__
@@ -14,6 +29,8 @@ def run_from_cli():
     cumulonimbus_utils.create_data_directory()
 
     if args.get('command') == 'authenticate':
+        if args.get('name_suffix') is not None:
+            cumulonimbus_utils.set_name_suffix(args.get('name_suffix'))
         try:
             authenticate(provider=args.get('provider'),
                          aws_access_key_id=args.get('aws_access_key_id'),

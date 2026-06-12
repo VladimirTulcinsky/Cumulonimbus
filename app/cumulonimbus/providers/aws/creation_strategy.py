@@ -1,6 +1,7 @@
 from python_terraform import *
 from .utils import get_path_to_aws_app, pretty_print_tf_output
 import cumulonimbus.global_variables as global_variables
+import cumulonimbus.core.utils as cumulonimbus_utils
 import os
 import shutil
 
@@ -23,6 +24,7 @@ class AWSCreationStrategy(CreationStrategy):
             return_code, stdout, stderr = tf.init(capture_output=False)
             no_prompt = {"auto-approve": True}
             region = getattr(credentials, 'aws_region', 'eu-west-1')
+            name_suffix = cumulonimbus_utils.get_name_suffix()
             return_code, stdout, stderr = tf.apply(
                 skip_plan=True,
                 **no_prompt,
@@ -34,6 +36,7 @@ class AWSCreationStrategy(CreationStrategy):
                     'shared_config_files': global_variables.PATH_TO_AWS_CONFIG,
                     'attacker_public_ip': global_variables.ATTACKER_PUBLIC_IP['aws'],
                     'region': region,
+                    'name_suffix': name_suffix,
                 }
             )
 
@@ -55,6 +58,7 @@ class AWSCreationStrategy(CreationStrategy):
             tf = Terraform(working_dir=cwd)
             no_prompt = {"auto-approve": True}
             region = getattr(credentials, 'aws_region', 'eu-west-1')
+            name_suffix = cumulonimbus_utils.get_name_suffix()
             return_code, stdout, stderr = tf.destroy(
                 capture_output=False,
                 **no_prompt,
@@ -63,6 +67,7 @@ class AWSCreationStrategy(CreationStrategy):
                     'shared_credentials_files': global_variables.PATH_TO_AWS_CREDENTIALS,
                     'shared_config_files': global_variables.PATH_TO_AWS_CONFIG,
                     'region': region,
+                    'name_suffix': name_suffix,
                 }
             )
 
