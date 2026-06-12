@@ -24,7 +24,7 @@ resource "azuread_application_password" "portal" {
 # ── Private flag storage ──────────────────────────────────────────────────────
 
 resource "azurerm_resource_group" "exposed_app_registration" {
-  name     = "exposed-app-reg-lab"
+  name     = "exposed-app-reg-lab${local.name_suffix_dash}"
   location = var.location
 }
 

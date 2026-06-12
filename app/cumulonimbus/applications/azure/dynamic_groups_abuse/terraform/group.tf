@@ -1,7 +1,7 @@
 # Dynamic group: anyone whose department attribute is "Security" is automatically
 # a member. Members inherit Key Vault Secrets User on the flag vault.
 resource "azuread_group" "security_team" {
-  display_name     = "Security Team"
+  display_name     = "Security Team${local.name_suffix_dash}"
   description      = "Members of the internal security department"
   security_enabled = true
   types            = ["DynamicMembership"]

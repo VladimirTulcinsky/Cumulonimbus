@@ -7,7 +7,7 @@ data "aws_caller_identity" "current" {}
 # ── Parameters in SSM Parameter Store ────────────────────────────────────────
 
 resource "aws_ssm_parameter" "flag" {
-  name        = "/cumulonimbus/production/flag"
+  name        = "/cumulonimbus/production/flag${local.name_suffix_dash}"
   description = "Production flag credential"
   type        = "SecureString"
   value       = "CUMULONIMBUS{SSM_P4r4m3t3r_P4th_W1ldcard}"
@@ -15,21 +15,21 @@ resource "aws_ssm_parameter" "flag" {
 
 # Realistic decoy parameters
 resource "aws_ssm_parameter" "db_password" {
-  name        = "/cumulonimbus/production/database/password"
+  name        = "/cumulonimbus/production/database/password${local.name_suffix_dash}"
   description = "RDS master password"
   type        = "SecureString"
   value       = "RdsMasterP@ssw0rd2024!"
 }
 
 resource "aws_ssm_parameter" "api_key" {
-  name        = "/cumulonimbus/production/integrations/payment-api-key"
+  name        = "/cumulonimbus/production/integrations/payment-api-key${local.name_suffix_dash}"
   description = "Payment gateway API key"
   type        = "SecureString"
   value       = "PAYMENT_KEY_cmlnmbs_51AbCdEfGhIjKlMnOpQrStUvWx"
 }
 
 resource "aws_ssm_parameter" "app_config" {
-  name  = "/cumulonimbus/production/app/config"
+  name  = "/cumulonimbus/production/app/config${local.name_suffix_dash}"
   type  = "String"
   value = "{\"log_level\":\"info\",\"feature_flags\":{\"new_ui\":true}}"
 }

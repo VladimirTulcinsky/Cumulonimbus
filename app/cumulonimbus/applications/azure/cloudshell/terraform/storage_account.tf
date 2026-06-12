@@ -1,5 +1,5 @@
 resource "azurerm_resource_group" "iam_cs" {
-  name     = "iam-cs-rg"
+  name     = "iam-cs-rg${local.name_suffix_dash}"
   location = var.location
 }
 

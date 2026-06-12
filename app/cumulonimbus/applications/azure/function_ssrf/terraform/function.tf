@@ -4,7 +4,7 @@ resource "random_integer" "function_ssrf" {
 }
 
 resource "azurerm_resource_group" "function_ssrf" {
-  name     = "function-ssrf-lab"
+  name     = "function-ssrf-lab${local.name_suffix_dash}"
   location = var.location
 
   depends_on = [azurerm_resource_provider_registration.microsoft_web]

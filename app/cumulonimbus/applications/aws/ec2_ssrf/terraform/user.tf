@@ -1,6 +1,6 @@
 # create attacker user
 resource "aws_iam_user" "attacker" {
-  name = "attacker"
+  name = "attacker${local.name_suffix_dash}"
   path = "/"
 }
 
@@ -15,7 +15,7 @@ resource "aws_iam_user_policy_attachment" "attacker" {
 
 # create user to read public recipe
 resource "aws_iam_user" "public_recipy_reader" {
-  name = "public_recipy_reader"
+  name = "public_recipy_reader${local.name_suffix_dash}"
   path = "/"
 }
 

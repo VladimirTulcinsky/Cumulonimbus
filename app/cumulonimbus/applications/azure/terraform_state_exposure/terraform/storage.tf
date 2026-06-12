@@ -4,7 +4,7 @@ resource "random_integer" "terraform_state_exposure" {
 }
 
 resource "azurerm_resource_group" "terraform_state_exposure" {
-  name     = "terraform-state-lab"
+  name     = "terraform-state-lab${local.name_suffix_dash}"
   location = var.location
 }
 

@@ -4,7 +4,7 @@ resource "random_integer" "managed_identity_abuse" {
 }
 
 resource "azurerm_resource_group" "managed_identity_abuse" {
-  name     = "managed-identity-abuse"
+  name     = "managed-identity-abuse${local.name_suffix_dash}"
   location = var.location
 }
 

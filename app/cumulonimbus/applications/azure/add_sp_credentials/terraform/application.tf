@@ -1,7 +1,7 @@
 data "azuread_client_config" "current" {}
 
 resource "azuread_application" "group-add-app" {
-  display_name = "group-add-app"
+  display_name = "group-add-app${local.name_suffix_dash}"
   owners       = [data.azuread_client_config.current.object_id]
 
 

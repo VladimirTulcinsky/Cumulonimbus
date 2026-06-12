@@ -4,7 +4,7 @@ resource "random_integer" "blob_sas_abuse" {
 }
 
 resource "azurerm_resource_group" "blob_sas_abuse" {
-  name     = "blob-sas-abuse"
+  name     = "blob-sas-abuse${local.name_suffix_dash}"
   location = var.location
 }
 
