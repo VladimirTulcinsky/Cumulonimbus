@@ -163,6 +163,53 @@ You need a cloud account with sufficient permissions before deploying labs.
 
 ---
 
+## Interactive shell (guided mode)
+
+If you'd rather not memorise the flags, just run `cnimbus` with no arguments
+(or `cnimbus shell`) to launch a guided, menu-driven shell. It walks you
+through authenticating, picking a lab, deploying, getting hints, submitting
+flags, scheduling auto-destroy, and tearing down — asking one question at a
+time and showing the available choices.
+
+```shell
+cnimbus            # or: cnimbus shell
+```
+
+Everything below still works exactly as before; the shell is just a friendlier
+front-end over the same commands.
+
+---
+
+## Sharing one set of credentials (classroom / CTF mode)
+
+You can hand a **single** set of cloud credentials (one app id + secret, or one
+AWS key pair) to a whole class so everyone plays in the same tenant/account —
+nobody needs their own subscription. To stop students' labs from colliding on
+resource names (resource groups, users, key pairs, etc.), each person picks a
+unique **session name**.
+
+In the interactive shell you're prompted for it during authentication. From the
+flag-based CLI, pass `--session-name`:
+
+```shell
+cnimbus azure authenticate --service-principal \
+  --client-id <id> --client-secret <secret> \
+  --tenant-id <tenant> --subscription-id <subscription> \
+  --tenant-domain <domain> --region "West Europe" \
+  --session-name alice          # << each student picks a distinct value
+
+cnimbus aws authenticate \
+  --access-key-id <key-id> --secret-access-key <secret> \
+  --region eu-west-1 --session-name bob
+```
+
+The session name (lowercased, alphanumeric, persisted in `.data/session.json`)
+is appended to the collision-prone resource names of every lab you deploy, so
+`alice` and `bob` can each run the same lab in the same tenant without clashing.
+Leave it blank if you are the only person using the credentials.
+
+---
+
 ## CLI Reference
 
 ### Authenticate
@@ -173,13 +220,15 @@ cnimbus azure authenticate --service-principal \
   --client-id <id> --client-secret <secret> \
   --tenant-id <tenant> --subscription-id <subscription> \
   --tenant-domain <domain> \        # e.g. contoso.onmicrosoft.com
-  --region "West Europe"            # required: Azure region to deploy to
+  --region "West Europe" \          # required: Azure region to deploy to
+  [--session-name <name>]           # optional: namespace for shared credentials
 
 # AWS
 cnimbus aws authenticate \
   --access-key-id <key-id> --secret-access-key <secret> \
   --region eu-west-1 \              # required: AWS region to deploy to
-  [--session-token <token>]
+  [--session-token <token>] \
+  [--session-name <name>]           # optional: namespace for shared credentials
 ```
 
 ### Deploy a lab
