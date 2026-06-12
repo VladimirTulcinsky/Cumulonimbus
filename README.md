@@ -143,7 +143,13 @@ docker build -t cumulonimbus .
 docker run -it --name cumulonimbus cumulonimbus
 ```
 
-To open a second terminal in the same container (needed for labs that require two parallel terminals), run this **on your host machine**:
+Starting the container drops you straight into the **guided menu** (choose
+Azure or AWS, then authenticate, start a lab, get hints, etc.). Pick **Quit**
+to drop to a normal shell — you'll need it to run lab tools (the Azure/AWS
+CLIs, `phish.py`, `cloud_enum`, …). Re-open the menu any time with `cnimbus`.
+To skip the auto-launch, run with `-e CUMULONIMBUS_NO_AUTOSHELL=1`.
+
+To open a second terminal in the same container (needed for labs that require two parallel terminals), run this **on your host machine** — it opens at a shell prompt, not the menu:
 
 ```shell
 docker exec -it cumulonimbus bash
