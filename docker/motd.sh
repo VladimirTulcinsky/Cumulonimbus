@@ -37,6 +37,20 @@ echo -e "         ${GRN}✓${R}  Microsoft Graph app permissions ${DIM}(admin co
 echo -e "            ${DIM}User.ReadWrite.All · Application.ReadWrite.All · Directory.ReadWrite.All${R}"
 echo -e ""
 echo -e "$HR"
-echo -e "   ${DIM}cnimbus -h   │   cnimbus azure -h   │   cnimbus aws -h${R}"
+echo -e "   ${DIM}cnimbus  →  guided menu    │    cnimbus -h  →  command help${R}"
 echo -e "$HR"
 echo -e ""
+
+# Auto-launch the guided interactive shell on first interactive login, so
+# `docker run -it ...` drops straight into the menu. Quitting the menu lands
+# you at a normal bash prompt (needed to run lab tools such as phish.py, the
+# Azure/AWS CLIs, cloud_enum, etc.). A sentinel keeps additional terminals
+# (e.g. `docker exec -it cumulonimbus bash`) at the prompt rather than the menu.
+# Set CUMULONIMBUS_NO_AUTOSHELL=1 to disable.
+if [[ $- == *i* ]] \
+  && [[ -z "$CUMULONIMBUS_NO_AUTOSHELL" ]] \
+  && [[ ! -e /tmp/.cumulonimbus_shell_launched ]] \
+  && command -v cnimbus >/dev/null 2>&1; then
+  touch /tmp/.cumulonimbus_shell_launched
+  ( cd /root/app && cnimbus )
+fi
