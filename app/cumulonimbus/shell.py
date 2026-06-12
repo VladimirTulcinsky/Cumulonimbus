@@ -89,17 +89,29 @@ def _confirm(message, default=True):
     return answer in ("y", "yes")
 
 
-def _choose_provider(allow_back=False):
-    provider = _choose("Which cloud provider?", ["aws", "azure"], allow_back=allow_back)
-    return provider
-
-
 def _choose_app(provider, action_label):
     if provider == "aws":
         labs = sorted(global_variables.AWS_APP_LIST)
     else:
         labs = sorted(global_variables.AZURE_APP_LIST)
     return _choose(f"Which lab do you want to {action_label}?", labs, allow_back=True)
+
+
+PROVIDER_LABELS = {"azure": "Azure", "aws": "AWS"}
+
+
+def _choose_play():
+    """Top-level 'what do you want to play?' menu.
+
+    Returns 'azure', 'aws', or None when the user chooses to quit.
+    """
+    options = ["Azure", "AWS", "Quit"]
+    choice = _choose("What do you want to play?", options)
+    if choice == "Azure":
+        return "azure"
+    if choice == "AWS":
+        return "aws"
+    return None
 
 
 def _setup_session_name():
@@ -125,12 +137,8 @@ def _setup_session_name():
     return suffix
 
 
-def _do_authenticate():
+def _do_authenticate(provider):
     from cumulonimbus.__main__ import authenticate
-
-    provider = _choose_provider(allow_back=True)
-    if provider is None:
-        return
 
     _setup_session_name()
 
@@ -167,26 +175,18 @@ def _do_authenticate():
     if result:
         print("\nAuthentication failed. Please check your credentials and try again.")
     else:
-        print("\nAuthentication successful. You can now deploy a lab.")
+        print("\nAuthentication successful. You can now start a lab.")
 
 
-def _require_provider_for(action_label):
-    provider = _choose_provider(allow_back=True)
-    if provider is None:
-        return None, None
-    app_id = _choose_app(provider, action_label)
-    return provider, app_id
-
-
-def _do_create():
+def _do_create(provider):
     from cumulonimbus.__main__ import create
 
-    provider, app_id = _require_provider_for("deploy")
+    app_id = _choose_app(provider, "start")
     if not app_id:
         return
     suffix = cumulonimbus_utils.get_name_suffix()
     namespacing = f" (namespaced as '{suffix}')" if suffix else ""
-    print(f"\nDeploying '{app_id}'{namespacing}. This provisions real cloud "
+    print(f"\nStarting '{app_id}'{namespacing}. This provisions real cloud "
           "infrastructure and may incur charges.")
     if not _confirm("Continue?", default=True):
         print("Cancelled.")
@@ -194,10 +194,10 @@ def _do_create():
     create(provider=provider, app_id=app_id)
 
 
-def _do_destroy():
+def _do_destroy(provider):
     from cumulonimbus.__main__ import destroy
 
-    provider, app_id = _require_provider_for("destroy")
+    app_id = _choose_app(provider, "destroy")
     if not app_id:
         return
     if not _confirm(f"Destroy '{app_id}'? This removes its cloud resources", default=True):
@@ -206,20 +206,20 @@ def _do_destroy():
     destroy(provider=provider, app_id=app_id)
 
 
-def _do_validate():
+def _do_validate(provider):
     from cumulonimbus.__main__ import validate
 
-    provider, app_id = _require_provider_for("validate")
+    app_id = _choose_app(provider, "submit a flag for")
     if not app_id:
         return
     flag = _prompt("Enter the flag you captured")
     validate(provider=provider, app_id=app_id, submitted_flag=flag)
 
 
-def _do_hint():
+def _do_hint(provider):
     from cumulonimbus.__main__ import hint
 
-    provider, app_id = _require_provider_for("get a hint for")
+    app_id = _choose_app(provider, "get a hint for")
     if not app_id:
         return
     level = _choose(
@@ -229,10 +229,10 @@ def _do_hint():
     hint(provider=provider, app_id=app_id, level=int(level[0]))
 
 
-def _do_ttl():
+def _do_ttl(provider):
     from cumulonimbus.__main__ import ttl
 
-    provider, app_id = _require_provider_for("auto-destroy")
+    app_id = _choose_app(provider, "auto-destroy")
     if not app_id:
         return
     while True:
@@ -247,39 +247,63 @@ def _do_ttl():
     ttl(provider=provider, app_id=app_id, hours=hours)
 
 
-def _do_list():
+def _do_list(provider):
     from cumulonimbus.__main__ import list_labs
 
-    provider = _choose_provider(allow_back=True)
-    if provider is None:
-        return
     list_labs(provider=provider)
 
 
-_MENU = [
-    ("Authenticate to a cloud provider", _do_authenticate),
+def _do_session_name(provider):
+    _setup_session_name()
+
+
+# Provider-scoped actions, shown after a provider is chosen.
+_ACTIONS = [
+    ("Authenticate", _do_authenticate),
+    ("Start a lab", _do_create),
+    ("Get a hint", _do_hint),
+    ("Submit a flag", _do_validate),
     ("List available labs", _do_list),
-    ("Deploy (create) a lab", _do_create),
-    ("Get a hint for a lab", _do_hint),
-    ("Submit / validate a flag", _do_validate),
     ("Schedule auto-destroy (TTL)", _do_ttl),
     ("Destroy a lab", _do_destroy),
-    ("Set / change my session name", lambda: _setup_session_name()),
-    ("Quit", None),
+    ("Set / change my session name", _do_session_name),
 ]
+
+_BACK_LABEL = "Back (choose a different provider)"
+_QUIT_LABEL = "Quit"
+
+
+def _provider_menu(provider):
+    """Loop the action menu for a chosen provider.
+
+    Returns 'quit' to exit the shell entirely, or 'back' to return to the
+    provider selection.
+    """
+    while True:
+        labels = [label for label, _ in _ACTIONS] + [_BACK_LABEL, _QUIT_LABEL]
+        choice = _choose(
+            f"{PROVIDER_LABELS[provider]} — what do you want to do?", labels
+        )
+        if choice == _QUIT_LABEL:
+            return "quit"
+        if choice == _BACK_LABEL:
+            return "back"
+        action = dict(_ACTIONS)[choice]
+        try:
+            action(provider)
+        except KeyboardInterrupt:
+            print("\n(cancelled — back to menu)")
+        print()
 
 
 def run_shell():
     _print_banner()
     while True:
-        labels = [label for label, _ in _MENU]
-        choice = _choose("What would you like to do?", labels)
-        action = dict(_MENU)[choice]
-        if action is None:
+        provider = _choose_play()
+        if provider is None:
             print("Goodbye.")
             return 0
-        try:
-            action()
-        except KeyboardInterrupt:
-            print("\n(cancelled — back to menu)")
-        print()
+        if _provider_menu(provider) == "quit":
+            print("Goodbye.")
+            return 0
+
