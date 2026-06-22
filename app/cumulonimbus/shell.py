@@ -14,7 +14,6 @@ import ipaddress
 import os
 import shutil
 import subprocess
-import sys
 import textwrap
 
 import cumulonimbus.global_variables as global_variables
@@ -289,36 +288,91 @@ def _ctfd_dir():
     return os.path.abspath(os.path.join(global_variables.ROOT_DIR, "..", "..", "ctfd"))
 
 
+def _ensure_ctfd_ssh_key():
+    """Return (public_key, error). Generates an ed25519 keypair under
+    .data/.ssh for the CTFd VM admin if one doesn't exist yet."""
+    ssh_dir = os.path.join(global_variables.ROOT_DIR, ".data", ".ssh")
+    os.makedirs(ssh_dir, exist_ok=True)
+    key_path = os.path.join(ssh_dir, "ctfd_admin")
+    pub_path = key_path + ".pub"
+    if not os.path.exists(pub_path):
+        try:
+            result = subprocess.run(
+                ["ssh-keygen", "-t", "ed25519", "-N", "", "-C", "ctfd-admin", "-f", key_path],
+                stdout=subprocess.DEVNULL, stderr=subprocess.PIPE, text=True,
+            )
+        except FileNotFoundError:
+            return None, "ssh-keygen not found"
+        if result.returncode != 0:
+            return None, (result.stderr or "ssh-keygen failed").strip()
+    with open(pub_path) as f:
+        return f.read().strip(), None
+
+
 def _do_ctfd(provider):
-    """Start the CTFd scoreboard for this provider, or explain how to if this
-    environment can't (CTFd runs as its own Docker containers and the ctfd/
-    files are not shipped inside the Cumulonimbus image)."""
-    ctfd_dir = _ctfd_dir()
-    url = "http://localhost:8001" if provider == "azure" else "http://localhost:8000"
+    """Deploy the persistent, shared CTFd scoreboard on Azure — a singleton VM
+    created by the ctfd/azure Terraform that stays up independently of this
+    container. (There is no local docker-compose option anymore.)"""
     print()
-    if not os.path.isdir(ctfd_dir):
-        print("  CTFd isn't available from here — its files aren't shipped inside")
-        print("  the Cumulonimbus container. On your host machine, from the repo:")
-        print(f"    cd ctfd && python setup.py {provider}")
-        print(f"  Then open {url}  (default login: admin / cumulonimbus).")
+    if not os.environ.get("AZURE_CLIENT_ID"):
+        print("  Authenticate to Azure first (the Authenticate menu option).")
         return
-    if shutil.which("docker") is None:
-        print("  Docker isn't available in this shell, so CTFd can't be started")
-        print("  here (it runs as its own containers). On your host machine run:")
-        print(f"    cd {ctfd_dir} && python setup.py {provider}")
-        print(f"  Then open {url}  (default login: admin / cumulonimbus).")
+
+    ctfd_azure = os.path.join(_ctfd_dir(), "azure")
+    if not os.path.isdir(ctfd_azure) or shutil.which("terraform") is None:
+        print("  Can't deploy from here — this needs the ctfd/azure Terraform files")
+        print("  and the terraform CLI. From a host checkout of the repo:")
+        print("    cd ctfd/azure && terraform init && terraform apply \\")
+        print('      -var "admin_ssh_public_key=$(cat ~/.ssh/id_rsa.pub)"')
         return
-    print(f"  This starts the CTFd scoreboard for {PROVIDER_LABELS[provider]}:")
-    print("  it launches the containers, waits for CTFd, and seeds the challenges.")
-    if not _confirm("Continue?", default=True):
-        print("Cancelled.")
+
+    cidr = _select_ctfd_cidr()
+    if cidr is None:
         return
-    try:
-        subprocess.run([sys.executable, "setup.py", provider], cwd=ctfd_dir, check=False)
-    except Exception as e:
-        print(f"  Could not start CTFd: {e}")
+
+    admin_pw = _prompt("CTFd admin password", default="cumulonimbus")
+    pub_key, err = _ensure_ctfd_ssh_key()
+    if not pub_key:
+        print(f"  Could not prepare an SSH key for the VM: {err}")
         return
-    print(f"\n  When setup finishes, open {url}  (default login: admin / cumulonimbus).")
+
+    print("\n  This deploys a PERSISTENT CTFd scoreboard VM in Azure (real")
+    print("  infrastructure — it incurs cost until destroyed). It is a singleton:")
+    print("  only one can exist, and it stays up independently of this container.")
+    if not _confirm("Deploy now?", default=True):
+        print("  Cancelled.")
+        return
+
+    env = os.environ.copy()
+    env["ARM_CLIENT_ID"] = os.environ["AZURE_CLIENT_ID"]
+    env["ARM_CLIENT_SECRET"] = os.environ["AZURE_CLIENT_SECRET"]
+    env["ARM_TENANT_ID"] = os.environ["AZURE_TENANT_ID"]
+    env["ARM_SUBSCRIPTION_ID"] = os.environ.get("AZURE_SUBSCRIPTION_ID", "")
+    # Config/secrets via TF_VAR_* env keeps them off the command line.
+    env["TF_VAR_player_allowed_cidr"] = cidr
+    env["TF_VAR_ssh_allowed_cidr"] = cidr
+    env["TF_VAR_admin_ssh_public_key"] = pub_key
+    env["TF_VAR_ctfd_admin_password"] = admin_pw
+    env["TF_VAR_location"] = os.environ.get("AZURE_LOCATION", "West Europe")
+
+    chdir = f"-chdir={ctfd_azure}"
+    if subprocess.run(["terraform", chdir, "init", "-input=false"], env=env).returncode != 0:
+        print("  terraform init failed (see output above).")
+        return
+    if subprocess.run(["terraform", chdir, "apply", "-auto-approve", "-input=false"], env=env).returncode != 0:
+        print("  Deploy failed (see Terraform output above). If a CTFd scoreboard")
+        print("  already exists, that's the singleton — there can be only one.")
+        return
+
+    out = subprocess.run(["terraform", chdir, "output", "-raw", "ctfd_url"],
+                         env=env, capture_output=True, text=True)
+    url = out.stdout.strip() if out.returncode == 0 else "http://<vm-ip>:8001"
+    print(f"\n  CTFd scoreboard deploying at: {url}")
+    print("  First boot installs Docker and seeds the challenges — give it a few")
+    print("  minutes before the URL responds. Admin login: admin / the password you set.")
+    print("  Note: Terraform state is kept in this container; for durable")
+    print("  management run the ctfd/azure Terraform from a host. The VM persists.")
+
 
 
 # Names of the singleton CTFd-on-Azure resources (see ctfd/azure/).
@@ -335,18 +389,13 @@ def _valid_cidr(value):
         return False
 
 
-def _do_ctfd_cidr(provider):
-    """Set which source IP/CIDR may reach the persistent Azure CTFd scoreboard
-    (the singleton's NSG rule on port 8001). Suggests your current public IP."""
-    if not os.environ.get("AZURE_CLIENT_ID"):
-        print("\n  Authenticate to Azure first (the Authenticate menu option).")
-        return
-
+def _select_ctfd_cidr():
+    """Interactively choose an allowed source CIDR for the scoreboard. Suggests
+    the current public IP first. Returns the CIDR string, or None if cancelled."""
     my_ip = global_variables.ATTACKER_PUBLIC_IP.get("azure", "0.0.0.0")
     suggested = f"{my_ip}/32" if my_ip and my_ip != "0.0.0.0" else None
 
-    print("\n  Restrict who can reach the CTFd scoreboard (port 8001 on the")
-    print("  singleton Azure instance).")
+    print("\n  Who should be able to reach the CTFd scoreboard (port 8001)?")
     options = []
     if suggested:
         options.append(f"Restrict to my IP only ({suggested})")
@@ -355,21 +404,30 @@ def _do_ctfd_cidr(provider):
 
     choice = _choose("Allowed source", options, allow_back=True)
     if choice is None:
-        return
-
+        return None
     if choice.startswith("Restrict to my IP"):
-        cidr = suggested
-    elif choice.startswith("Enter a custom"):
+        return suggested
+    if choice.startswith("Enter a custom"):
         cidr = _prompt("CIDR (e.g. 203.0.113.5/32 or 203.0.113.0/24)")
         if not _valid_cidr(cidr):
             print("  That doesn't look like a valid IP or CIDR.")
-            return
-    else:
-        if not _confirm("Open the scoreboard to the ENTIRE internet?", default=False):
-            print("  Cancelled.")
-            return
-        cidr = "0.0.0.0/0"
+            return None
+        return cidr
+    if not _confirm("Open the scoreboard to the ENTIRE internet?", default=False):
+        print("  Cancelled.")
+        return None
+    return "0.0.0.0/0"
 
+
+def _do_ctfd_cidr(provider):
+    """Change which source IP/CIDR may reach the already-deployed Azure CTFd
+    scoreboard (updates the singleton's NSG rule live, via az)."""
+    if not os.environ.get("AZURE_CLIENT_ID"):
+        print("\n  Authenticate to Azure first (the Authenticate menu option).")
+        return
+    cidr = _select_ctfd_cidr()
+    if cidr is None:
+        return
     print(f"\n  This sets the scoreboard's allowed source to: {cidr}")
     if not _confirm("Apply to the running instance now?", default=True):
         print("  Cancelled.")
@@ -440,7 +498,7 @@ _ACTIONS = [
     ("Get a hint", _do_hint),
     ("Submit a flag", _do_validate),
     ("Browse labs / get lab info", _do_list),
-    ("Start the CTFd scoreboard", _do_ctfd),
+    ("Start the CTFd scoreboard (Azure)", _do_ctfd),
     ("Set CTFd scoreboard access (CIDR)", _do_ctfd_cidr),
     ("Destroy a lab", _do_destroy),
     ("Set / change my session name", _do_session_name),

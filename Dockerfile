@@ -19,6 +19,9 @@ RUN chmod +x /root/motd.sh \
 
 # Install Cumulonimbus
 COPY ./app /root/app
+# CTFd assets (compose + the ctfd/azure Terraform) so the shell can deploy the
+# persistent Azure scoreboard from inside the container.
+COPY ./ctfd /root/ctfd
 WORKDIR /root/app
 RUN chmod +x /root/app/cnimbus.py \
     && ln -s /root/app/cnimbus.py /usr/local/bin/cnimbus

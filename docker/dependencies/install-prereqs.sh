@@ -31,6 +31,7 @@ apt-get install -qy \
   vim \
   sqlite3 \
   lsb-release \
+  openssh-client \
 
 apt-get install -qy unzip wget
 
