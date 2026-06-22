@@ -48,6 +48,14 @@ the **service principal** behind it — so it still shows up as yours:
 az ad sp list --show-mine --query "[].{name:displayName, id:id, appId:appId}" -o table
 ```
 
+While you're here — signed in as `norightsuser`, a delegated *user* session — note
+your own object id. You'll need it in Step 6, and you can't get it from `/me` once
+you've switched to the service principal:
+
+```bash
+az ad signed-in-user show --query id -o tsv
+```
+
 ### Step 2 — Discover why that service principal is worth taking over
 
 Inspect the Microsoft Graph **application permissions** (app roles) granted to it.
@@ -99,15 +107,14 @@ the group's `id` from the output for the next step.
 
 ### Step 6 — Add yourself to the group
 
-First get your own object id. Do this while signed in **as norightsuser** — the
-service principal only has `Group.ReadWrite.All`, not permission to read users —
-so grab it before you switch to the SP in Step 4 (or run it in a second shell):
+Use the object id you noted in Step 1. If you try `az ad signed-in-user show` now
+it fails with *"/me request is only valid with delegated authentication flow"* —
+`/me` needs a user session, but you're currently the service principal. So either
+reuse the id from Step 1, or run `az ad signed-in-user show --query id -o tsv` in a
+second shell that's signed in as `norightsuser`.
 
-```bash
-az ad signed-in-user show --query id -o tsv
-```
-
-Then, acting as the service principal, add that object id to the group:
+Then, acting as the service principal (which has `Group.ReadWrite.All`), add that
+object id to the group:
 
 ```bash
 az ad group member add \
