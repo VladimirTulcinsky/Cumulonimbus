@@ -1,6 +1,6 @@
 # SSM Parameter Store Path Wildcard
 
-**Difficulty:** Intermediate | **Provider:** AWS | **Category:** IAM / Secrets Management
+**Provider:** AWS | **Category:** IAM / Secrets Management
 
 ## Scenario
 

@@ -1,6 +1,6 @@
 # Terraform State File Exposure
 
-**Difficulty:** Intermediate | **Provider:** Azure | **Category:** Storage / Secrets in State
+**Provider:** Azure | **Category:** Storage / Secrets in State
 
 ## Scenario
 

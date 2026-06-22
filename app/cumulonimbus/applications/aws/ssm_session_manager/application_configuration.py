@@ -11,10 +11,6 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
 
     def get_flag(self) -> str:
         return "CUMULONIMBUS{SSM_S3ss10n_M4n4g3r_Sh3ll_4cc3ss}"
-
-    def get_difficulty(self) -> str:
-        return "Intermediate"
-
     def get_hints(self) -> dict:
         return {
             1: "Your attacker credentials include `ssm:StartSession`. This allows you to open an interactive shell on any EC2 instance that has the SSM Agent running — no SSH key required.",

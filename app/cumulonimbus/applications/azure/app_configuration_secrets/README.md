@@ -1,6 +1,6 @@
 # App Configuration — Data Reader Enumeration
 
-**Difficulty:** Beginner | **Provider:** Azure | **Category:** Configuration / Secrets
+**Provider:** Azure | **Category:** Configuration / Secrets
 
 ## Scenario
 

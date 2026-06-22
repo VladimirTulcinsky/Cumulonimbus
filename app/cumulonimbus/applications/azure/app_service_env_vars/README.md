@@ -1,6 +1,6 @@
 # App Service Environment Variables — Secret Exposure
 
-**Difficulty:** Beginner | **Provider:** Azure | **Category:** Web / Secrets
+**Provider:** Azure | **Category:** Web / Secrets
 
 ## Scenario
 

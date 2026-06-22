@@ -1,6 +1,6 @@
 # Dynamic Groups Abuse
 
-**Difficulty:** Intermediate | **Provider:** Azure | **Category:** Identity / Privilege Escalation
+**Provider:** Azure | **Category:** Identity / Privilege Escalation
 
 ## Scenario
 

@@ -10,10 +10,6 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
     ]
     def configure_application(self, **kwargs):
         pass
-
-    def get_difficulty(self):
-        return "Intermediate"
-
     def get_hints(self):
         return {
             1: "A config.json is available at the config blob URL (no auth required). Download it and look for Azure credentials.",

@@ -1,6 +1,6 @@
 # Azure Function App SSRF to Managed Identity Token
 
-**Difficulty:** Intermediate | **Provider:** Azure | **Category:** Serverless / SSRF / IMDS
+**Provider:** Azure | **Category:** Serverless / SSRF / IMDS
 
 ## Scenario
 

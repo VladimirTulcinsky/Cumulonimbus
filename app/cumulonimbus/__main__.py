@@ -202,7 +202,6 @@ def hint(provider, app_id, level):
     try:
         app_config = get_application_configuration(provider, app_id)
         hints = app_config.get_hints()
-        difficulty = app_config.get_difficulty()
 
         if not hints:
             print(f"No hints are configured for {app_id}.")
@@ -211,7 +210,7 @@ def hint(provider, app_id, level):
         max_level = max(hints.keys())
         level = min(level, max_level)
 
-        print(f"[{app_id}]  Difficulty: {difficulty}")
+        print(f"[{app_id}]")
         print(f"Hint (level {level}/{max_level}): {hints[level]}")
         if level < max_level:
             print(f"  Run with --level {level + 1} for a stronger hint.")

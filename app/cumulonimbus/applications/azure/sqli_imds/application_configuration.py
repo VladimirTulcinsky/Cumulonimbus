@@ -7,10 +7,6 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
 
     def get_flag(self) -> str:
         return "CUMULONIMBUS{SQLi_IMDS_ManagedIdentityTokenExfil}"
-
-    def get_difficulty(self) -> str:
-        return "Intermediate"
-
     def get_hints(self) -> dict:
         return {
             1: "The web app on port 80 accepts a username that is inserted directly into a SQL query. Try adding a single quote to the input — observe the behavior. The database is Microsoft SQL Server.",

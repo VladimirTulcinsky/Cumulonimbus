@@ -1,6 +1,6 @@
 # VM RunCommand — Arbitrary Code Execution via Contributor Role
 
-**Difficulty:** Intermediate | **Provider:** Azure | **Category:** Compute / Privilege Escalation
+**Provider:** Azure | **Category:** Compute / Privilege Escalation
 
 ## Scenario
 

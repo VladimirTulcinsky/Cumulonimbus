@@ -1,6 +1,6 @@
 # S3 Public Access Misconfiguration
 
-**Difficulty:** Beginner | **Provider:** AWS | **Category:** Storage / Misconfiguration
+**Provider:** AWS | **Category:** Storage / Misconfiguration
 
 ## Scenario
 

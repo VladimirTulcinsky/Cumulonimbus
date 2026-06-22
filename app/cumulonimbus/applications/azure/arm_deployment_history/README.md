@@ -1,6 +1,6 @@
 # ARM Deployment History Secret Exposure
 
-**Difficulty:** Intermediate | **Provider:** Azure | **Category:** ARM / Credential Exposure
+**Provider:** Azure | **Category:** ARM / Credential Exposure
 
 ## Scenario
 

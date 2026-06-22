@@ -12,10 +12,6 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
     def configure_application(self, **kwargs):
         key_pair_path = utils.get_key_pair_path('managed_identity_abuse')
         os.system("ssh-keygen -t rsa -b 4096 -f {} -N ''".format(key_pair_path))
-
-    def get_difficulty(self):
-        return "Intermediate"
-
     def get_hints(self):
         return {
             1: "You have Virtual Machine Contributor on the VM. This role includes the RunCommand action — look up 'az vm run-command invoke'.",

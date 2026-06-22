@@ -1,6 +1,6 @@
 # SSM Session Manager — Shell Access Without SSH
 
-**Difficulty:** Intermediate | **Provider:** AWS | **Category:** Compute / Lateral Movement
+**Provider:** AWS | **Category:** Compute / Lateral Movement
 
 ## Scenario
 

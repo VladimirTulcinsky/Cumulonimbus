@@ -1,6 +1,6 @@
 # Secrets Manager Over-Permissive Policy
 
-**Difficulty:** Intermediate | **Provider:** AWS | **Category:** IAM / Secrets Management
+**Provider:** AWS | **Category:** IAM / Secrets Management
 
 ## Scenario
 

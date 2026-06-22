@@ -9,10 +9,6 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
     ]
     def configure_application(self, **kwargs):
         pass
-
-    def get_difficulty(self):
-        return "Beginner"
-
     def get_hints(self):
         return {
             1: "You have ec2:DescribeInstances and ec2:DescribeInstanceAttribute. Use DescribeInstances to find the instance ID, then request the userData attribute.",

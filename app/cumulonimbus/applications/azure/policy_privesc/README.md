@@ -1,6 +1,6 @@
 # Azure Policy Privilege Escalation
 
-**Difficulty:** Advanced | **Provider:** Azure | **Category:** Governance / Privilege Escalation
+**Provider:** Azure | **Category:** Governance / Privilege Escalation
 
 ## Scenario
 

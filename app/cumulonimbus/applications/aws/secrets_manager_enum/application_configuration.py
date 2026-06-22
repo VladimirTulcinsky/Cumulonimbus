@@ -9,10 +9,6 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
     ]
     def configure_application(self, **kwargs):
         pass
-
-    def get_difficulty(self):
-        return "Intermediate"
-
     def get_hints(self):
         return {
             1: "Use your credentials to list all secrets: aws secretsmanager list-secrets --profile attacker. Notice the policy uses a wildcard resource path.",

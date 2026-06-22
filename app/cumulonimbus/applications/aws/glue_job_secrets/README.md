@@ -1,6 +1,6 @@
 # Glue Job — Secrets in DefaultArguments
 
-**Difficulty:** Beginner | **Provider:** AWS | **Category:** Data / Secrets
+**Provider:** AWS | **Category:** Data / Secrets
 
 ## Scenario
 

@@ -1,6 +1,6 @@
 # Storage Account Keys — Control Plane to Data Plane Bypass
 
-**Difficulty:** Intermediate | **Provider:** Azure | **Category:** Storage / Privilege Escalation
+**Provider:** Azure | **Category:** Storage / Privilege Escalation
 
 ## Scenario
 

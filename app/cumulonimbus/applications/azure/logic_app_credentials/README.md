@@ -1,6 +1,6 @@
 # Logic App — Hardcoded Credentials in Workflow Definition
 
-**Difficulty:** Intermediate | **Provider:** Azure | **Category:** Integration / Secrets
+**Provider:** Azure | **Category:** Integration / Secrets
 
 ## Scenario
 

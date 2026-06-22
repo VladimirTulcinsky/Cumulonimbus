@@ -11,10 +11,6 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
 
     def configure_application(self, **kwargs):
         pass
-
-    def get_difficulty(self):
-        return "Intermediate"
-
     def get_hints(self):
         return {
             1: "You have the 'User Account Administrator' Entra ID role. Enumerate groups in the tenant and look for a dynamic security group — its membership is controlled by a rule based on user attributes: az rest --method GET --uri 'https://graph.microsoft.com/v1.0/groups?$select=displayName,membershipRule,membershipRuleProcessingState'",

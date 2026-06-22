@@ -11,10 +11,6 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
 
     def configure_application(self, **kwargs):
         pass
-
-    def get_difficulty(self):
-        return "Beginner"
-
     def get_hints(self):
         return {
             1: "Navigate to the lab's tools/ directory and run phish.py with your tenant domain. It initiates a device code flow and prints a realistic phishing message with the user code. Keep this terminal open — it polls for the victim's token.",

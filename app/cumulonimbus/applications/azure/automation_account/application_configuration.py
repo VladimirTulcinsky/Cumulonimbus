@@ -10,10 +10,6 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
     ]
     def configure_application(self, **kwargs):
         pass
-
-    def get_difficulty(self):
-        return "Intermediate"
-
     def get_hints(self):
         return {
             1: "You have Automation Contributor on the Automation Account. This role lets you create and publish runbooks. Runbooks execute as the Automation Account's system-assigned managed identity.",

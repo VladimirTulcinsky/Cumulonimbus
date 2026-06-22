@@ -10,10 +10,6 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
     ]
     def configure_application(self, **kwargs):
         pass
-
-    def get_difficulty(self):
-        return "Advanced"
-
     def get_hints(self):
         return {
             1: "Check your IAM permissions: aws iam get-user-policy --user-name <you> --policy-name developer-permissions. Notice iam:PassRole and lambda:CreateFunction together.",

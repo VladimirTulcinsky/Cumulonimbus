@@ -1,6 +1,6 @@
 # Family of Client IDs (FOCI) Refresh Token Abuse
 
-**Difficulty:** Advanced | **Provider:** Azure | **Category:** Identity / OAuth Token Abuse
+**Provider:** Azure | **Category:** Identity / OAuth Token Abuse
 
 ## Scenario
 

@@ -1,6 +1,6 @@
 # IAM Privilege Escalation via PassRole + Lambda
 
-**Difficulty:** Advanced | **Provider:** AWS | **Category:** IAM / Privilege Escalation
+**Provider:** AWS | **Category:** IAM / Privilege Escalation
 
 ## Scenario
 

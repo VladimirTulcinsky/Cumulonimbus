@@ -1,6 +1,6 @@
 # Event Grid — Webhook Token Exposure via ARM
 
-**Difficulty:** Intermediate | **Provider:** Azure | **Category:** Integration / Secrets
+**Provider:** Azure | **Category:** Integration / Secrets
 
 ## Scenario
 

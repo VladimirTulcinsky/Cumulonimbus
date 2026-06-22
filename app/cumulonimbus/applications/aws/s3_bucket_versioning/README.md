@@ -1,6 +1,6 @@
 # S3 Versioning — Deleted Object Recovery
 
-**Difficulty:** Beginner | **Provider:** AWS | **Category:** Storage / Versioning
+**Provider:** AWS | **Category:** Storage / Versioning
 
 ## Scenario
 

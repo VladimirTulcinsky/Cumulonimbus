@@ -1,6 +1,6 @@
 # SQS Queue — Public Resource Policy
 
-**Difficulty:** Beginner | **Provider:** AWS | **Category:** Messaging / Misconfiguration
+**Provider:** AWS | **Category:** Messaging / Misconfiguration
 
 ## Scenario
 

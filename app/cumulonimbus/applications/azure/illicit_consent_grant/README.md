@@ -1,6 +1,6 @@
 # Illicit Consent Grant
 
-**Difficulty:** Intermediate | **Provider:** Azure | **Category:** Identity / OAuth Phishing
+**Provider:** Azure | **Category:** Identity / OAuth Phishing
 
 ## Scenario
 

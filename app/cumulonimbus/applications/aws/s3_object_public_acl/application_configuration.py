@@ -9,10 +9,6 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
 
     def get_flag(self) -> str:
         return "CUMULONIMBUS{S3_0bj3ct_ACL_Publ1c_R3ad}"
-
-    def get_difficulty(self) -> str:
-        return "Beginner"
-
     def get_hints(self) -> dict:
         return {
             1: "The S3 bucket blocks public bucket policies, but individual objects can still have public ACLs. Try listing what objects exist in the bucket.",

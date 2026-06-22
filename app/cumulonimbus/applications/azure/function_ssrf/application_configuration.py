@@ -10,10 +10,6 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
     ]
     def configure_application(self, **kwargs):
         pass
-
-    def get_difficulty(self):
-        return "Intermediate"
-
     def get_hints(self):
         return {
             1: "The Function App has a /api/fetch endpoint that proxies any URL you supply via ?url=. Think about what internal network endpoints are reachable from inside Azure.",

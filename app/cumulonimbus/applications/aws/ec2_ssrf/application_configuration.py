@@ -29,10 +29,6 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
         print("Key pair for ec2_ssrf located at {}. The keys should only be used for debugging purposes.".format(
             key_pair_path))
         return key_pair_path
-
-    def get_difficulty(self):
-        return "Beginner"
-
     def get_hints(self):
         return {
             1: "The web app fetches any URL you pass to ?url=. Think about what internal endpoints are reachable from inside the EC2 instance.",

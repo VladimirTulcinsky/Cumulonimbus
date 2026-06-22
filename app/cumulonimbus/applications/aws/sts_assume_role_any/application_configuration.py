@@ -10,10 +10,6 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
 
     def get_flag(self) -> str:
         return "CUMULONIMBUS{STS_Assum3_R0l3_W1ldcard_Pr1ncipal}"
-
-    def get_difficulty(self) -> str:
-        return "Intermediate"
-
     def get_hints(self) -> dict:
         return {
             1: "The environment has an IAM role with a broad trust policy. Start by listing IAM roles available in the account.",

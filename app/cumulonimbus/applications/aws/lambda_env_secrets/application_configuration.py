@@ -9,10 +9,6 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
     ]
     def configure_application(self, **kwargs):
         pass
-
-    def get_difficulty(self):
-        return "Beginner"
-
     def get_hints(self):
         return {
             1: "You have lambda:ListFunctions and lambda:GetFunction. Inspect the function configuration — Lambda environment variables are returned in plaintext.",

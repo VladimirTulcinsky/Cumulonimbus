@@ -11,10 +11,6 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
 
     def get_flag(self) -> str:
         return "CUMULONIMBUS{St0r4g3_Acc0unt_K3ys_Byp4ss_RBAC}"
-
-    def get_difficulty(self) -> str:
-        return "Intermediate"
-
     def get_hints(self) -> dict:
         return {
             1: "Your attacker account has Storage Account Contributor on the storage account. This is a control-plane role — check what actions it includes beyond just metadata management.",

@@ -10,10 +10,6 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
 
     def get_flag(self) -> str:
         return "CUMULONIMBUS{C0d3Bu1ld_Pl41nt3xt_Env_V4rs}"
-
-    def get_difficulty(self) -> str:
-        return "Beginner"
-
     def get_hints(self) -> dict:
         return {
             1: "AWS CodeBuild stores environment variables in the project definition. PLAINTEXT type variables are returned unmasked by codebuild:BatchGetProjects.",

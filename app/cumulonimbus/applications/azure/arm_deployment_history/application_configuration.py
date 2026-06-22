@@ -9,10 +9,6 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
     ]
     def configure_application(self, **kwargs):
         pass
-
-    def get_difficulty(self):
-        return "Intermediate"
-
     def get_hints(self):
         return {
             1: "Log in as the attacker and list deployments in the resource group: az deployment group list --resource-group <rg>. Reader includes Microsoft.Resources/deployments/read.",

@@ -9,10 +9,6 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
     ]
     def configure_application(self, **kwargs):
         pass
-
-    def get_difficulty(self):
-        return "Intermediate"
-
     def get_hints(self):
         return {
             1: "The storage account name starts with 'cmlnmbstfstate'. Try listing blobs in the 'tfstate' container anonymously — no credentials needed if public access is enabled.",

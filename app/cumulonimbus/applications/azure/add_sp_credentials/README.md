@@ -1,6 +1,6 @@
 # Add Service Principal Credentials
 
-**Difficulty:** Advanced | **Provider:** Azure | **Category:** Identity / Privilege Escalation
+**Provider:** Azure | **Category:** Identity / Privilege Escalation
 
 ## Scenario
 

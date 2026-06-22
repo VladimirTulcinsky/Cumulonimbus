@@ -1,6 +1,6 @@
 # STS AssumeRole — Wildcard Principal
 
-**Difficulty:** Intermediate | **Provider:** AWS | **Category:** IAM / Privilege Escalation
+**Provider:** AWS | **Category:** IAM / Privilege Escalation
 
 ## Scenario
 

@@ -14,10 +14,6 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
         Given parameters, this runs code that is required for each vulnerable application to run correctly.
         """
         pass
-
-    def get_difficulty(self):
-        return "Advanced"
-
     def get_hints(self):
         return {
             1: "The user was removed from the app registration owners, but check whether they still appear as owner on the underlying service principal: az ad sp list --show-mine",

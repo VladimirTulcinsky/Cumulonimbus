@@ -9,10 +9,6 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
 
     def get_flag(self) -> str:
         return "CUMULONIMBUS{SQS_Publ1c_R3s0urc3_P0l1cy_R3c31v3}"
-
-    def get_difficulty(self) -> str:
-        return "Beginner"
-
     def get_hints(self) -> dict:
         return {
             1: "The SQS queue has a resource policy allowing any principal to receive messages. No IAM credentials are required — just the queue URL.",

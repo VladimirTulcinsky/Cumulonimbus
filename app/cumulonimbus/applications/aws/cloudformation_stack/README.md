@@ -1,6 +1,6 @@
 # CloudFormation Stack Outputs — Secret Exposure
 
-**Difficulty:** Beginner | **Provider:** AWS | **Category:** Infrastructure / Secrets
+**Provider:** AWS | **Category:** Infrastructure / Secrets
 
 ## Scenario
 

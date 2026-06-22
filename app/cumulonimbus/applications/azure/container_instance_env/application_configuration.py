@@ -10,10 +10,6 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
 
     def get_flag(self) -> str:
         return "CUMULONIMBUS{C0nt41n3r_1nst4nc3_Pl41nt3xt_Env}"
-
-    def get_difficulty(self) -> str:
-        return "Beginner"
-
     def get_hints(self) -> dict:
         return {
             1: "Azure Container Instances expose their environment variables via ARM. A Reader on the resource group can inspect the container group definition.",
