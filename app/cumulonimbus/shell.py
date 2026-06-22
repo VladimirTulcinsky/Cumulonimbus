@@ -388,11 +388,17 @@ def _do_ctfd(provider):
     out = subprocess.run(["terraform", chdir, "output", "-raw", "ctfd_url"],
                          env=env, capture_output=True, text=True)
     url = out.stdout.strip() if out.returncode == 0 else "http://<vm-ip>:8001"
+    ip = subprocess.run(["terraform", chdir, "output", "-raw", "public_ip"],
+                        env=env, capture_output=True, text=True)
+    vm_ip = ip.stdout.strip() if ip.returncode == 0 else "<vm-ip>"
+    key_path = os.path.join(global_variables.ROOT_DIR, ".data", ".ssh", "ctfd_admin")
     print(f"\n  CTFd scoreboard deploying at: {url}")
     print("  First boot installs Docker and seeds the challenges — give it a few")
     print("  minutes before the URL responds. Admin login: admin / the password you set.")
-    print("  Note: Terraform state is kept in this container; for durable")
-    print("  management run the ctfd/azure Terraform from a host. The VM persists.")
+    print("\n  SSH to the VM (use -i with the key this deploy generated):")
+    print(f"    ssh -i {key_path} ctfdadmin@{vm_ip}")
+    print("  Note: Terraform state and that SSH key live in this container; for")
+    print("  durable management run the ctfd/azure Terraform from a host. The VM persists.")
 
 
 

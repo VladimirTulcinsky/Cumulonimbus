@@ -8,7 +8,8 @@ output "public_ip" {
 }
 
 output "ssh_command" {
-  value = "ssh ${var.admin_username}@${azurerm_public_ip.ctfd.ip_address}"
+  description = "SSH in with the matching private key (-i is required)."
+  value       = "ssh -i <path-to-private-key> ${var.admin_username}@${azurerm_public_ip.ctfd.ip_address}"
 }
 
 output "admin_login" {

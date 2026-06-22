@@ -85,6 +85,24 @@ instance's NSG rule. That's a live change via `az`; to make it permanent, set
 `player_allowed_cidr` here and re-apply (otherwise the next `terraform apply`
 resets it).
 
+## SSH access
+
+SSH requires the **private key** that matches the public key the VM was built
+with — `ssh` without `-i` will fail with `Permission denied (publickey)`.
+
+- **Deployed from the Cumulonimbus shell:** the key was generated at
+  `app/cumulonimbus/.data/.ssh/ctfd_admin` (inside the container), and the deploy
+  prints the exact command. Connect with:
+  ```bash
+  ssh -i /root/app/cumulonimbus/.data/.ssh/ctfd_admin ctfdadmin@<vm-ip>
+  ```
+- **Deployed by hand:** use the private key matching the `admin_ssh_public_key`
+  you passed, e.g. `ssh -i ~/.ssh/id_rsa ctfdadmin@<vm-ip>`.
+
+> The shell-generated key lives in the container's `.data`, which is ephemeral.
+> If that container is gone, reset access with the public key you still have:
+> `az vm user update -g cumulonimbus-ctfd -n ctfd-vm -u ctfdadmin --ssh-key-value "$(cat <pubkey>)"`.
+
 ## Teardown
 
 ```bash
