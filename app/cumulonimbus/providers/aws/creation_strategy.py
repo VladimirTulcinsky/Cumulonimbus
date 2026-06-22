@@ -33,7 +33,6 @@ class AWSCreationStrategy(CreationStrategy):
                 **no_prompt,
                 no_color=IsFlagged,
                 capture_output=False,
-                refresh=False,
                 var={
                     'shared_credentials_files': global_variables.PATH_TO_AWS_CREDENTIALS,
                     'shared_config_files': global_variables.PATH_TO_AWS_CONFIG,

@@ -36,7 +36,7 @@ class AzureCreationStrategy(CreationStrategy):
             no_prompt = {"auto-approve": True}
             location = os.environ.get('AZURE_LOCATION', 'West Europe')
             name_suffix = cumulonimbus_utils.get_name_suffix()
-            return_code, stdout, stderr = tf.apply(skip_plan=True, **no_prompt, no_color=IsFlagged, capture_output=False, refresh=False,
+            return_code, stdout, stderr = tf.apply(skip_plan=True, **no_prompt, no_color=IsFlagged, capture_output=False,
                                                    var={'client_id': os.environ['AZURE_CLIENT_ID'], 'client_secret': os.environ['AZURE_CLIENT_SECRET'], 'tenant_id': os.environ['AZURE_TENANT_ID'], 'subscription_id': os.environ['AZURE_SUBSCRIPTION_ID'], 'attacker_public_ip': global_variables.ATTACKER_PUBLIC_IP['azure'], 'tenant_domain': os.environ.get('AZURE_TENANT_DOMAIN', ''), 'location': location, 'name_suffix': name_suffix})
 
             if return_code != 0:
