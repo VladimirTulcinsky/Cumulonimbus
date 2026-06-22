@@ -289,22 +289,38 @@ def _ctfd_dir():
 
 
 def _ensure_ctfd_ssh_key():
-    """Return (public_key, error). Generates an ed25519 keypair under
-    .data/.ssh for the CTFd VM admin if one doesn't exist yet."""
+    """Return (public_key, error). Generates an RSA keypair under .data/.ssh
+    for the CTFd VM admin if one doesn't exist yet. Azure's admin_ssh_key only
+    accepts RSA keys, so any older non-RSA key is regenerated."""
     ssh_dir = os.path.join(global_variables.ROOT_DIR, ".data", ".ssh")
     os.makedirs(ssh_dir, exist_ok=True)
     key_path = os.path.join(ssh_dir, "ctfd_admin")
     pub_path = key_path + ".pub"
-    if not os.path.exists(pub_path):
+
+    if os.path.exists(pub_path):
         try:
-            result = subprocess.run(
-                ["ssh-keygen", "-t", "ed25519", "-N", "", "-C", "ctfd-admin", "-f", key_path],
-                stdout=subprocess.DEVNULL, stderr=subprocess.PIPE, text=True,
-            )
-        except FileNotFoundError:
-            return None, "ssh-keygen not found"
-        if result.returncode != 0:
-            return None, (result.stderr or "ssh-keygen failed").strip()
+            existing = open(pub_path).read().strip()
+        except OSError:
+            existing = ""
+        if existing.startswith("ssh-rsa"):
+            return existing, None
+        # Wrong key type (e.g. an ed25519 key from an earlier version) — Azure
+        # rejects it, so remove it and regenerate as RSA.
+        for path in (key_path, pub_path):
+            try:
+                os.remove(path)
+            except OSError:
+                pass
+
+    try:
+        result = subprocess.run(
+            ["ssh-keygen", "-t", "rsa", "-b", "4096", "-N", "", "-C", "ctfd-admin", "-f", key_path],
+            stdout=subprocess.DEVNULL, stderr=subprocess.PIPE, text=True,
+        )
+    except FileNotFoundError:
+        return None, "ssh-keygen not found"
+    if result.returncode != 0:
+        return None, (result.stderr or "ssh-keygen failed").strip()
     with open(pub_path) as f:
         return f.read().strip(), None
 
