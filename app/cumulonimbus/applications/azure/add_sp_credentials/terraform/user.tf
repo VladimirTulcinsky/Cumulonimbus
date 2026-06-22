@@ -16,7 +16,7 @@ resource "azuread_user" "group_owner" {
 resource "azuread_group" "administrators" {
   display_name     = "cred-administrators${local.name_suffix_dash}"
   mail_nickname    = "cred-administrators${local.name_suffix_dash}"
-  description      = "This group should have the Global Admin role assigned, but this required a P1 license."
+  description      = "This group should have the Global Admin role assigned, but that required a P1 license. Instead it was granted the 'Key Vault Secrets User' role on the team Key Vault, so members can read the vault's secrets."
   security_enabled = true
 
   owners = [

