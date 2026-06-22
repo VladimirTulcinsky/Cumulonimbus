@@ -19,11 +19,6 @@ provider "azurerm" {
   features {}
 }
 
-resource "random_integer" "suffix" {
-  min = 10000
-  max = 99999
-}
-
 # Stable CTFd session signing key, generated once and persisted in state so it
 # stays the same across VM reboots (sessions survive restarts).
 resource "random_password" "ctfd_secret_key" {
@@ -31,8 +26,12 @@ resource "random_password" "ctfd_secret_key" {
   special = false
 }
 
+# Singleton: fixed resource-group name (no random suffix). The first deployment
+# claims it; any second `terraform apply` from a different state fails because
+# azurerm_resource_group refuses to create a resource group that already exists.
+# That guarantees only one shared CTFd can be stood up via this module.
 resource "azurerm_resource_group" "ctfd" {
-  name     = "cumulonimbus-ctfd-${random_integer.suffix.result}"
+  name     = "cumulonimbus-ctfd"
   location = var.location
 }
 
