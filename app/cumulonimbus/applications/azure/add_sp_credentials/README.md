@@ -93,9 +93,9 @@ az ad group list --query "[].{name:displayName, id:id, description:description}"
 az ad group show --group "cred-administrators"
 ```
 
-The description reveals the group holds the **Key Vault Secrets User** role on the
-team's Key Vault — so joining it grants read access to that vault's secrets. Note
-the group's `id` from the output for the next step.
+The description reveals the group holds the **Key Vault Secrets User** role on a
+named Key Vault — so joining it grants read access to that vault's secrets. Note
+both the group's `id` and the **vault name** from the description for the next steps.
 
 ### Step 6 — Add yourself to the group
 
@@ -122,17 +122,31 @@ az ad group member list --group <group-id> --query "[].userPrincipalName" -o tsv
 
 ### Step 7 — Read the flag from the Key Vault
 
-Group membership grants the group the **Key Vault Secrets User** role on the lab's
-vault. Sign back in as your own user so your token picks up the new group claim,
-then read the secret:
+You already have the vault name — it's in the group's `description` (Step 5) and in
+the deployment briefing. You can't find it by listing vaults: `az keyvault list` is
+a control-plane call that needs Reader on the subscription, which this
+low-privileged user doesn't have, so it returns nothing:
+
+```bash
+az keyvault list --query "[].name" -o tsv   # empty — no control-plane access
+```
+
+Group membership instead grants **data-plane** access (the Key Vault Secrets User
+role). Sign back in as your own user so your token picks up the new group claim,
+then list and read the secret:
 
 ```bash
 az login --username <norightsuser-upn> --password '<password>' --allow-no-subscriptions
+
+# List the secrets in the vault, then read the flag
+az keyvault secret list --vault-name <vault> --query "[].name" -o tsv
 az keyvault secret show --vault-name <vault> --name flag --query value -o tsv
 ```
 
 > Group membership can take a few minutes to propagate, and RBAC role claims are
-> only refreshed on a new sign-in — sign out/in if the read is denied at first.
+> only refreshed on a new sign-in — sign out/in if the read is denied at first. If
+> `secret list` is denied, you can still read the secret directly by its name
+> (`flag`) with the `secret show` command above.
 
 ## How to Fix in Production
 
