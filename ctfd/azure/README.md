@@ -11,6 +11,15 @@ installs Docker on first boot, clones the repo, and seeds the Azure challenges.
 Data lives in Docker named volumes on the VM disk, and the containers run with
 `restart: unless-stopped`, so the scoreboard and its data survive reboots.
 
+## Single instance only
+
+This is a **singleton** — there can be only one. Resource names are fixed (the
+resource group is always `cumulonimbus-ctfd`), so once it's deployed, any second
+`terraform apply` from a different state fails with an "already exists" error
+instead of standing up a duplicate scoreboard. To move/recreate it, the holder of
+the current state must `terraform destroy` (or import the existing instance)
+first.
+
 ## Prerequisites
 
 - Terraform.
