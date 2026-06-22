@@ -1,4 +1,7 @@
-FROM python:3.12-slim
+# Pin to Debian bookworm. The floating python:3.12-slim tag moved to Debian
+# trixie, for which Microsoft does not publish an azure-cli apt package, breaking
+# the build. Pinning keeps the build reproducible and on a supported base.
+FROM python:3.12-slim-bookworm
 
 # Copy helper scripts to container
 ADD docker/dependencies /root/bin
@@ -20,10 +23,9 @@ WORKDIR /root/app
 RUN chmod +x /root/app/cnimbus.py \
     && ln -s /root/app/cnimbus.py /usr/local/bin/cnimbus
 
-# Set path to credentials file
-ENV AWS_SHARED_CREDENTIALS_FILES=/cumulonimbus/.data/.aws/credentials \
-    AWS_SHARED_CONFIG_FILES=/cumulonimbus/.data/.aws/config \
-    AZURE_CREDENTIALS_FILES=/cumulonimbus/.data/.azure/credentials
+# Credential file paths are set at runtime by the app (global_variables.py),
+# pointing at the per-install .data directory. The previous ENV entries here were
+# unused (wrong names/paths) and tripped the SecretsUsedInArgOrEnv build check.
 
 # Command
 ENTRYPOINT [ "/bin/bash" ]

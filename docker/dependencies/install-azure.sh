@@ -22,7 +22,12 @@ echo -e "\n\nAzure CLI Installation Starting (preferred version ${AZURE_CLI_VERS
 curl -sL https://packages.microsoft.com/keys/microsoft.asc \
     | gpg --dearmor > /etc/apt/trusted.gpg.d/microsoft.asc.gpg
 
-CLI_REPO=$(lsb_release -cs)
+# Microsoft only publishes the azure-cli apt package for stable Debian/Ubuntu
+# codenames (e.g. bookworm) — not for newer/testing ones like trixie, where the
+# repo 404s. The package bundles its own Python, so the bookworm build runs fine
+# on newer Debian bases too. Hardcode a supported codename rather than trusting
+# the host's (which may be unsupported).
+CLI_REPO="bookworm"
 
 echo "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ ${CLI_REPO} main" \
     > /etc/apt/sources.list.d/azure-cli.list
