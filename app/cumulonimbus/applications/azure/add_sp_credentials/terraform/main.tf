@@ -18,7 +18,12 @@ terraform {
 }
 
 provider "azurerm" {
-  features {}
+  features {
+    key_vault {
+      purge_soft_delete_on_destroy    = true
+      recover_soft_deleted_key_vaults = true
+    }
+  }
 
   skip_provider_registration = true
 
@@ -32,4 +37,17 @@ provider "azuread" {
   client_id     = var.client_id
   client_secret = var.client_secret
   tenant_id     = var.tenant_id
+}
+
+data "azurerm_client_config" "current" {}
+
+resource "random_integer" "suffix" {
+  min = 10000
+  max = 99999
+}
+
+# Resource group that hosts the Key Vault the privesc ultimately unlocks.
+resource "azurerm_resource_group" "rg" {
+  name     = "cumulonimbus-add-sp${local.name_suffix_dash}-${random_integer.suffix.result}"
+  location = var.location
 }
