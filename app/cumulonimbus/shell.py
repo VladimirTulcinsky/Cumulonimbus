@@ -10,6 +10,10 @@ one tenant/account without their resources colliding.
 """
 
 import getpass
+import os
+import shutil
+import subprocess
+import sys
 import textwrap
 
 import cumulonimbus.global_variables as global_variables
@@ -285,6 +289,42 @@ def _do_list(provider):
         _show_lab_info(label_to_app[choice])
 
 
+def _ctfd_dir():
+    return os.path.abspath(os.path.join(global_variables.ROOT_DIR, "..", "..", "ctfd"))
+
+
+def _do_ctfd(provider):
+    """Start the CTFd scoreboard for this provider, or explain how to if this
+    environment can't (CTFd runs as its own Docker containers and the ctfd/
+    files are not shipped inside the Cumulonimbus image)."""
+    ctfd_dir = _ctfd_dir()
+    url = "http://localhost:8001" if provider == "azure" else "http://localhost:8000"
+    print()
+    if not os.path.isdir(ctfd_dir):
+        print("  CTFd isn't available from here — its files aren't shipped inside")
+        print("  the Cumulonimbus container. On your host machine, from the repo:")
+        print(f"    cd ctfd && python setup.py {provider}")
+        print(f"  Then open {url}  (default login: admin / cumulonimbus).")
+        return
+    if shutil.which("docker") is None:
+        print("  Docker isn't available in this shell, so CTFd can't be started")
+        print("  here (it runs as its own containers). On your host machine run:")
+        print(f"    cd {ctfd_dir} && python setup.py {provider}")
+        print(f"  Then open {url}  (default login: admin / cumulonimbus).")
+        return
+    print(f"  This starts the CTFd scoreboard for {PROVIDER_LABELS[provider]}:")
+    print("  it launches the containers, waits for CTFd, and seeds the challenges.")
+    if not _confirm("Continue?", default=True):
+        print("Cancelled.")
+        return
+    try:
+        subprocess.run([sys.executable, "setup.py", provider], cwd=ctfd_dir, check=False)
+    except Exception as e:
+        print(f"  Could not start CTFd: {e}")
+        return
+    print(f"\n  When setup finishes, open {url}  (default login: admin / cumulonimbus).")
+
+
 def _print_aws_wip():
     print()
     print("  " + "-" * 56)
@@ -305,6 +345,7 @@ _ACTIONS = [
     ("Get a hint", _do_hint),
     ("Submit a flag", _do_validate),
     ("Browse labs / get lab info", _do_list),
+    ("Start the CTFd scoreboard", _do_ctfd),
     ("Destroy a lab", _do_destroy),
     ("Set / change my session name", _do_session_name),
 ]
