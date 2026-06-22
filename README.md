@@ -167,22 +167,28 @@ docker exec -it cumulonimbus bash
 
 You need a cloud account with sufficient permissions before deploying labs.
 
-**Azure** — create a service principal with:
-- Global Administrator role (Entra ID level)
+**Azure** — create a service principal (app registration) and give it **both**
+of the following — they are configured in different places and are easy to
+confuse:
+
+**1. Directory role + resource roles** (assigned to the SP, *not* in "API permissions"):
+- **Global Administrator** directory role — Entra ID → Roles and administrators → Global Administrator → Add assignment → select your app/SP
 - Owner on the target subscription
 - Key Vault Administrator on the target subscription
 - Security defaults disabled
-- Microsoft Graph application permissions (admin consented): `User.ReadWrite.All`, `Application.ReadWrite.All`, `Directory.ReadWrite.All`, `Group.ReadWrite.All`, `RoleManagement.ReadWrite.Directory`, `AppRoleAssignment.ReadWrite.All`
 
-> Grant Graph permissions: Azure Portal → App registrations → your app → API permissions → Add a permission → Microsoft Graph → Application permissions → select the permissions above → Grant admin consent
+**2. Microsoft Graph *application* permissions** (admin consented) — App registrations → your app → API permissions:
+`User.ReadWrite.All`, `Application.ReadWrite.All`, `Directory.ReadWrite.All`, `Group.ReadWrite.All`, `RoleManagement.ReadWrite.Directory`, `AppRoleAssignment.ReadWrite.All` → then **Grant admin consent**.
 
-> ⚠️ The **Global Administrator** role is what lets the service principal
-> **delete groups** and **assign directory roles** that several labs use.
-> `Directory.ReadWrite.All` can *create* groups but not delete them, so if you
-> skip the role (or `Group.ReadWrite.All` / `RoleManagement.ReadWrite.Directory`)
-> a `destroy` will fail with `Authorization_RequestDenied: Insufficient
-> privileges`. Cumulonimbus keeps the lab's state on a failed destroy, so once
-> you grant the missing permission you can simply re-run `destroy`.
+> ⚠️ **Most setup failures come from skipping the Global Administrator *role*.**
+> Granting Graph *API permissions* (step 2) is **not** the same as assigning the
+> Global Administrator *directory role* (step 1). Without the role, privileged
+> Entra operations the labs perform — deleting groups, granting app-role/admin
+> consent, assigning directory roles — fail with
+> `Authorization_RequestDenied: Insufficient privileges`. Assigning Global
+> Administrator to the SP resolves all of them at once. Cumulonimbus keeps the
+> lab's state on a failed deploy/destroy, so once the privilege is in place you
+> can simply re-run the command.
 
 **AWS** — an IAM user or role with:
 - `AdministratorAccess` (or at minimum EC2, S3, and IAM full access)
