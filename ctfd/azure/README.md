@@ -59,9 +59,10 @@ First boot installs Docker, clones the repo, and seeds CTFd, so give it a few
 minutes after `apply` before the URL responds. Log in as `admin` with the
 password you set.
 
-> By default the challenges/points come from the `main` branch. To seed from a
-> different branch (e.g. while this work is on a feature branch), add
-> `-var "git_ref=<branch>"`. Point at your own fork with `-var "repo_url=..."`.
+> The VM clones the repo to get the `ctfd/` files, so `git_ref` must point at a
+> ref that contains them. It currently defaults to the feature branch
+> (`claude/enhance-cumulonimbus-lab-57qh7`); change it to `main` once this work is
+> merged there. Override with `-var "git_ref=<ref>"` / `-var "repo_url=..."`.
 
 ## Useful variables
 
@@ -72,7 +73,7 @@ password you set.
 | `player_allowed_cidr` | `0.0.0.0/0` | Who can reach the scoreboard (port 8001) |
 | `ssh_allowed_cidr` | `0.0.0.0/0` | Restrict to your IP for SSH (port 22) |
 | `ctfd_admin_password` | `cumulonimbus` | **Change this** |
-| `repo_url` / `git_ref` | this repo / `main` | Source of the seeded challenges |
+| `repo_url` / `git_ref` | this repo / feature branch | Ref to clone; must contain `ctfd/` |
 
 ## Adjusting who can reach it
 

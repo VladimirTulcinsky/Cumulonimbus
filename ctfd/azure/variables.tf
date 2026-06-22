@@ -48,6 +48,6 @@ variable "repo_url" {
 
 variable "git_ref" {
   type        = string
-  description = "Branch or tag to clone (determines which challenges/points are seeded)."
-  default     = "main"
+  description = "Branch or tag to clone (must contain the ctfd/ directory). Switch to 'main' once this work is merged there."
+  default     = "claude/enhance-cumulonimbus-lab-57qh7"
 }
