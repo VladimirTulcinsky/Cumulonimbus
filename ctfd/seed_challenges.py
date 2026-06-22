@@ -78,12 +78,13 @@ CHALLENGES = [
             "A user was removed as owner of an Azure AD application registration, "
             "but NOT from the underlying service principal. "
             "This oversight lets them add new credentials to the service principal "
-            "and use it to join a privileged group.\n\n"
+            "and use it to join a privileged group — whose membership grants Key "
+            "Vault access where the flag is stored.\n\n"
             "Deploy with: `cnimbus azure create --app-id add_sp_credentials`"
         ),
         "value": 100,
         "type": "standard",
-        "flag": "CUMULONIMBUS{SP_Cr3d3nt14ls_4dd3d}",
+        "flag": "CUMULONIMBUS{SP_0wn3rsh1p_T0_K3yV4ult_Acc3ss}",
         "tags": ["Azure", "Azure AD", "Service Principal", "Privilege Escalation"],
         "hints": [
             {"content": "Check if your user owns any service principals even after being removed from the app registration.", "cost": 25},
