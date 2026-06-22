@@ -99,6 +99,16 @@ the group's `id` from the output for the next step.
 
 ### Step 6 — Add yourself to the group
 
+First get your own object id. Do this while signed in **as norightsuser** — the
+service principal only has `Group.ReadWrite.All`, not permission to read users —
+so grab it before you switch to the SP in Step 4 (or run it in a second shell):
+
+```bash
+az ad signed-in-user show --query id -o tsv
+```
+
+Then, acting as the service principal, add that object id to the group:
+
 ```bash
 az ad group member add \
   --group <group-id> \
