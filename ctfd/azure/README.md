@@ -68,6 +68,16 @@ password you set.
 | `ctfd_admin_password` | `cumulonimbus` | **Change this** |
 | `repo_url` / `git_ref` | this repo / `main` | Source of the seeded challenges |
 
+## Adjusting who can reach it
+
+Set the initial allowed range at deploy time with `-var "player_allowed_cidr=..."`.
+After it's up, you can also change it from the **Cumulonimbus shell**: choose
+*Set CTFd scoreboard access (CIDR)* — it suggests your current public IP, and lets
+you enter a custom CIDR or open it to the internet, then updates the running
+instance's NSG rule. That's a live change via `az`; to make it permanent, set
+`player_allowed_cidr` here and re-apply (otherwise the next `terraform apply`
+resets it).
+
 ## Teardown
 
 ```bash

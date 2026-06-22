@@ -10,6 +10,7 @@ one tenant/account without their resources colliding.
 """
 
 import getpass
+import ipaddress
 import os
 import shutil
 import subprocess
@@ -320,6 +321,105 @@ def _do_ctfd(provider):
     print(f"\n  When setup finishes, open {url}  (default login: admin / cumulonimbus).")
 
 
+# Names of the singleton CTFd-on-Azure resources (see ctfd/azure/).
+_CTFD_RG = "cumulonimbus-ctfd"
+_CTFD_NSG = "ctfd-nsg"
+_CTFD_RULE = "CTFd-Azure"
+
+
+def _valid_cidr(value):
+    try:
+        ipaddress.ip_network(value, strict=False)
+        return True
+    except ValueError:
+        return False
+
+
+def _do_ctfd_cidr(provider):
+    """Set which source IP/CIDR may reach the persistent Azure CTFd scoreboard
+    (the singleton's NSG rule on port 8001). Suggests your current public IP."""
+    if not os.environ.get("AZURE_CLIENT_ID"):
+        print("\n  Authenticate to Azure first (the Authenticate menu option).")
+        return
+
+    my_ip = global_variables.ATTACKER_PUBLIC_IP.get("azure", "0.0.0.0")
+    suggested = f"{my_ip}/32" if my_ip and my_ip != "0.0.0.0" else None
+
+    print("\n  Restrict who can reach the CTFd scoreboard (port 8001 on the")
+    print("  singleton Azure instance).")
+    options = []
+    if suggested:
+        options.append(f"Restrict to my IP only ({suggested})")
+    options.append("Enter a custom CIDR")
+    options.append("Open to the public internet (0.0.0.0/0)")
+
+    choice = _choose("Allowed source", options, allow_back=True)
+    if choice is None:
+        return
+
+    if choice.startswith("Restrict to my IP"):
+        cidr = suggested
+    elif choice.startswith("Enter a custom"):
+        cidr = _prompt("CIDR (e.g. 203.0.113.5/32 or 203.0.113.0/24)")
+        if not _valid_cidr(cidr):
+            print("  That doesn't look like a valid IP or CIDR.")
+            return
+    else:
+        if not _confirm("Open the scoreboard to the ENTIRE internet?", default=False):
+            print("  Cancelled.")
+            return
+        cidr = "0.0.0.0/0"
+
+    print(f"\n  This sets the scoreboard's allowed source to: {cidr}")
+    if not _confirm("Apply to the running instance now?", default=True):
+        print("  Cancelled.")
+        return
+    _apply_ctfd_nsg_cidr(cidr)
+
+
+def _apply_ctfd_nsg_cidr(cidr):
+    # Use an isolated az session dir so this admin action doesn't disturb any
+    # `az login` you're using for a lab.
+    env = os.environ.copy()
+    env["AZURE_CONFIG_DIR"] = os.path.join(global_variables.ROOT_DIR, ".data", ".azure-ctfd-admin")
+    try:
+        login = subprocess.run(
+            ["az", "login", "--service-principal",
+             "-u", os.environ["AZURE_CLIENT_ID"],
+             "-p", os.environ["AZURE_CLIENT_SECRET"],
+             "--tenant", os.environ["AZURE_TENANT_ID"]],
+            env=env, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE, text=True,
+        )
+        if login.returncode != 0:
+            print("  az login failed: " + (login.stderr or "").strip())
+            return
+        subscription = os.environ.get("AZURE_SUBSCRIPTION_ID")
+        if subscription:
+            subprocess.run(["az", "account", "set", "--subscription", subscription],
+                           env=env, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        update = subprocess.run(
+            ["az", "network", "nsg", "rule", "update",
+             "--resource-group", _CTFD_RG, "--nsg-name", _CTFD_NSG, "--name", _CTFD_RULE,
+             "--source-address-prefixes", cidr],
+            env=env, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE, text=True,
+        )
+        if update.returncode != 0:
+            print("  Could not update the rule: " + (update.stderr or "").strip())
+            print("  Has the CTFd scoreboard been deployed? See ctfd/azure/README.md.")
+            return
+        print(f"  Done — the scoreboard now accepts traffic from {cidr}.")
+        print(f'  To persist this, set player_allowed_cidr="{cidr}" in ctfd/azure and')
+        print("  re-apply Terraform (otherwise a future terraform apply resets it).")
+    except FileNotFoundError:
+        print("  The Azure CLI (az) was not found.")
+    finally:
+        try:
+            subprocess.run(["az", "logout"], env=env,
+                           stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        except Exception:
+            pass
+
+
 def _print_aws_wip():
     print()
     print("  " + "-" * 56)
@@ -341,6 +441,7 @@ _ACTIONS = [
     ("Submit a flag", _do_validate),
     ("Browse labs / get lab info", _do_list),
     ("Start the CTFd scoreboard", _do_ctfd),
+    ("Set CTFd scoreboard access (CIDR)", _do_ctfd_cidr),
     ("Destroy a lab", _do_destroy),
     ("Set / change my session name", _do_session_name),
 ]
