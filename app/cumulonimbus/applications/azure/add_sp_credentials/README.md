@@ -114,6 +114,12 @@ az ad group member add \
   --member-id <norightsuser-object-id>
 ```
 
+Confirm you're now a member:
+
+```bash
+az ad group member list --group <group-id> --query "[].userPrincipalName" -o tsv
+```
+
 ### Step 7 — Read the flag from the Key Vault
 
 Group membership grants the group the **Key Vault Secrets User** role on the lab's
