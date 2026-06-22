@@ -57,6 +57,11 @@ class CumulonimbusParser:
         self.parser = argparse.ArgumentParser(
             epilog='To get additional help on a specific provider run: {}.py <provider> -h'.format(global_variables.APP_NAME))
 
+        self.parser.add_argument('-v', '--verbose',
+                                 action='store_true',
+                                 dest='verbose',
+                                 help='Print full tracebacks on failure (also enabled with CUMULONIMBUS_VERBOSE=1)')
+
         self.common_providers_args_parser = argparse.ArgumentParser(
             add_help=False)
 
@@ -87,8 +92,6 @@ class CumulonimbusParser:
             "validate", help="Validate a captured flag for an Amazon Web Services application")
         aws_cmd_hint_parser = aws_cmd_parser.add_parser(
             "hint", help="Get a hint for an Amazon Web Services application")
-        aws_cmd_ttl_parser = aws_cmd_parser.add_parser(
-            "ttl", help="Schedule auto-destroy for an Amazon Web Services application")
         aws_cmd_parser.add_parser(
             "list", help="List available Amazon Web Services lab IDs")
 
@@ -153,15 +156,6 @@ class CumulonimbusParser:
                                      default=1, dest='hint_level',
                                      help='Hint level: 1 = gentle nudge, 2 = moderate, 3 = explicit (default: 1)')
 
-        # TTL parameters
-        aws_ttl_params = aws_cmd_ttl_parser.add_argument_group('TTL parameters')
-        aws_ttl_params.add_argument('--app-id', action='store', choices=global_variables.AWS_APP_LIST, required=True,
-                                    dest='vulnerable_app_id',
-                                    help='Cumulonimbus vulnerable AWS application id')
-        aws_ttl_params.add_argument('--hours', action='store', type=float, required=True,
-                                    dest='ttl_hours',
-                                    help='Hours until the lab is automatically destroyed')
-
     def _init_azure_parser(self):
         azure_parser = self.subparsers.add_parser("azure",
                                                   parents=[
@@ -170,7 +164,7 @@ class CumulonimbusParser:
 
         azure_cmd_parser = azure_parser.add_subparsers(
             title="The command you want to run", dest="command", required=True,
-            help="The command you want to run (authenticate, create, destroy, validate, hint, ttl, list)",
+            help="The command you want to run (authenticate, create, destroy, validate, hint, list)",
             parser_class=_RegionEnrichedParser)
 
         azure_cmd_auth_parser = azure_cmd_parser.add_parser(
@@ -183,8 +177,6 @@ class CumulonimbusParser:
             "validate", help="Validate a captured flag for an Azure application")
         azure_cmd_hint_parser = azure_cmd_parser.add_parser(
             "hint", help="Get a hint for an Azure application")
-        azure_cmd_ttl_parser = azure_cmd_parser.add_parser(
-            "ttl", help="Schedule auto-destroy for an Azure application")
         azure_cmd_parser.add_parser(
             "list", help="List available Azure lab IDs")
 
@@ -257,15 +249,6 @@ class CumulonimbusParser:
         azure_hint_params.add_argument('--level', action='store', type=int, choices=[1, 2, 3],
                                        default=1, dest='hint_level',
                                        help='Hint level: 1 = gentle nudge, 2 = moderate, 3 = explicit (default: 1)')
-
-        # TTL parameters
-        azure_ttl_params = azure_cmd_ttl_parser.add_argument_group('TTL parameters')
-        azure_ttl_params.add_argument('--app-id', action='store', choices=global_variables.AZURE_APP_LIST, required=True,
-                                      dest='vulnerable_app_id',
-                                      help='Cumulonimbus vulnerable Azure application id')
-        azure_ttl_params.add_argument('--hours', action='store', type=float, required=True,
-                                      dest='ttl_hours',
-                                      help='Hours until the lab is automatically destroyed')
 
     def parse_args(self, args=None):
         args = self.parser.parse_args(args)

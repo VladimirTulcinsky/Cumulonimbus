@@ -22,6 +22,9 @@ class AWSCreationStrategy(CreationStrategy):
             cwd = get_path_to_aws_app(app_id)
             tf = Terraform(working_dir=cwd)
             return_code, stdout, stderr = tf.init(capture_output=False)
+            if return_code != 0:
+                raise CreationException(
+                    f"terraform init failed (exit code {return_code}). See the Terraform output above.")
             no_prompt = {"auto-approve": True}
             region = getattr(credentials, 'aws_region', 'eu-west-1')
             name_suffix = cumulonimbus_utils.get_name_suffix()
@@ -40,9 +43,10 @@ class AWSCreationStrategy(CreationStrategy):
                 }
             )
 
-            if stderr:
-                print("Are you sure you have the correct AWS credentials?")
-                raise CreationException(stderr)
+            if return_code != 0:
+                print("The deployment failed. Check the Terraform output above, and that your AWS credentials and permissions are correct.")
+                raise CreationException(
+                    f"terraform apply failed (exit code {return_code}).")
 
             outputs = tf.output()
             application_configuration.pretty_print_tf_output(app_id, outputs)
@@ -71,9 +75,12 @@ class AWSCreationStrategy(CreationStrategy):
                 }
             )
 
-            if stderr:
-                print("Are you sure you have the correct AWS credentials?")
-                raise CreationException(stderr)
+            if return_code != 0:
+                # Leave the local state in place so the user can retry destroy;
+                # deleting it now would orphan any resources that still exist.
+                print("The destroy failed. Check the Terraform output above; the lab's state was kept so you can retry.")
+                raise CreationException(
+                    f"terraform destroy failed (exit code {return_code}).")
 
             print(f"Successfully destroyed AWS application: {app_id}")
             _cleanup_terraform_state(cwd)

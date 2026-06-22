@@ -186,8 +186,8 @@ You need a cloud account with sufficient permissions before deploying labs.
 If you'd rather not memorise the flags, just run `cnimbus` with no arguments
 (or `cnimbus shell`) to launch a guided, menu-driven shell. It walks you
 through authenticating, picking a lab, deploying, getting hints, submitting
-flags, scheduling auto-destroy, and tearing down — asking one question at a
-time and showing the available choices.
+flags, and tearing down — asking one question at a time and showing the
+available choices.
 
 ```shell
 cnimbus            # or: cnimbus shell
@@ -281,14 +281,6 @@ cnimbus aws   validate --app-id <app-id> --flag "CUMULONIMBUS{...}"
 # Level 1 = gentle nudge, 2 = moderate, 3 = explicit
 cnimbus azure hint --app-id <app-id> --level 1
 cnimbus aws   hint --app-id <app-id> --level 2
-```
-
-### Schedule auto-destroy (TTL)
-
-```shell
-# Automatically destroy the lab after N hours
-cnimbus azure ttl --app-id <app-id> --hours 4
-cnimbus aws   ttl --app-id <app-id> --hours 4
 ```
 
 ### List available labs
