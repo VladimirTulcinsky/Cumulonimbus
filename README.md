@@ -10,6 +10,8 @@
 > 💸 **Cost notice:** Deploying a lab provisions **real cloud infrastructure** on your AWS or Azure account.
 > Charges will be incurred. Always destroy labs when you are done:
 > `cnimbus <provider> destroy --app-id <app-id>`
+> Labs that include a VM also get a **daily auto-shutdown** (deallocated at 19:00 UTC)
+> to curb idle compute costs — restart with `az vm start` if you need it again.
 
 > 🎓 **Run a CTF for a class or team:** one tenant/account can be shared by a
 > whole group — hand out a **single** set of credentials and have each person
