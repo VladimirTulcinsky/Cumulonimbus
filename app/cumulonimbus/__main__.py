@@ -1,3 +1,4 @@
+import shutil
 import traceback
 
 import cumulonimbus.global_variables as global_variables
@@ -15,6 +16,25 @@ def _report_error(prefix, exc):
         traceback.print_exc()
     else:
         print("  Re-run with --verbose (or set CUMULONIMBUS_VERBOSE=1) for the full error.")
+
+
+def _missing_required_tools(provider, need_cloud_cli=False):
+    """Return external tools the requested operation needs but that aren't on
+    PATH. Catching these up front avoids a half-deployed lab when, for example,
+    a Terraform local-exec calls `az` and it isn't installed."""
+    missing = []
+    if shutil.which('terraform') is None:
+        missing.append('terraform')
+    if need_cloud_cli and provider == 'azure' and shutil.which('az') is None:
+        missing.append('az (Azure CLI)')
+    return missing
+
+
+def _print_missing_tools(missing):
+    print("Missing required tool(s) on PATH: " + ", ".join(missing) + ".")
+    print("  These are pre-installed in the Cumulonimbus Docker image — if you see")
+    print("  this there, rebuild the image (docker build -t cumulonimbus .) or pull")
+    print("  the latest. If you are running locally, install the tool(s) above.")
 
 
 def run_from_cli():
@@ -135,6 +155,11 @@ def authenticate(provider,
 
 def create(provider, app_id):
     try:
+        missing = _missing_required_tools(provider, need_cloud_cli=True)
+        if missing:
+            _print_missing_tools(missing)
+            return 101
+
         auth_strategy = get_authentication_strategy(provider)
         credentials = auth_strategy.get_credentials()
 
@@ -153,6 +178,11 @@ def create(provider, app_id):
 
 def destroy(provider, app_id):
     try:
+        missing = _missing_required_tools(provider)
+        if missing:
+            _print_missing_tools(missing)
+            return 101
+
         auth_strategy = get_authentication_strategy(provider)
         credentials = auth_strategy.get_credentials()
 
