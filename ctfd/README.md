@@ -19,6 +19,14 @@ completes the setup wizard, and seeds all matching challenges automatically.
 
 Default credentials: `admin` / `cumulonimbus`.
 
+## Persistent shared scoreboard on Azure
+
+The commands above run CTFd locally (it stops when your machine does). To host
+**one shared scoreboard that stays up** — so a whole class can reach it
+independently of any laptop — deploy it to an Azure VM with the Terraform in
+[`azure/`](azure/README.md). Players then point their browser at
+`http://<vm-ip>:8001`.
+
 ## Existing install (custom password)
 
 If CTFd was previously set up with a different password:
