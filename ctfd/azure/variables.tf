@@ -6,8 +6,8 @@ variable "location" {
 
 variable "vm_size" {
   type        = string
-  description = "VM size. B2s (2 vCPU / 4 GB) comfortably runs CTFd + MariaDB + Redis."
-  default     = "Standard_B2s"
+  description = "VM size for the CTFd host. Default is widely available; if you hit SkuNotAvailable, try another (e.g. Standard_B2ms, Standard_D2as_v5) or another region."
+  default     = "Standard_D2s_v3"
 }
 
 variable "admin_username" {

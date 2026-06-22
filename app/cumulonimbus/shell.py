@@ -347,6 +347,8 @@ def _do_ctfd(provider):
         return
 
     admin_pw = _prompt("CTFd admin password", default="cumulonimbus")
+    vm_size = _prompt("VM size (hit Enter for default; change if you hit SkuNotAvailable)",
+                      default="Standard_D2s_v3")
     pub_key, err = _ensure_ctfd_ssh_key()
     if not pub_key:
         print(f"  Could not prepare an SSH key for the VM: {err}")
@@ -369,6 +371,7 @@ def _do_ctfd(provider):
     env["TF_VAR_ssh_allowed_cidr"] = cidr
     env["TF_VAR_admin_ssh_public_key"] = pub_key
     env["TF_VAR_ctfd_admin_password"] = admin_pw
+    env["TF_VAR_vm_size"] = vm_size
     env["TF_VAR_location"] = os.environ.get("AZURE_LOCATION", "West Europe")
 
     chdir = f"-chdir={ctfd_azure}"
@@ -376,8 +379,10 @@ def _do_ctfd(provider):
         print("  terraform init failed (see output above).")
         return
     if subprocess.run(["terraform", chdir, "apply", "-auto-approve", "-input=false"], env=env).returncode != 0:
-        print("  Deploy failed (see Terraform output above). If a CTFd scoreboard")
-        print("  already exists, that's the singleton — there can be only one.")
+        print("  Deploy failed (see Terraform output above).")
+        print("  - SkuNotAvailable? Re-run and pick a different VM size (e.g.")
+        print("    Standard_B2ms, Standard_D2as_v5), or authenticate to another region.")
+        print("  - 'already exists'? That's the singleton — there can be only one.")
         return
 
     out = subprocess.run(["terraform", chdir, "output", "-raw", "ctfd_url"],
