@@ -34,6 +34,11 @@ def __init_general():
     global ROOT_DIR
     ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
 
+    # When set, failures print a full traceback. Enabled by the --verbose CLI
+    # flag or the CUMULONIMBUS_VERBOSE environment variable (handy in the shell).
+    global VERBOSE
+    VERBOSE = os.environ.get('CUMULONIMBUS_VERBOSE', '').lower() in ('1', 'true', 'yes')
+
     global ATTACKER_PUBLIC_IP
     ATTACKER_PUBLIC_IP = get_public_ip()
 

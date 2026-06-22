@@ -2,7 +2,7 @@
 """Interactive, guided shell for Cumulonimbus.
 
 This wraps the same actions as the flag-based CLI (authenticate / create /
-destroy / validate / hint / ttl / list) but walks the user through them with
+destroy / validate / hint / list) but walks the user through them with
 prompts, so newcomers don't have to memorise the command syntax. It also
 captures an optional per-player "session name" used to namespace deployed
 resources, which lets a whole class share a single set of cloud credentials in
@@ -245,24 +245,6 @@ def _do_hint(provider):
     hint(provider=provider, app_id=app_id, level=int(level[0]))
 
 
-def _do_ttl(provider):
-    from cumulonimbus.__main__ import ttl
-
-    app_id = _choose_app(provider, "auto-destroy")
-    if not app_id:
-        return
-    while True:
-        raw = _prompt("Auto-destroy after how many hours?")
-        try:
-            hours = float(raw)
-            if hours > 0:
-                break
-        except ValueError:
-            pass
-        print("  Enter a positive number, e.g. 4 or 1.5")
-    ttl(provider=provider, app_id=app_id, hours=hours)
-
-
 def _show_lab_info(app_id):
     info = AZURE_LAB_INFO.get(app_id)
     print()
@@ -323,7 +305,6 @@ _ACTIONS = [
     ("Get a hint", _do_hint),
     ("Submit a flag", _do_validate),
     ("Browse labs / get lab info", _do_list),
-    ("Schedule auto-destroy (TTL)", _do_ttl),
     ("Destroy a lab", _do_destroy),
     ("Set / change my session name", _do_session_name),
 ]

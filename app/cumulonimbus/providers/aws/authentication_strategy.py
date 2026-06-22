@@ -59,21 +59,33 @@ class AWSAuthenticationStrategy(AuthenticationStrategy):
             raise AuthenticationException(e)
 
     def get_credentials(self):
-        print("Getting credentials for AWS")
-
+        # Read the credentials persisted by authenticate() without re-validating
+        # against STS or rewriting the files on every create/destroy. If the
+        # credentials are invalid, the subsequent Terraform run surfaces it.
         config = configparser.ConfigParser()
         config.read(global_variables.PATH_TO_AWS_CONFIG)
         region = config.get('cumulonimbus', 'region', fallback='eu-west-1')
 
-        session = boto3.Session(profile_name='cumulonimbus')
-        credentials = session.get_credentials()
-        credentials = self.authenticate(
+        if not os.path.exists(global_variables.PATH_TO_AWS_CREDENTIALS):
+            print("No AWS credentials found. Please authenticate first: cnimbus aws authenticate ...")
+            return None
+
+        try:
+            session = boto3.Session(profile_name='cumulonimbus')
+            credentials = session.get_credentials()
+        except Exception:
+            credentials = None
+
+        if not credentials:
+            print("No AWS credentials found. Please authenticate first: cnimbus aws authenticate ...")
+            return None
+
+        return AWSCredentials(
             aws_access_key_id=credentials.access_key,
             aws_secret_access_key=credentials.secret_key,
             aws_session_token=credentials.token,
-            region=region,
+            aws_region=region,
         )
-        return credentials
 
     def write_credentials_to_file(self, aws_access_key_id, aws_secret_access_key, aws_session_token, region):
         with open(global_variables.PATH_TO_AWS_CREDENTIALS, "w") as f:
