@@ -1,6 +1,6 @@
 # Step Functions — Sensitive Data in Execution History
 
-**Difficulty:** Intermediate | **Provider:** AWS | **Category:** Serverless / Data Exposure
+**Provider:** AWS | **Category:** Serverless / Data Exposure
 
 ## Scenario
 

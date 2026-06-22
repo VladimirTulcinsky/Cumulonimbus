@@ -13,10 +13,6 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
         Given parameters, this runs code that is required for each vulnerable application to run correctly.
         """
         pass
-
-    def get_difficulty(self):
-        return "Beginner"
-
     def get_hints(self):
         return {
             1: "Real-world storage accounts follow environment naming patterns. Use cloud_enum (https://github.com/initstring/cloud_enum) to discover them: ./cloud_enum.py -k cumulonimbusXXXXprd --disable-aws --disable-gcp. Also try other suffixes: dev, tst, uat, stg.",

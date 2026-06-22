@@ -1,6 +1,6 @@
 # S3 Object ACL — Public Read Without Credentials
 
-**Difficulty:** Beginner | **Provider:** AWS | **Category:** Storage / Misconfiguration
+**Provider:** AWS | **Category:** Storage / Misconfiguration
 
 ## Scenario
 

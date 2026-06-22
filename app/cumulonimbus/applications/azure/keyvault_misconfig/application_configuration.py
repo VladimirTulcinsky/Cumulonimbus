@@ -11,10 +11,6 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
     ]
     def configure_application(self, **kwargs):
         pass
-
-    def get_difficulty(self):
-        return "Intermediate"
-
     def get_hints(self):
         return {
             1: "You have Reader on the resource group. Use 'az keyvault list' to discover Key Vaults, then check whether your user has any access policies on them.",

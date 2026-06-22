@@ -9,10 +9,6 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
     ]
     def configure_application(self, **kwargs):
         pass
-
-    def get_difficulty(self):
-        return "Beginner"
-
     def get_hints(self):
         return {
             1: "The current version of app/config.json is a delete marker — the object appears gone. But versioning keeps every previous version. Try: aws s3api list-object-versions --bucket <bucket>",

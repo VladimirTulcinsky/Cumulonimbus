@@ -10,10 +10,6 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
 
     def get_flag(self) -> str:
         return "CUMULONIMBUS{App_C0nf1g_D4t4_R34d3r_Enum}"
-
-    def get_difficulty(self) -> str:
-        return "Beginner"
-
     def get_hints(self) -> dict:
         return {
             1: "Azure App Configuration stores key-value pairs accessible to any identity with App Configuration Data Reader. Try listing all keys in the store.",

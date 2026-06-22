@@ -5,10 +5,6 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
 
     def get_flag(self) -> str:
         return "CUMULONIMBUS{PassThePRT_CloudLateralMovement_MFA_Bypass}"
-
-    def get_difficulty(self) -> str:
-        return "Advanced"
-
     def get_hints(self) -> dict:
         return {
             1: "The victim user's PRT is stored in LSASS under their CloudAP credential entry — not visible via dsregcmd (which only shows the current user's state). Mimikatz is pre-installed at C:\\Tools\\mimikatz\\x64\\mimikatz.exe. Open it as Administrator and run: privilege::debug then sekurlsa::cloudap. Look for an entry whose KeyValue / PRT fields are populated.",

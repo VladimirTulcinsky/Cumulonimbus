@@ -1,6 +1,6 @@
 # Key Vault Misconfiguration
 
-**Difficulty:** Intermediate | **Provider:** Azure | **Category:** Key Vault / Access Policy
+**Provider:** Azure | **Category:** Key Vault / Access Policy
 
 ## Scenario
 

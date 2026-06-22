@@ -11,10 +11,6 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
 
     def get_flag(self) -> str:
         return "CUMULONIMBUS{VM_RunC0mm4nd_Arb1tr4ry_Exec}"
-
-    def get_difficulty(self) -> str:
-        return "Intermediate"
-
     def get_hints(self) -> dict:
         return {
             1: "Your attacker account has Virtual Machine Contributor on the resource group. This role includes the ability to execute commands on VMs without SSH access.",

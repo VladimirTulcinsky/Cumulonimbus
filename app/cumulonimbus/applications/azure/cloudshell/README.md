@@ -1,6 +1,6 @@
 # Cloud Shell Storage Exposure
 
-**Difficulty:** Intermediate | **Provider:** Azure | **Category:** Storage / RBAC
+**Provider:** Azure | **Category:** Storage / RBAC
 
 ## Scenario
 

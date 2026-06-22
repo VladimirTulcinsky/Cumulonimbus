@@ -10,10 +10,6 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
 
     def get_flag(self) -> str:
         return "CUMULONIMBUS{App_S3rv1c3_Env_V4rs_3xp0s3d}"
-
-    def get_difficulty(self) -> str:
-        return "Beginner"
-
     def get_hints(self) -> dict:
         return {
             1: "App Service stores configuration as application settings. These can be read by identities with the right permissions — look at what your attacker account can do.",

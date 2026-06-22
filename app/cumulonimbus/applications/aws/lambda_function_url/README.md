@@ -1,6 +1,6 @@
 # Lambda Function URL — No Authentication
 
-**Difficulty:** Beginner | **Provider:** AWS | **Category:** Serverless / Exposure
+**Provider:** AWS | **Category:** Serverless / Exposure
 
 ## Scenario
 

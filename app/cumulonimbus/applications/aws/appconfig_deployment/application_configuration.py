@@ -4,10 +4,6 @@ from cumulonimbus.providers.base.application_configuration import ApplicationCon
 class ApplicationConfiguration(ApplicationConfigurationAbstract):
     def get_flag(self) -> str:
         return "CUMULONIMBUS{AppC0nf1g_H0st3d_C0nf1g_3xp0s3d}"
-
-    def get_difficulty(self) -> str:
-        return "Beginner"
-
     def get_hints(self) -> dict:
         return {
             1: "The IAM user has AppConfig read permissions. AWS AppConfig stores configuration data in hosted configuration versions.",

@@ -1,6 +1,6 @@
 # EC2 SSRF
 
-**Difficulty:** Beginner | **Provider:** AWS | **Category:** SSRF / IMDS
+**Provider:** AWS | **Category:** SSRF / IMDS
 
 ## Scenario
 

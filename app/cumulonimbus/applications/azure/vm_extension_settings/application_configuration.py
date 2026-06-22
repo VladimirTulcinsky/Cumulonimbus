@@ -10,10 +10,6 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
 
     def get_flag(self) -> str:
         return "CUMULONIMBUS{VM_3xt3ns10n_S3tt1ngs_Pl41nt3xt}"
-
-    def get_difficulty(self) -> str:
-        return "Beginner"
-
     def get_hints(self) -> dict:
         return {
             1: "Azure VM extensions store their `settings` block as plaintext JSON in ARM. Any Reader can retrieve it — unlike `protectedSettings`, which are encrypted.",

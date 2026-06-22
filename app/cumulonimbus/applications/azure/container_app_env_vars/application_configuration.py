@@ -4,10 +4,6 @@ from cumulonimbus.providers.base.application_configuration import ApplicationCon
 class ApplicationConfiguration(ApplicationConfigurationAbstract):
     def get_flag(self) -> str:
         return "CUMULONIMBUS{C0nt41n3r_App_Env_V4rs_3xp0s3d}"
-
-    def get_difficulty(self) -> str:
-        return "Beginner"
-
     def get_hints(self) -> dict:
         return {
             1: "Azure Container Apps store configuration in their template definition. Environment variables are part of this.",

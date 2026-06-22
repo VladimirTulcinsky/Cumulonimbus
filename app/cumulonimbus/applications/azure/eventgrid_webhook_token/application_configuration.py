@@ -10,10 +10,6 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
 
     def get_flag(self) -> str:
         return "CUMULONIMBUS{3v3ntGr1d_W3bh00k_T0k3n_3xp0s3d}"
-
-    def get_difficulty(self) -> str:
-        return "Intermediate"
-
     def get_hints(self) -> dict:
         return {
             1: "Event Grid event subscriptions store their webhook URL in the subscription definition. Any Reader on the resource can retrieve it via ARM.",

@@ -27,13 +27,6 @@ class ApplicationConfigurationAbstract(metaclass=ABCMeta):
         Returns None if no flag is configured.
         """
         return None
-
-    def get_difficulty(self):
-        """
-        Return the difficulty rating: Beginner, Intermediate, or Advanced.
-        """
-        return "Intermediate"
-
     def get_hints(self):
         """
         Return a dict mapping hint level (int) to hint text.

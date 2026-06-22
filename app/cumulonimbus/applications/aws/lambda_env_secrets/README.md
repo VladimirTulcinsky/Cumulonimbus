@@ -1,6 +1,6 @@
 # Lambda Environment Variable Secret Exposure
 
-**Difficulty:** Beginner | **Provider:** AWS | **Category:** Serverless / Credential Exposure
+**Provider:** AWS | **Category:** Serverless / Credential Exposure
 
 ## Scenario
 

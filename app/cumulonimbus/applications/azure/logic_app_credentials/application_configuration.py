@@ -10,10 +10,6 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
 
     def get_flag(self) -> str:
         return "CUMULONIMBUS{L0g1c_App_H4rdcod3d_Cr3d3nt14ls}"
-
-    def get_difficulty(self) -> str:
-        return "Intermediate"
-
     def get_hints(self) -> dict:
         return {
             1: "Logic App workflow definitions are stored in ARM and include the full definition of every action — including any hardcoded values in HTTP connector headers.",

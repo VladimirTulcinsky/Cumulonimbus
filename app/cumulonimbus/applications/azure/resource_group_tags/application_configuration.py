@@ -10,10 +10,6 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
 
     def get_flag(self) -> str:
         return "CUMULONIMBUS{S3cr3t_1n_R3s0urc3_Gr0up_T4gs}"
-
-    def get_difficulty(self) -> str:
-        return "Beginner"
-
     def get_hints(self) -> dict:
         return {
             1: "Azure resource tags are visible to anyone with Reader on the resource. Engineers sometimes store credentials in tags for convenience.",

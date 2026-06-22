@@ -9,10 +9,6 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
     ]
     def configure_application(self, **kwargs):
         pass
-
-    def get_difficulty(self):
-        return "Intermediate"
-
     def get_hints(self):
         return {
             1: "You have ssm:DescribeParameters. Use it to enumerate all parameter names, then check which paths your identity can read with GetParametersByPath.",

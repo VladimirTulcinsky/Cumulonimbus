@@ -1,6 +1,6 @@
 # Resource Group Tags — Credentials in Metadata
 
-**Difficulty:** Beginner | **Provider:** Azure | **Category:** Identity / Secrets
+**Provider:** Azure | **Category:** Identity / Secrets
 
 ## Scenario
 

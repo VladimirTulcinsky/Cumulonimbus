@@ -258,7 +258,7 @@ def _show_lab_info(app_id):
     wrap = textwrap.TextWrapper(width=74, initial_indent="    ",
                                 subsequent_indent="    ")
     print(f"  {info['name']}  [{app_id}]")
-    print(f"  Difficulty: {info['difficulty']}   |   Category: {info['category']}")
+    print(f"  Category: {info['category']}")
     print("\n  What it is:")
     print(wrap.fill(info['summary']))
     print("\n  Objective:")
@@ -275,18 +275,13 @@ def _do_list(provider):
         return
 
     labs = sorted(global_variables.AZURE_APP_LIST)
-    labels = [
-        f"{lab}  —  {AZURE_LAB_INFO.get(lab, {}).get('difficulty', '?')}"
-        for lab in labs
-    ]
-    label_to_app = dict(zip(labels, labs))
     print(f"\n{len(labs)} Azure labs available. Pick one to read a short, "
           "spoiler-free summary and its objective.")
     while True:
-        choice = _choose("Azure labs", labels, allow_back=True)
+        choice = _choose("Azure labs", labs, allow_back=True)
         if choice is None:
             return
-        _show_lab_info(label_to_app[choice])
+        _show_lab_info(choice)
 
 
 def _ctfd_dir():

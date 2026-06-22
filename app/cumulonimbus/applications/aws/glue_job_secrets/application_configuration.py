@@ -10,10 +10,6 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
 
     def get_flag(self) -> str:
         return "CUMULONIMBUS{Glu3_J0b_S3cr3ts_1n_4rgum3nts}"
-
-    def get_difficulty(self) -> str:
-        return "Beginner"
-
     def get_hints(self) -> dict:
         return {
             1: "AWS Glue jobs store their configuration in `DefaultArguments`. These are returned in plaintext by `glue:GetJob`.",

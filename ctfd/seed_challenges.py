@@ -25,7 +25,7 @@ CHALLENGES = [
             "credentials that allow you to read a private S3 object.\n\n"
             "Deploy with: `cnimbus aws create --app-id ec2_ssrf`"
         ),
-        "value": 200,
+        "value": 100,
         "type": "standard",
         "flag": "Cumulonimbus{Th4tW4sCh33sy}",
         "tags": ["SSRF", "AWS", "EC2", "IMDS", "S3"],
@@ -62,7 +62,7 @@ CHALLENGES = [
             "Mount the Cloud Shell disk image and extract the flag from it.\n\n"
             "Deploy with: `cnimbus azure create --app-id cloudshell`"
         ),
-        "value": 150,
+        "value": 100,
         "type": "standard",
         "flag": "Cumulonimbus{CSStorageMustBeLockedDown}",
         "tags": ["Azure", "Cloud Shell", "Storage", "RBAC"],
@@ -81,7 +81,7 @@ CHALLENGES = [
             "and use it to join a privileged group.\n\n"
             "Deploy with: `cnimbus azure create --app-id add_sp_credentials`"
         ),
-        "value": 300,
+        "value": 100,
         "type": "standard",
         "flag": "CUMULONIMBUS{SP_Cr3d3nt14ls_4dd3d}",
         "tags": ["Azure", "Azure AD", "Service Principal", "Privilege Escalation"],
@@ -100,7 +100,7 @@ CHALLENGES = [
             "application scope and add yourself to an admin group.\n\n"
             "Deploy with: `cnimbus azure create --app-id foci`"
         ),
-        "value": 300,
+        "value": 100,
         "type": "standard",
         "flag": "CUMULONIMBUS{F4m1ly_R3fr3sh_T0k3n_4bus3d}",
         "tags": ["Azure", "OAuth", "FOCI", "Refresh Token", "Device Code Phishing"],
@@ -119,7 +119,7 @@ CHALLENGES = [
             "to read their mail and escalate privileges.\n\n"
             "Deploy with: `cnimbus azure create --app-id illicit_consent_grant`"
         ),
-        "value": 250,
+        "value": 100,
         "type": "standard",
         "flag": "CUMULONIMBUS{1ll1c1t_C0ns3nt_Gr4nt3d}",
         "tags": ["Azure", "OAuth", "Phishing", "Consent Grant", "Graph API"],
@@ -138,7 +138,7 @@ CHALLENGES = [
             "a managed identity token, then use the token to read the flag from Key Vault.\n\n"
             "Deploy with: `cnimbus azure create --app-id shared_key_auth`"
         ),
-        "value": 350,
+        "value": 100,
         "type": "standard",
         "flag": "Cumulonimbus{SharedKeyAuthorizationShouldBeDisabled}",
         "tags": ["Azure", "Function App", "Storage", "Managed Identity", "Key Vault"],
@@ -176,7 +176,7 @@ CHALLENGES = [
             "under the /cumulonimbus/ prefix — including the flag.\n\n"
             "Deploy with: `cnimbus aws create --app-id secrets_manager_enum`"
         ),
-        "value": 200,
+        "value": 100,
         "type": "standard",
         "flag": "CUMULONIMBUS{S3cr3ts_M4n4g3r_0v3rp3rm1ss1v3}",
         "tags": ["AWS", "Secrets Manager", "IAM", "Misconfiguration"],
@@ -196,7 +196,7 @@ CHALLENGES = [
             "Download the state file and extract the credentials.\n\n"
             "Deploy with: `cnimbus azure create --app-id terraform_state_exposure`"
         ),
-        "value": 200,
+        "value": 100,
         "type": "standard",
         "flag": "CUMULONIMBUS{TF_St4t3_S3ns1t1v3_1s_N0t_3ncrypt3d}",
         "tags": ["Azure", "Terraform", "Storage", "Credentials in State", "Intermediate"],
@@ -234,7 +234,7 @@ CHALLENGES = [
             "all SecureString parameters — including the flag — can be decrypted inline.\n\n"
             "Deploy with: `cnimbus aws create --app-id ssm_parameter_store`"
         ),
-        "value": 200,
+        "value": 100,
         "type": "standard",
         "flag": "CUMULONIMBUS{SSM_P4r4m3t3r_P4th_W1ldcard}",
         "tags": ["AWS", "SSM", "Parameter Store", "IAM", "Secrets Management"],
@@ -253,7 +253,7 @@ CHALLENGES = [
             "deployments — including secrets that were never marked secure.\n\n"
             "Deploy with: `cnimbus azure create --app-id arm_deployment_history`"
         ),
-        "value": 200,
+        "value": 100,
         "type": "standard",
         "flag": "CUMULONIMBUS{4RM_D3pl0yment_H1st0ry_Pl41nt3xt}",
         "tags": ["Azure", "ARM", "Deployment History", "Credential Exposure"],
@@ -273,7 +273,7 @@ CHALLENGES = [
             "authenticate as the SP, and read the flag.\n\n"
             "Deploy with: `cnimbus azure create --app-id exposed_app_registration`"
         ),
-        "value": 200,
+        "value": 100,
         "type": "standard",
         "flag": "CUMULONIMBUS{3xp0s3d_4pp_R3g_Cl13nt_S3cr3t}",
         "tags": ["Azure", "App Registration", "Service Principal", "Credential Exposure"],
@@ -311,7 +311,7 @@ CHALLENGES = [
             "create a Lambda function that runs as the privileged role and reads the flag.\n\n"
             "Deploy with: `cnimbus aws create --app-id iam_privesc`"
         ),
-        "value": 400,
+        "value": 100,
         "type": "standard",
         "flag": "CUMULONIMBUS{1AM_Pass_R0l3_L4mbda_Pr1v3sc}",
         "tags": ["AWS", "IAM", "Lambda", "Privilege Escalation", "PassRole"],
@@ -331,7 +331,7 @@ CHALLENGES = [
             "Write a PowerShell runbook that queries IMDS for a token and reads the flag.\n\n"
             "Deploy with: `cnimbus azure create --app-id automation_account`"
         ),
-        "value": 250,
+        "value": 100,
         "type": "standard",
         "flag": "CUMULONIMBUS{Aut0m4t10n_Runb00k_M1_Abus3}",
         "tags": ["Azure", "Automation", "Managed Identity", "IMDS", "Runbook"],
@@ -351,7 +351,7 @@ CHALLENGES = [
             "OAuth token, and use it to read the flag from blob storage.\n\n"
             "Deploy with: `cnimbus azure create --app-id function_ssrf`"
         ),
-        "value": 250,
+        "value": 100,
         "type": "standard",
         "flag": "CUMULONIMBUS{Funct10n_SSRF_1MDS_T0k3n}",
         "tags": ["Azure", "Function App", "SSRF", "IMDS", "Managed Identity"],
@@ -370,7 +370,7 @@ CHALLENGES = [
             "Log in as the attacker, discover the vault, and read the flag secret.\n\n"
             "Deploy with: `cnimbus azure create --app-id keyvault_misconfig`"
         ),
-        "value": 200,
+        "value": 100,
         "type": "standard",
         "flag": "CUMULONIMBUS{K3yV4ult_4cc3ss_P0l1cy_T00_Br04d}",
         "tags": ["Azure", "Key Vault", "Access Policy", "Misconfiguration"],
@@ -410,7 +410,7 @@ CHALLENGES = [
             "and obtain a storage-scoped OAuth token, then read the flag.\n\n"
             "Deploy with: `cnimbus azure create --app-id managed_identity_abuse`"
         ),
-        "value": 250,
+        "value": 100,
         "type": "standard",
         "flag": "CUMULONIMBUS{M4n4g3d_1d3nt1ty_4bus3}",
         "tags": ["Azure", "Managed Identity", "IMDS", "VM", "Storage"],
@@ -465,7 +465,7 @@ CHALLENGES = [
             "parameter. Enumerate the roles, assume the misconfigured one, and read the flag.\n\n"
             "Deploy with: `cnimbus aws create --app-id sts_assume_role_any`"
         ),
-        "value": 200,
+        "value": 100,
         "type": "standard",
         "flag": "CUMULONIMBUS{STS_Assum3_R0l3_W1ldcard_Pr1ncipal}",
         "tags": ["AWS", "IAM", "STS", "Privilege Escalation"],
@@ -519,7 +519,7 @@ CHALLENGES = [
             "AWS credentials without any login, then use them to read the private S3 flag.\n\n"
             "Deploy with: `cnimbus aws create --app-id cognito_identity_pool`"
         ),
-        "value": 200,
+        "value": 100,
         "type": "standard",
         "flag": "CUMULONIMBUS{C0gn1t0_Un4uth_1d3nt1ty_AWS_Cr3ds}",
         "tags": ["AWS", "Cognito", "Identity", "S3", "Credential Abuse"],
@@ -537,7 +537,7 @@ CHALLENGES = [
             "retrieve the full workflow definition — including the Authorization header.\n\n"
             "Deploy with: `cnimbus azure create --app-id logic_app_credentials`"
         ),
-        "value": 200,
+        "value": 100,
         "type": "standard",
         "flag": "CUMULONIMBUS{L0g1c_App_H4rdcod3d_Cr3d3nt14ls}",
         "tags": ["Azure", "Logic App", "Secrets", "Integration"],
@@ -555,7 +555,7 @@ CHALLENGES = [
             "read a private blob containing the flag.\n\n"
             "Deploy with: `cnimbus azure create --app-id storage_account_keys`"
         ),
-        "value": 200,
+        "value": 100,
         "type": "standard",
         "flag": "CUMULONIMBUS{St0r4g3_Acc0unt_K3ys_Byp4ss_RBAC}",
         "tags": ["Azure", "Storage", "RBAC", "Privilege Escalation"],
@@ -609,7 +609,7 @@ CHALLENGES = [
             "on the VM as root — no SSH access needed. Read `/root/flag.txt` via RunCommand.\n\n"
             "Deploy with: `cnimbus azure create --app-id vm_run_command`"
         ),
-        "value": 200,
+        "value": 100,
         "type": "standard",
         "flag": "CUMULONIMBUS{VM_RunC0mm4nd_Arb1tr4ry_Exec}",
         "tags": ["Azure", "VM", "RunCommand", "Privilege Escalation"],
@@ -664,7 +664,7 @@ CHALLENGES = [
             "Read `/root/flag.txt`.\n\n"
             "Deploy with: `cnimbus aws create --app-id ssm_session_manager`"
         ),
-        "value": 200,
+        "value": 100,
         "type": "standard",
         "flag": "CUMULONIMBUS{SSM_S3ss10n_M4n4g3r_Sh3ll_4cc3ss}",
         "tags": ["AWS", "SSM", "EC2", "Lateral Movement"],
@@ -700,7 +700,7 @@ CHALLENGES = [
             "Find the subscription and extract the token from the webhook URL.\n\n"
             "Deploy with: `cnimbus azure create --app-id eventgrid_webhook_token`"
         ),
-        "value": 200,
+        "value": 100,
         "type": "standard",
         "flag": "CUMULONIMBUS{3v3ntGr1d_W3bh00k_T0k3n_3xp0s3d}",
         "tags": ["Azure", "Event Grid", "Webhook", "Secrets"],
@@ -738,7 +738,7 @@ CHALLENGES = [
             "execution and extract the flag.\n\n"
             "Deploy with: `cnimbus aws create --app-id stepfunctions_execution_history`"
         ),
-        "value": 200,
+        "value": 100,
         "type": "standard",
         "flag": "CUMULONIMBUS{St3pFunct10ns_3x3cut10n_H1st0ry_L34k}",
         "tags": ["AWS", "Step Functions", "Serverless", "Data Exposure"],
@@ -811,7 +811,7 @@ CHALLENGES = [
             "Use ECS Exec to open a shell inside the running container and read the flag from `/flag.txt`.\n\n"
             "Deploy with: `cnimbus aws create --app-id ecs_exec`"
         ),
-        "value": 200,
+        "value": 100,
         "type": "standard",
         "flag": "CUMULONIMBUS{ECS_3x3c_C0nt41n3r_Sh3ll}",
         "tags": ["AWS", "ECS", "Fargate", "Container", "ECS Exec"],
@@ -883,7 +883,7 @@ CHALLENGES = [
             "Read the shard from the beginning, decode the base64 record data, and retrieve the flag.\n\n"
             "Deploy with: `cnimbus aws create --app-id kinesis_shard_reader`"
         ),
-        "value": 200,
+        "value": 100,
         "type": "standard",
         "flag": "CUMULONIMBUS{K1n3s1s_Sh4rd_R3c0rd_L34k}",
         "tags": ["AWS", "Kinesis", "Streaming", "Data Exposure"],
@@ -991,7 +991,7 @@ CHALLENGES = [
             "Read the linked service definition to extract the embedded account key.\n\n"
             "Deploy with: `cnimbus azure create --app-id data_factory_linked_service`"
         ),
-        "value": 200,
+        "value": 100,
         "type": "standard",
         "flag": "CUMULONIMBUS{ADF_L1nk3d_S3rv1c3_Cl34rt3xt_K3y}",
         "tags": ["Azure", "Data Factory", "Linked Service", "Connection String", "Secrets"],

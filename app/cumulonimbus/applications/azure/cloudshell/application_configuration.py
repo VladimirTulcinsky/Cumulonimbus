@@ -14,10 +14,6 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
         Given parameters, this runs code that is required for each vulnerable application to run correctly.
         """
         pass
-
-    def get_difficulty(self):
-        return "Intermediate"
-
     def get_hints(self):
         return {
             1: "The storage account has a file share. List the shares and look for the .cloudconsole folder — it contains a Cloud Shell disk image.",

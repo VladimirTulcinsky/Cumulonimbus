@@ -4,10 +4,6 @@ from cumulonimbus.providers.base.application_configuration import ApplicationCon
 class ApplicationConfiguration(ApplicationConfigurationAbstract):
     def get_flag(self) -> str:
         return "CUMULONIMBUS{AP1M_N4m3d_V4lu3_Pl41nt3xt}"
-
-    def get_difficulty(self) -> str:
-        return "Beginner"
-
     def get_hints(self) -> dict:
         return {
             1: "Azure API Management uses Named Values to store configuration data. These can be plaintext or secret.",

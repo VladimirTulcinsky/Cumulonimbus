@@ -15,10 +15,6 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
         Given parameters, this runs code that is required for each vulnerable application to run correctly.
         """
         pass
-
-    def get_difficulty(self):
-        return "Advanced"
-
     def get_hints(self):
         return {
             1: "The user has Storage Account Contributor. This role exposes the account's shared key via az storage account keys list — use it to browse the storage containers.",

@@ -1,6 +1,6 @@
 # Exposed App Registration Client Secret
 
-**Difficulty:** Intermediate | **Provider:** Azure | **Category:** Identity / Credential Exposure
+**Provider:** Azure | **Category:** Identity / Credential Exposure
 
 ## Scenario
 

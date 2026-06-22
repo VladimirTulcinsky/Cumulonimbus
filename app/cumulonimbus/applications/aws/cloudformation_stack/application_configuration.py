@@ -10,10 +10,6 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
 
     def get_flag(self) -> str:
         return "CUMULONIMBUS{Cl0udF0rm4t10n_Outputs_Expos3_S3cr3ts}"
-
-    def get_difficulty(self) -> str:
-        return "Beginner"
-
     def get_hints(self) -> dict:
         return {
             1: "CloudFormation stacks can expose sensitive data. Try describing the stack that was deployed.",

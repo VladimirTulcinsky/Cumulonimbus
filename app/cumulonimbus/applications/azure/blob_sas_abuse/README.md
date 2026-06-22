@@ -1,6 +1,6 @@
 # Blob SAS Token Exposure
 
-**Difficulty:** Beginner | **Provider:** Azure | **Category:** Storage / Credential Exposure
+**Provider:** Azure | **Category:** Storage / Credential Exposure
 
 ## Scenario
 

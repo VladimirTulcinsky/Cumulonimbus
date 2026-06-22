@@ -1,6 +1,6 @@
 # EC2 User Data Secret Exposure
 
-**Difficulty:** Beginner | **Provider:** AWS | **Category:** Compute / Credential Exposure
+**Provider:** AWS | **Category:** Compute / Credential Exposure
 
 ## Scenario
 

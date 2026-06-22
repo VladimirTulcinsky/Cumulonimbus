@@ -11,10 +11,6 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
 
     def get_flag(self) -> str:
         return "CUMULONIMBUS{PolicyPrivEsc_DeployIfNotExists_OwnerRole}"
-
-    def get_difficulty(self) -> str:
-        return "Advanced"
-
     def get_hints(self) -> dict:
         return {
             1: "You have Resource Policy Contributor on the subscription. Enumerate existing policy assignments and check what roles their managed identities hold: `az policy assignment list` + `az role assignment list --all`.",

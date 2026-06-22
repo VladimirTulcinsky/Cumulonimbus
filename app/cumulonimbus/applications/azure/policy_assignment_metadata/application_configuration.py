@@ -4,10 +4,6 @@ from cumulonimbus.providers.base.application_configuration import ApplicationCon
 class ApplicationConfiguration(ApplicationConfigurationAbstract):
     def get_flag(self) -> str:
         return "CUMULONIMBUS{P0l1cy_M3t4d4t4_S3cr3t_3xp0s3d}"
-
-    def get_difficulty(self) -> str:
-        return "Beginner"
-
     def get_hints(self) -> dict:
         return {
             1: "Azure Policy assignments can include a free-form metadata field. This field is stored unencrypted and is readable by anyone with Reader access.",

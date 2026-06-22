@@ -1,6 +1,6 @@
 # Storage Account Public Access
 
-**Difficulty:** Beginner | **Provider:** Azure | **Category:** Storage Misconfiguration
+**Provider:** Azure | **Category:** Storage Misconfiguration
 
 ## Scenario
 

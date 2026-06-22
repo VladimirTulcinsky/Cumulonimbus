@@ -4,10 +4,6 @@ from cumulonimbus.providers.base.application_configuration import ApplicationCon
 class ApplicationConfiguration(ApplicationConfigurationAbstract):
     def get_flag(self) -> str:
         return "CUMULONIMBUS{R0ut353_TXT_R3c0rd_S3cr3ts}"
-
-    def get_difficulty(self) -> str:
-        return "Beginner"
-
     def get_hints(self) -> dict:
         return {
             1: "Route53 hosted zones can contain many record types. Some are used for verification or configuration purposes.",

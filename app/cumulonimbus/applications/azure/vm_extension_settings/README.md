@@ -1,6 +1,6 @@
 # VM Extension — Plaintext Settings in ARM
 
-**Difficulty:** Beginner | **Provider:** Azure | **Category:** Compute / Secrets
+**Provider:** Azure | **Category:** Compute / Secrets
 
 ## Scenario
 

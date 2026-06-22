@@ -10,10 +10,6 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
 
     def get_flag(self) -> str:
         return "CUMULONIMBUS{St3pFunct10ns_3x3cut10n_H1st0ry_L34k}"
-
-    def get_difficulty(self) -> str:
-        return "Intermediate"
-
     def get_hints(self) -> dict:
         return {
             1: "Step Functions stores the full input and output of every execution in its execution history. This history is readable by anyone with states:GetExecutionHistory.",

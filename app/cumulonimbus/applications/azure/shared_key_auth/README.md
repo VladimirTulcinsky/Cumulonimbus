@@ -1,6 +1,6 @@
 # Shared Key Authorization
 
-**Difficulty:** Advanced | **Provider:** Azure | **Category:** Storage / Function App / Key Vault
+**Provider:** Azure | **Category:** Storage / Function App / Key Vault
 
 ## Scenario
 

@@ -1,6 +1,6 @@
 # Container Instance — Plaintext Environment Variables
 
-**Difficulty:** Beginner | **Provider:** Azure | **Category:** Containers / Secrets
+**Provider:** Azure | **Category:** Containers / Secrets
 
 ## Scenario
 

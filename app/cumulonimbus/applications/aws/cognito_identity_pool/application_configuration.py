@@ -10,10 +10,6 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
 
     def get_flag(self) -> str:
         return "CUMULONIMBUS{C0gn1t0_Un4uth_1d3nt1ty_AWS_Cr3ds}"
-
-    def get_difficulty(self) -> str:
-        return "Intermediate"
-
     def get_hints(self) -> dict:
         return {
             1: "The Cognito Identity Pool allows unauthenticated (guest) identities. You can obtain temporary AWS credentials without any login.",

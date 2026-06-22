@@ -9,10 +9,6 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
     ]
     def configure_application(self, **kwargs):
         pass
-
-    def get_difficulty(self):
-        return "Beginner"
-
     def get_hints(self):
         return {
             1: "Enumerate S3 buckets with your IAM credentials: aws s3 ls. Then check whether any bucket is publicly accessible without authentication.",

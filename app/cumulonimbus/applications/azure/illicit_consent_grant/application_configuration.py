@@ -14,10 +14,6 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
         Given parameters, this runs code that is required for each vulnerable application to run correctly.
         """
         pass
-
-    def get_difficulty(self):
-        return "Intermediate"
-
     def get_hints(self):
         return {
             1: "Start the o365-attack-toolkit container and configure template.conf with the application ID and secret output by the lab. The tool generates a phishing URL.",

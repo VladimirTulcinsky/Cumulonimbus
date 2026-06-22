@@ -11,10 +11,6 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
     ]
     def configure_application(self, **kwargs):
         pass
-
-    def get_difficulty(self):
-        return "Beginner"
-
     def get_hints(self):
         return {
             1: "Browse to the web app endpoint and view the page source. Developers sometimes leave credentials in JavaScript files — check app.js.",

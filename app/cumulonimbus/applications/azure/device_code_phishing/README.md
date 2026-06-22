@@ -1,6 +1,6 @@
 # Device Code Phishing
 
-**Difficulty:** Beginner | **Provider:** Azure | **Category:** Identity / OAuth Phishing
+**Provider:** Azure | **Category:** Identity / OAuth Phishing
 
 ## Scenario
 

@@ -1,6 +1,6 @@
 # Automation Account Runbook Abuse
 
-**Difficulty:** Intermediate | **Provider:** Azure | **Category:** Automation / Managed Identity
+**Provider:** Azure | **Category:** Automation / Managed Identity
 
 ## Scenario
 

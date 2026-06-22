@@ -10,10 +10,6 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
 
     def get_flag(self) -> str:
         return "CUMULONIMBUS{L4mbd4_Funct10n_URL_N0_Auth}"
-
-    def get_difficulty(self) -> str:
-        return "Beginner"
-
     def get_hints(self) -> dict:
         return {
             1: "Lambda Function URLs can be configured with no authentication, making them publicly accessible. Try calling the URL directly.",

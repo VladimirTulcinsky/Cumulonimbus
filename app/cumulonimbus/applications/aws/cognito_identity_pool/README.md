@@ -1,6 +1,6 @@
 # Cognito Identity Pool — Unauthenticated Identity
 
-**Difficulty:** Intermediate | **Provider:** AWS | **Category:** Identity / Credential Abuse
+**Provider:** AWS | **Category:** Identity / Credential Abuse
 
 ## Scenario
 

@@ -15,10 +15,6 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
         Given parameters, this runs code that is required for each vulnerable application to run correctly.
         """
         pass
-
-    def get_difficulty(self):
-        return "Advanced"
-
     def get_hints(self):
         return {
             1: "After device code phishing, your refresh token is in msal_token_cache.json. A Family Refresh Token can be redeemed by any FOCI client — you are not limited to the Azure CLI client ID.",

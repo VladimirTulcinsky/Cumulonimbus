@@ -1,6 +1,6 @@
 # CodeBuild — Plaintext Environment Variables
 
-**Difficulty:** Beginner | **Provider:** AWS | **Category:** CI/CD / Secrets
+**Provider:** AWS | **Category:** CI/CD / Secrets
 
 ## Scenario
 
