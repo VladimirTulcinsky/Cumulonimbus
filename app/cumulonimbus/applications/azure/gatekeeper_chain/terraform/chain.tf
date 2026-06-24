@@ -35,6 +35,8 @@ locals {
 
   rg_name      = "cumulonimbus-${var.app_id}-${random_id.suffix.hex}"
   sa_name      = substr("cngkch${local.base}", 0, 24)
+  acr_name     = substr("cngkacr${local.base}", 0, 50)
+  image_ref    = "cumulonimbus/app:latest"
   apim_name    = substr("cngk-apim-${local.base}", 0, 50)
   appconf_name = substr("cngk-conf-${local.base}", 0, 50)
   aci_app_name = "cngk-app-${random_id.suffix.hex}"
@@ -44,10 +46,11 @@ locals {
   kv_name      = substr("cngkkv${local.base}", 0, 24)
   kv_secret    = "app-flag"
 
-  # Stage flags: the bootstrap token plus the *real* flags from the flat labs
+  # Stage flags: the bootstrap token plus the *real* flags from the scenarios
   # this lab consolidates. The final flag lives in the Key Vault (the one
   # submitted to CTFd).
   flag_bootstrap = "CUMULONIMBUS{g4t3k33p3r_b00tstr4p}"
+  flag_acr       = "CUMULONIMBUS{4CR_1m4g3_L4y3r_S3cr3t_Ch41n}"
   flag_apim      = "CUMULONIMBUS{AP1M_N4m3d_V4lu3_Pl41nt3xt}"
   flag_appconfig = "CUMULONIMBUS{App_C0nf1g_D4t4_R34d3r_Enum}"
   flag_container = "CUMULONIMBUS{C0nt41n3r_1nst4nc3_Pl41nt3xt_Env}"
@@ -57,16 +60,20 @@ locals {
   # Built-in role definition GUIDs (passed to `az role assignment create --role`).
   role_reader  = "acdd72a7-3385-48ef-bd42-f606fba81ae7"
   role_appconf = "516239f1-63e1-4d78-a4de-a74fb236a071"
+  role_acrpull = "7f951dda-4ed3-4680-a7ca-43fe172d538d"
   role_kv      = "4633458b-17de-408a-b874-0445c86b69e6"
 
-  # flag -> what the gatekeeper grants the attacker (scoped to the NEXT resource).
+  # flag -> what the gatekeeper grants the attacker (one or more roles, scoped to
+  # the NEXT resource). The ACR stage needs AcrPull (to pull) plus Reader (so
+  # `az acr login` can resolve the registry).
   unlocks = {
-    (local.flag_bootstrap) = { label = "Reader on the Container Instance", scope = azurerm_container_group.app.id, role = local.role_reader }
-    (local.flag_container) = { label = "Reader on the Data Factory", scope = azurerm_data_factory.adf.id, role = local.role_reader }
-    (local.flag_adf)       = { label = "App Configuration Data Reader", scope = azurerm_app_configuration.conf.id, role = local.role_appconf }
-    (local.flag_appconfig) = { label = "Reader on the Monitor action group", scope = azurerm_monitor_action_group.ag.id, role = local.role_reader }
-    (local.flag_monitor)   = { label = "Reader on the APIM service", scope = azurerm_api_management.apim.id, role = local.role_reader }
-    (local.flag_apim)      = { label = "Key Vault Secrets User", scope = azurerm_key_vault.chain.id, role = local.role_kv }
+    (local.flag_bootstrap) = { label = "AcrPull + Reader on the Container Registry", scope = azurerm_container_registry.acr.id, roles = [local.role_acrpull, local.role_reader] }
+    (local.flag_acr)       = { label = "Reader on the Container Instance", scope = azurerm_container_group.app.id, roles = [local.role_reader] }
+    (local.flag_container) = { label = "Reader on the Data Factory", scope = azurerm_data_factory.adf.id, roles = [local.role_reader] }
+    (local.flag_adf)       = { label = "App Configuration Data Reader", scope = azurerm_app_configuration.conf.id, roles = [local.role_appconf] }
+    (local.flag_appconfig) = { label = "Reader on the Monitor action group", scope = azurerm_monitor_action_group.ag.id, roles = [local.role_reader] }
+    (local.flag_monitor)   = { label = "Reader on the APIM service", scope = azurerm_api_management.apim.id, roles = [local.role_reader] }
+    (local.flag_apim)      = { label = "Key Vault Secrets User", scope = azurerm_key_vault.chain.id, roles = [local.role_kv] }
   }
 }
 
@@ -136,15 +143,18 @@ resource "azurerm_storage_blob" "welcome" {
 
     Resource group : ${local.rg_name}
 
-    Your bootstrap flag (submit it to the gatekeeper to gain Reader on the
-    Container Instance "${local.aci_app_name}"):
+    Your bootstrap flag (submit it to the gatekeeper to gain pull access to the
+    private container registry "${local.acr_name}"):
       ${local.flag_bootstrap}
 
     Submit a flag:
       curl -s -X POST <gatekeeper-url>/unlock -H 'Content-Type: application/json' -d '{"flag":"<flag>"}'
 
-    Then log in as the attacker and read the next stage. Each stage's value is
-    the flag that unlocks the following one.
+    Then log in as the attacker and pull the image to inspect it:
+      az acr login --name ${local.acr_name}
+      docker pull ${local.acr_name}.azurecr.io/${local.image_ref}
+
+    Each stage's value is the flag that unlocks the following one.
   EOF
 }
 

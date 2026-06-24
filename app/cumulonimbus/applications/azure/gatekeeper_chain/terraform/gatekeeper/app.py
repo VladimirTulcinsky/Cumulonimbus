@@ -25,13 +25,13 @@ def _login():
     return _az(cmd)
 
 
-def _grant(entry):
+def _grant_one(role, scope):
     args = [
         "role", "assignment", "create",
         "--assignee-object-id", PRINCIPAL_ID,
         "--assignee-principal-type", "User",
-        "--role", entry["role"],
-        "--scope", entry["scope"],
+        "--role", role,
+        "--scope", scope,
     ]
     res = _az(args)
     out = (res.stderr or "") + (res.stdout or "")
@@ -48,6 +48,20 @@ def _grant(entry):
     if "already exists" in out.lower() or "RoleAssignmentExists" in out:
         return "already-granted", ""
     return "error", out[:500]
+
+
+def _grant(entry):
+    # An unlock may grant one or more roles (all scoped to the same resource).
+    roles = entry.get("roles") or ([entry["role"]] if entry.get("role") else [])
+    statuses = []
+    for role in roles:
+        status, detail = _grant_one(role, entry["scope"])
+        if status == "error":
+            return "error", detail
+        statuses.append(status)
+    if statuses and all(s == "already-granted" for s in statuses):
+        return "already-granted", ""
+    return "granted", ""
 
 
 class Handler(BaseHTTPRequestHandler):

@@ -103,7 +103,7 @@ AZURE_LAB_INFO = {
     "gatekeeper_chain": {
         "name": "Gatekeeper Chain -- Flag-Gated RBAC Over the Plaintext-Credential Scenarios",
         "category": "Privilege Escalation / Chained",
-        "summary": "Consolidates the individual plaintext-credential scenarios into one flag-gated ladder. You start with no access; a self-service 'gatekeeper' app, backed by a privileged managed identity, grants you a real Azure role (scoped to one resource) each time you submit the previous stage's flag. The stages are the real scenarios: Container Instance env, Data Factory linked service, App Configuration, Monitor action group, APIM named value, ending at a Key Vault.",
+        "summary": "Consolidates the individual plaintext-credential scenarios into one flag-gated ladder. You start with no access; a self-service 'gatekeeper' app, backed by a privileged managed identity, grants you a real Azure role (scoped to one resource) each time you submit the previous stage's flag. The stages are the real scenarios: a private container registry image with secrets hidden in its layers, Container Instance env, Data Factory linked service, App Configuration, Monitor action group, APIM named value, ending at a Key Vault.",
         "objective": "Climb the flag-gated ladder through each plaintext-credential service by feeding every flag to the gatekeeper until you can read the Key Vault secret.",
     },
     "illicit_consent_grant": {
