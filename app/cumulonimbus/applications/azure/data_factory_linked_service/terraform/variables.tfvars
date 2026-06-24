@@ -1,7 +1,0 @@
-client_id          = ""
-client_secret      = ""
-tenant_id          = ""
-subscription_id    = ""
-attacker_public_ip = "0.0.0.0"
-app_id             = "data_factory_linked_service"
-app_name           = "cumulonimbus"
