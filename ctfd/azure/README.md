@@ -35,9 +35,11 @@ first.
 
 ## Deploy
 
-The easiest way is from the **Cumulonimbus shell**: choose *Start the CTFd
-scoreboard (Azure)*. It reuses your Azure login, prompts for the allowed CIDR and
-an admin password, generates an SSH key, and runs the Terraform below for you.
+The easiest way is from the **Cumulonimbus shell**: choose *Start / stop the CTFd
+scoreboard*. If none is deployed yet it offers to deploy one — reusing your Azure
+login, prompting for the allowed CIDR and an admin password, generating an SSH
+key, and running the Terraform below for you. Once it exists, the same option
+starts or stops (deallocates) the VM.
 
 To run it by hand instead:
 
