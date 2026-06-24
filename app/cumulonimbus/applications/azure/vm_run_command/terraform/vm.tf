@@ -12,8 +12,9 @@ resource "azurerm_resource_group" "rg" {
   name     = local.rg_name
   location = local.location
   tags = {
-    app_id  = var.app_id
-    managed = "terraform"
+    app_id       = var.app_id
+    managed      = "terraform"
+    cumulonimbus = "lab"
   }
 }
 
@@ -23,8 +24,9 @@ resource "azurerm_virtual_network" "vnet" {
   location            = local.location
   address_space       = ["10.0.0.0/16"]
   tags = {
-    app_id  = var.app_id
-    managed = "terraform"
+    app_id       = var.app_id
+    managed      = "terraform"
+    cumulonimbus = "lab"
   }
 }
 
@@ -47,8 +49,9 @@ resource "azurerm_network_interface" "nic" {
   }
 
   tags = {
-    app_id  = var.app_id
-    managed = "terraform"
+    app_id       = var.app_id
+    managed      = "terraform"
+    cumulonimbus = "lab"
   }
 }
 
@@ -88,8 +91,9 @@ resource "azurerm_linux_virtual_machine" "vm" {
   )
 
   tags = {
-    app_id  = var.app_id
-    managed = "terraform"
+    app_id       = var.app_id
+    managed      = "terraform"
+    cumulonimbus = "lab"
   }
 }
 

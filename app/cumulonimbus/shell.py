@@ -558,7 +558,7 @@ def _do_vm_power(provider):
     try:
         listing = subprocess.run(
             ["az", "vm", "list", "-d",
-             "--query", "[].{name:name,rg:resourceGroup,power:powerState}", "-o", "json"],
+             "--query", "[?tags.cumulonimbus].{name:name,rg:resourceGroup,power:powerState}", "-o", "json"],
             env=env, capture_output=True, text=True,
         )
         if listing.returncode != 0:
@@ -566,7 +566,7 @@ def _do_vm_power(provider):
             return
         vms = json.loads(listing.stdout or "[]")
         if not vms:
-            print("  No VMs found in the subscription.")
+            print("  No Cumulonimbus VMs found in the subscription.")
             return
         labels = [f"{v['name']}  ({v['rg']})  [{v.get('power', '?')}]" for v in vms]
         choice = _choose("Pick a VM", labels, allow_back=True)
