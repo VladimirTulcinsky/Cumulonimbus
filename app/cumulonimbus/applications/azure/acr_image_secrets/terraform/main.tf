@@ -36,8 +36,8 @@ provider "azuread" {
   tenant_id     = var.tenant_id
 }
 
-# Container Registry lives under this provider namespace. Registering it keeps
-# the lab self-contained on subscriptions where it has not been used yet.
-resource "azurerm_resource_provider_registration" "microsoft_containerregistry" {
-  name = "Microsoft.ContainerRegistry"
-}
+# NOTE: this lab does NOT manage the resource-provider registration.
+# `azurerm_resource_provider_registration` always tries to *create* the
+# registration and fails if Microsoft.ContainerRegistry is already registered
+# on the subscription (the common case). On a brand-new subscription, register
+# it once with: az provider register --namespace Microsoft.ContainerRegistry --wait

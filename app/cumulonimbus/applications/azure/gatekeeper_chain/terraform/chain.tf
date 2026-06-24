@@ -78,14 +78,6 @@ resource "azurerm_resource_group" "rg" {
     app_id  = var.app_id
     managed = "terraform"
   }
-
-  depends_on = [
-    azurerm_resource_provider_registration.microsoft_apimanagement,
-    azurerm_resource_provider_registration.microsoft_appconfiguration,
-    azurerm_resource_provider_registration.microsoft_containerinstance,
-    azurerm_resource_provider_registration.microsoft_datafactory,
-    azurerm_resource_provider_registration.microsoft_insights,
-  ]
 }
 
 # ── Attacker user — starts with NO role assignments at all ───────────────────
