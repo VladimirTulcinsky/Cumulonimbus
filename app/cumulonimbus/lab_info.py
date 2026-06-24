@@ -22,18 +22,6 @@ AZURE_LAB_INFO = {
         "summary": "A private Azure Container Registry has its admin account enabled, and those credentials were left in a resource's tags where any Reader can find them. The image they unlock was built carelessly, with a secret embedded in a layer and only 'deleted' later — so it still ships inside the image.",
         "objective": "Use the leaked registry admin credentials to pull the image, then recover the flag that hides in a deleted image layer (the obvious runtime config is a decoy).",
     },
-    "apim_named_value": {
-        "name": "APIM Named Value -- Plaintext Secret Exposure",
-        "category": "Credentials in Files",
-        "summary": "An Azure API Management instance stores a sensitive value as a Named Value that was never marked as a secret, leaving it readable in plaintext through the management API to anyone with basic Reader access.",
-        "objective": "Retrieve the flag stored as a plaintext Named Value in Azure API Management.",
-    },
-    "app_configuration_secrets": {
-        "name": "App Configuration -- Data Reader Enumeration",
-        "category": "Configuration / Secrets",
-        "summary": "A central Azure App Configuration store holds application settings and secrets, but the Data Reader role granted for runtime access lets any holder enumerate every key-value pair, including credentials meant only for the app.",
-        "objective": "Retrieve the flag by enumerating key-values in the App Configuration store using read access.",
-    },
     "app_service_env_vars": {
         "name": "App Service Environment Variables -- Secret Exposure",
         "category": "Web / Secrets",
@@ -69,18 +57,6 @@ AZURE_LAB_INFO = {
         "category": "Containers / Secrets",
         "summary": "An Azure Container App stores a sensitive value directly in its environment variables, which are exposed in the resource definition and visible to anyone with Reader access on the resource group.",
         "objective": "Read the Container App definition to find the flag stored in an environment variable.",
-    },
-    "container_instance_env": {
-        "name": "Container Instance -- Plaintext Environment Variables",
-        "category": "Containers / Secrets",
-        "summary": "An app on Azure Container Instances keeps secrets in non-secure environment variables. ACI returns these in plaintext via the ARM API, so any Reader on the resource group can read them without touching the container runtime.",
-        "objective": "Retrieve the flag from the container group's plaintext environment variables.",
-    },
-    "data_factory_linked_service": {
-        "name": "Data Factory Linked Service -- Cleartext Credentials",
-        "category": "Integration / Secrets",
-        "summary": "An Azure Data Factory linked service stores its connection string inline without Key Vault integration, leaving the embedded storage account key readable through the ARM API to any Reader.",
-        "objective": "Read the Data Factory linked service definition to extract the cleartext storage key in the connection string.",
     },
     "deployment_script": {
         "name": "Deployment Script -- Sensitive Data in Script Outputs",
@@ -154,12 +130,6 @@ AZURE_LAB_INFO = {
         "summary": "A VM has a managed identity with read access to a private storage account, and a low-privilege account holds a VM role that seems harmless but permits running arbitrary commands on the host, which exposes the identity token.",
         "objective": "Capture the flag by running commands on the VM to obtain its managed identity token and read a private blob.",
     },
-    "monitor_action_group": {
-        "name": "Monitor Action Group -- Webhook Token Exposure",
-        "category": "Monitoring / Secrets",
-        "summary": "An Azure Monitor Action Group is configured with a webhook receiver whose URL embeds an authentication token in plaintext. The token sits in the ARM resource definition where any Reader can see it.",
-        "objective": "Retrieve the flag by inspecting the Action Group webhook receiver URL for the embedded token.",
-    },
     "pass_the_prt": {
         "name": "Pass-the-PRT: Lateral Movement to the Cloud",
         "category": "Identity / PRT Abuse / MFA Bypass",
@@ -189,12 +159,6 @@ AZURE_LAB_INFO = {
         "category": "Storage Misconfiguration",
         "summary": "A production Azure Storage account has containers configured with anonymous public access at the container and blob levels. A publicly readable config file leaks the path to a sensitive blob meant to stay hidden.",
         "objective": "Capture the flag by enumerating the public storage account, following the leaked path, and fetching the hidden blob.",
-    },
-    "secrets_chain": {
-        "name": "Secrets Chain -- Sequential Plaintext Credential Path",
-        "category": "Credential Exposure / Chained",
-        "summary": "One sequential lab that consolidates the 'plaintext credentials in an Azure resource' scenarios into a single attack path. Starting from an anonymous web visitor, each leaked secret unlocks or names the next resource — a SAS token, a service principal, an App Configuration store, a Data Factory connection string, a Container Instance, and finally a Key Vault.",
-        "objective": "Follow the chain of leaked plaintext credentials from the public portal all the way to the Key Vault secret that holds the flag.",
     },
     "shared_key_auth": {
         "name": "Shared Key Authorization",

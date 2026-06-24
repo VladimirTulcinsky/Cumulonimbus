@@ -620,24 +620,6 @@ CHALLENGES = [
         ],
     },
     {
-        "name": "Container Instance — Plaintext Env Vars",
-        "category": "Containers",
-        "description": (
-            "An ACI container group stores a sensitive API key as a plain (non-secure) "
-            "environment variable. Any Reader can retrieve the full container definition "
-            "via ARM, including all non-secure environment variables.\n\n"
-            "Deploy with: `cnimbus azure create --app-id container_instance_env`"
-        ),
-        "value": 100,
-        "type": "standard",
-        "flag": "CUMULONIMBUS{C0nt41n3r_1nst4nc3_Pl41nt3xt_Env}",
-        "tags": ["Azure", "ACI", "Containers", "Secrets"],
-        "hints": [
-            {"content": "Use `az container show --name <name> --resource-group <rg>` to retrieve the container group definition.", "cost": 25},
-            {"content": "Look for `SECRET_FLAG` in the `environmentVariables` array — non-secure env vars are returned in plaintext by the ARM API.", "cost": 50},
-        ],
-    },
-    {
         "name": "Gatekeeper Chain — Flag-Gated RBAC Privilege Escalation",
         "category": "Privilege Escalation",
         "description": (
@@ -657,27 +639,6 @@ CHALLENGES = [
         "hints": [
             {"content": "Start unauthenticated: read the public welcome.txt blob for the bootstrap flag and the gatekeeper URL. Submit a flag with `curl -X POST <gatekeeper-url>/unlock -d '{\"flag\":\"...\"}'` — it grants your account a real role scoped to the next resource (wait 1-2 min for RBAC to propagate).", "cost": 25},
             {"content": "The ladder walks the real scenarios: APIM named value (`az apim nv show`) → App Configuration (`az appconfig kv list --auth-mode login`) → Container Instance env (`az container show`) → Data Factory linked service (`az datafactory linked-service show`) → Monitor action group (`az monitor action-group show`) → Key Vault (`az keyvault secret show`).", "cost": 50},
-        ],
-    },
-    {
-        "name": "Secrets Chain — Plaintext Credentials End to End",
-        "category": "Credential Exposure",
-        "description": (
-            "A sequential lab that strings the 'plaintext credentials in a resource' "
-            "scenarios into one attack path. Start as an anonymous visitor to a portal "
-            "website whose app.js leaks a SAS token, then follow each leaked secret to "
-            "the next resource: SAS → service principal → App Configuration → Data "
-            "Factory storage key → Container Instance → Key Vault. The flag is the Key "
-            "Vault secret at the end of the chain.\n\n"
-            "Deploy with: `cnimbus azure create --app-id secrets_chain`"
-        ),
-        "value": 100,
-        "type": "standard",
-        "flag": "CUMULONIMBUS{Pl41nt3xt_Cr3d_Ch41n_2_K3yV4ult}",
-        "tags": ["Azure", "Credential Exposure", "Chained", "SAS", "Key Vault"],
-        "hints": [
-            {"content": "Step 1 needs no credentials: read the portal website's app.js — it hardcodes a SAS token. Use it to list the account's containers and read the private 'onboarding' blob (service principal creds).", "cost": 25},
-            {"content": "After `az login --service-principal`, follow the trail: resource-group tag → App Configuration (`az appconfig kv list`) → Data Factory linked-service connection string (storage key) → private 'runtime' blob → Container Instance env vars → `az keyvault secret show`.", "cost": 50},
         ],
     },
     {
@@ -813,24 +774,6 @@ CHALLENGES = [
         ],
     },
     {
-        "name": "App Configuration — Data Reader Enumeration",
-        "category": "Configuration",
-        "description": (
-            "An Azure App Configuration store contains database credentials and an API key "
-            "alongside normal config. The attacker has App Configuration Data Reader and can "
-            "list all key-values in plaintext. Find the `secrets/api-key` entry.\n\n"
-            "Deploy with: `cnimbus azure create --app-id app_configuration_secrets`"
-        ),
-        "value": 100,
-        "type": "standard",
-        "flag": "CUMULONIMBUS{App_C0nf1g_D4t4_R34d3r_Enum}",
-        "tags": ["Azure", "App Configuration", "Secrets", "Enumeration"],
-        "hints": [
-            {"content": "Use `az appconfig kv list --name <store> --auth-mode login` to list all key-values.", "cost": 25},
-            {"content": "The flag is the value of the `secrets/api-key` key.", "cost": 50},
-        ],
-    },
-    {
         "name": "VM Extension — Plaintext Settings",
         "category": "Compute",
         "description": (
@@ -883,24 +826,6 @@ CHALLENGES = [
         "hints": [
             {"content": "Use `aws ecs list-clusters` then `aws ecs list-tasks --cluster <name>` to find the running task.", "cost": 25},
             {"content": "Run `aws ecs execute-command --cluster <name> --task <id> --container app --interactive --command 'cat /flag.txt'`.", "cost": 50},
-        ],
-    },
-    {
-        "name": "APIM Named Value",
-        "category": "API Management",
-        "description": (
-            "An Azure API Management instance has a Named Value stored in plaintext "
-            "(secret = false). The attacker has Reader on the resource group. "
-            "Read the Named Value to retrieve the flag.\n\n"
-            "Deploy with: `cnimbus azure create --app-id apim_named_value`"
-        ),
-        "value": 100,
-        "type": "standard",
-        "flag": "CUMULONIMBUS{AP1M_N4m3d_V4lu3_Pl41nt3xt}",
-        "tags": ["Azure", "API Management", "Named Value", "Secrets"],
-        "hints": [
-            {"content": "Use `az apim nv list --service-name <apim> --resource-group <rg>` to list Named Values.", "cost": 25},
-            {"content": "Run `az apim nv show --service-name <apim> --resource-group <rg> --named-value-id flag-key --query value -o tsv`.", "cost": 50},
         ],
     },
     {
@@ -1027,42 +952,6 @@ CHALLENGES = [
         "hints": [
             {"content": "Use `aws appconfig list-applications` then `aws appconfig list-configuration-profiles --application-id <id>`.", "cost": 25},
             {"content": "Run `aws appconfig get-hosted-configuration-version --application-id <id> --configuration-profile-id <id> --version-number 1 /tmp/config.json && cat /tmp/config.json`.", "cost": 50},
-        ],
-    },
-    {
-        "name": "Monitor Action Group",
-        "category": "Monitoring",
-        "description": (
-            "An Azure Monitor Action Group has a webhook receiver whose URL contains an embedded authentication token. "
-            "The attacker has Reader on the resource group. "
-            "Read the Action Group definition to find the token in the webhook URL.\n\n"
-            "Deploy with: `cnimbus azure create --app-id monitor_action_group`"
-        ),
-        "value": 100,
-        "type": "standard",
-        "flag": "CUMULONIMBUS{Monit0r_W3bh00k_T0k3n_3xp0s3d}",
-        "tags": ["Azure", "Monitor", "Action Group", "Webhook", "Secrets"],
-        "hints": [
-            {"content": "Use `az monitor action-group list --resource-group <rg>` to find the action group.", "cost": 25},
-            {"content": "Run `az monitor action-group show --name <name> --resource-group <rg> --query webhookReceivers` and look at the `serviceUri`.", "cost": 50},
-        ],
-    },
-    {
-        "name": "Data Factory Linked Service",
-        "category": "Integration",
-        "description": (
-            "An Azure Data Factory linked service stores a storage account connection string in cleartext — "
-            "without Key Vault integration. The attacker has Reader on the resource group. "
-            "Read the linked service definition to extract the embedded account key.\n\n"
-            "Deploy with: `cnimbus azure create --app-id data_factory_linked_service`"
-        ),
-        "value": 100,
-        "type": "standard",
-        "flag": "CUMULONIMBUS{ADF_L1nk3d_S3rv1c3_Cl34rt3xt_K3y}",
-        "tags": ["Azure", "Data Factory", "Linked Service", "Connection String", "Secrets"],
-        "hints": [
-            {"content": "Use `az datafactory linked-service list --factory-name <name> --resource-group <rg>` to list linked services.", "cost": 25},
-            {"content": "Run `az datafactory linked-service show --factory-name <name> --linked-service-name DataLakeConnection --resource-group <rg> --query 'properties.typeProperties.connectionString'`.", "cost": 50},
         ],
     },
 ]

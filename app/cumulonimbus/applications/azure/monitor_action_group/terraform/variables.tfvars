@@ -1,7 +1,0 @@
-client_id          = ""
-client_secret      = ""
-tenant_id          = ""
-subscription_id    = ""
-attacker_public_ip = "0.0.0.0"
-app_id             = "monitor_action_group"
-app_name           = "cumulonimbus"
