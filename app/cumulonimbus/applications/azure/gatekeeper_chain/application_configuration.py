@@ -16,8 +16,8 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
         return {
             1: "You start with NO Azure access. Begin unauthenticated: read the public 'welcome.txt' blob (URL is in the lab output) to get your bootstrap flag, the resource group, and the gatekeeper's URL.",
             2: "Submit a flag to the gatekeeper to be GRANTED real Azure access (scoped to exactly the next resource): `curl -X POST <gatekeeper-url>/unlock -H 'Content-Type: application/json' -d '{\"flag\":\"<flag>\"}'`. Wait 1-2 minutes for RBAC to propagate, then read the resource. Each stage's value is the flag that unlocks the next.",
-            3: "The ladder walks the real plaintext-credential scenarios in this order: Container Instance env (`az container show`) -> Data Factory linked service (`az datafactory linked-service show`) -> App Configuration (`az appconfig kv list --auth-mode login`) -> Monitor action group (`az monitor action-group show`) -> APIM named value (`az apim nv show ... --named-value-id flag-key`).",
-            4: "The final unlock grants Key Vault Secrets User. Read the secret: `az keyvault secret show --vault-name <kv> --name app-flag --query value -o tsv`. That value is the flag (the Key Vault name and secret are in the APIM `next-hop` named value).",
+            3: "The ladder walks the real plaintext-credential scenarios in this order: ACR image (pull from the registry and dig the secret out of an image layer) -> Container Instance env (`az container show`) -> Data Factory linked service (`az datafactory linked-service show`) -> App Configuration (`az appconfig kv list --auth-mode login`) -> Monitor action group (`az monitor action-group show`) -> APIM named value (`az apim nv show ... --named-value-id flag-key`).",
+            4: "For the ACR stage: `az acr login --name <acr>`, `docker pull <acr>.azurecr.io/cumulonimbus/app:latest`. The runtime file /app/config/app.config is a decoy; the real flag was written into a layer then deleted, so recover it with `docker history --no-trunc` or `docker save`. The final unlock grants Key Vault Secrets User: `az keyvault secret show --vault-name <kv> --name app-flag --query value -o tsv` (the vault name/secret are in the APIM `next-hop` named value).",
         }
 
     def configure_application(self, **kwargs):
@@ -37,11 +37,11 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
         print("plaintext-credential scenarios. You start with no access. Find a flag,")
         print("submit it to the gatekeeper, and it grants your account the next Azure")
         print("role (scoped to one resource) for real:")
-        print("  public blob -> Container Instance -> Data Factory -> App Configuration")
-        print("  -> Monitor action group -> APIM -> Key Vault")
+        print("  public blob -> ACR image -> Container Instance -> Data Factory")
+        print("  -> App Configuration -> Monitor action group -> APIM -> Key Vault")
         print("\nSubmit a flag:")
         print("  curl -s -X POST <gatekeeper-url>/unlock \\")
         print("       -H 'Content-Type: application/json' -d '{\"flag\":\"CUMULONIMBUS{...}\"}'")
-        print("\nNOTE: the gatekeeper may take a few minutes on first boot (it installs")
-        print("dependencies), and each granted role takes 1-2 minutes to propagate.")
+        print("\nNOTE: the gatekeeper takes a couple of minutes on first boot, and each")
+        print("granted role takes 1-2 minutes to propagate.")
         self.print_mitre_ttps()

