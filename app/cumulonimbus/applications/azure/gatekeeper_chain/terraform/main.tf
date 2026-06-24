@@ -43,3 +43,15 @@ resource "azurerm_resource_provider_registration" "microsoft_appconfiguration" {
 resource "azurerm_resource_provider_registration" "microsoft_containerinstance" {
   name = "Microsoft.ContainerInstance"
 }
+
+resource "azurerm_resource_provider_registration" "microsoft_apimanagement" {
+  name = "Microsoft.ApiManagement"
+}
+
+resource "azurerm_resource_provider_registration" "microsoft_datafactory" {
+  name = "Microsoft.DataFactory"
+}
+
+resource "azurerm_resource_provider_registration" "microsoft_insights" {
+  name = "microsoft.insights"
+}

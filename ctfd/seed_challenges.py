@@ -641,12 +641,13 @@ CHALLENGES = [
         "name": "Gatekeeper Chain — Flag-Gated RBAC Privilege Escalation",
         "category": "Privilege Escalation",
         "description": (
+            "Consolidates the plaintext-credential scenarios into one flag-gated ladder. "
             "You start with an Azure AD account that has no access to anything. A "
-            "self-service 'gatekeeper' app grants you a real Azure role each time you "
-            "submit a correct flag, and each new role unlocks the next resource where "
-            "the next flag hides. Climb the ladder — public blob → Reader → App "
-            "Configuration → Storage Blob → Key Vault — until you can read the Key "
-            "Vault secret.\n\n"
+            "self-service 'gatekeeper' app grants you a real Azure role (scoped to one "
+            "resource) each time you submit the previous stage's flag. Climb through the "
+            "real scenarios — public blob → APIM named value → App Configuration → "
+            "Container Instance → Data Factory → Monitor action group → Key Vault — "
+            "until you can read the Key Vault secret.\n\n"
             "Deploy with: `cnimbus azure create --app-id gatekeeper_chain`"
         ),
         "value": 100,
@@ -654,8 +655,8 @@ CHALLENGES = [
         "flag": "CUMULONIMBUS{G4t3k33p3r_RBAC_Pr1v3sc_Ch41n}",
         "tags": ["Azure", "Privilege Escalation", "Chained", "RBAC", "Key Vault"],
         "hints": [
-            {"content": "Start unauthenticated: read the public welcome.txt blob for the first flag and the gatekeeper URL. Submit a flag with `curl -X POST <gatekeeper-url>/unlock -d '{\"flag\":\"...\"}'` — it grants your account a real role (wait 1-2 min for RBAC to propagate).", "cost": 25},
-            {"content": "The ladder: flag0 → Reader (read resource-group tags) → App Configuration Data Reader (`az appconfig kv list --auth-mode login`) → Storage Blob Data Reader (read private vault-notes/notes.txt) → Key Vault Secrets User (`az keyvault secret show`).", "cost": 50},
+            {"content": "Start unauthenticated: read the public welcome.txt blob for the bootstrap flag and the gatekeeper URL. Submit a flag with `curl -X POST <gatekeeper-url>/unlock -d '{\"flag\":\"...\"}'` — it grants your account a real role scoped to the next resource (wait 1-2 min for RBAC to propagate).", "cost": 25},
+            {"content": "The ladder walks the real scenarios: APIM named value (`az apim nv show`) → App Configuration (`az appconfig kv list --auth-mode login`) → Container Instance env (`az container show`) → Data Factory linked service (`az datafactory linked-service show`) → Monitor action group (`az monitor action-group show`) → Key Vault (`az keyvault secret show`).", "cost": 50},
         ],
     },
     {

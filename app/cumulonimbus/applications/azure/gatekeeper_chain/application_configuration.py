@@ -14,10 +14,10 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
 
     def get_hints(self) -> dict:
         return {
-            1: "You start with NO Azure access. Begin unauthenticated: read the public 'welcome.txt' blob (URL is in the lab output) to get your first flag and the gatekeeper's URL.",
-            2: "Submit a flag to the gatekeeper to be GRANTED real Azure access: `curl -X POST <gatekeeper-url>/unlock -H 'Content-Type: application/json' -d '{\"flag\":\"<flag>\"}'`. Each correct flag adds a role to your account — wait 1-2 minutes for RBAC to propagate, then log in as the attacker.",
-            3: "The ladder: flag0 -> Reader (read resource-group tags for flag1) -> App Configuration Data Reader (`az appconfig kv list --auth-mode login` for flag2) -> Storage Blob Data Reader (read the private 'vault-notes/notes.txt' for flag3) -> Key Vault Secrets User.",
-            4: "After the final unlock, read the secret: `az keyvault secret show --vault-name <kv> --name app-flag --query value -o tsv`. That value is the flag.",
+            1: "You start with NO Azure access. Begin unauthenticated: read the public 'welcome.txt' blob (URL is in the lab output) to get your bootstrap flag, the resource group, and the gatekeeper's URL.",
+            2: "Submit a flag to the gatekeeper to be GRANTED real Azure access (scoped to exactly the next resource): `curl -X POST <gatekeeper-url>/unlock -H 'Content-Type: application/json' -d '{\"flag\":\"<flag>\"}'`. Wait 1-2 minutes for RBAC to propagate, then read the resource. Each stage's value is the flag that unlocks the next.",
+            3: "The ladder walks the real plaintext-credential scenarios: APIM named value (`az apim nv show ... --named-value-id flag-key`) -> App Configuration (`az appconfig kv list --auth-mode login`) -> Container Instance env (`az container show`) -> Data Factory linked service (`az datafactory linked-service show`) -> Monitor action group (`az monitor action-group show`).",
+            4: "The final unlock grants Key Vault Secrets User. Read the secret: `az keyvault secret show --vault-name <kv> --name app-flag --query value -o tsv`. That value is the flag (the Key Vault name and secret are in the Monitor action group's second webhook).",
         }
 
     def configure_application(self, **kwargs):
@@ -33,10 +33,12 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
         print(f"  Gatekeeper URL      : {output.get('gatekeeper_url', {}).get('value', 'N/A')}")
         print(f"  Gatekeeper IP       : {output.get('gatekeeper_ip', {}).get('value', 'N/A')}")
         print(f"  Start here          : {output.get('start_here', {}).get('value', 'N/A')}")
-        print("\nThis is a FLAG-GATED privilege-escalation ladder. You start with no")
-        print("access. Find a flag, submit it to the gatekeeper, and it grants your")
-        print("account the next Azure role for real:")
-        print("  public blob (flag) -> Reader -> App Configuration -> Blob -> Key Vault")
+        print("\nThis is a FLAG-GATED privilege-escalation ladder over the real")
+        print("plaintext-credential scenarios. You start with no access. Find a flag,")
+        print("submit it to the gatekeeper, and it grants your account the next Azure")
+        print("role (scoped to one resource) for real:")
+        print("  public blob -> APIM -> App Configuration -> Container Instance")
+        print("  -> Data Factory -> Monitor action group -> Key Vault")
         print("\nSubmit a flag:")
         print("  curl -s -X POST <gatekeeper-url>/unlock \\")
         print("       -H 'Content-Type: application/json' -d '{\"flag\":\"CUMULONIMBUS{...}\"}'")
