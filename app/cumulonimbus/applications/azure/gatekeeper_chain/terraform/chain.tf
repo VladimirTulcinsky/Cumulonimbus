@@ -243,8 +243,11 @@ resource "azurerm_container_group" "app" {
   restart_policy      = "Never"
 
   container {
-    name   = "app"
-    image  = "alpine:3.18"
+    name = "app"
+    # Microsoft Container Registry image (not Docker Hub) to avoid ACI's
+    # anonymous Docker Hub pull rate-limiting. The container only needs to exist
+    # so its env vars are readable via ARM; it is never exec'd by the player.
+    image  = "mcr.microsoft.com/cbl-mariner/base/core:2.0"
     cpu    = "0.5"
     memory = "0.5"
 
@@ -300,14 +303,17 @@ resource "azurerm_monitor_action_group" "ag" {
   resource_group_name = azurerm_resource_group.rg.name
   short_name          = "cnimbus"
 
+  # Azure rejects webhook URIs whose host does not publicly resolve
+  # (WebhookServiceUriBlocked), so these use example.com (IANA-reserved, always
+  # resolvable). The leaked token / pointer still lives in the URL.
   webhook_receiver {
     name        = "security-alerts"
-    service_uri = "https://webhook.cumulonimbus.local/alerts?token=${local.flag_monitor}"
+    service_uri = "https://example.com/alerts?token=${local.flag_monitor}"
   }
 
   webhook_receiver {
     name        = "apim-pointer"
-    service_uri = "https://notes.cumulonimbus.local/?next=apim&service=${local.apim_name}&namedValue=flag-key"
+    service_uri = "https://example.com/notes?next=apim&service=${local.apim_name}&namedValue=flag-key"
   }
 
   tags = {
