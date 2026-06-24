@@ -36,22 +36,13 @@ provider "azuread" {
   tenant_id     = var.tenant_id
 }
 
-resource "azurerm_resource_provider_registration" "microsoft_appconfiguration" {
-  name = "Microsoft.AppConfiguration"
-}
+# NOTE: this lab does NOT manage resource-provider registrations. azurerm's
+# `azurerm_resource_provider_registration` always tries to *create* the
+# registration and fails if the provider is already registered on the
+# subscription (the common case). The providers used here
+# (Microsoft.AppConfiguration, ContainerInstance, ApiManagement, DataFactory,
+# microsoft.insights, KeyVault, Storage) are registered on any subscription
+# that has used these services. On a brand-new subscription, register the few
+# that are missing once with, e.g.:
+#   az provider register --namespace Microsoft.ApiManagement --wait
 
-resource "azurerm_resource_provider_registration" "microsoft_containerinstance" {
-  name = "Microsoft.ContainerInstance"
-}
-
-resource "azurerm_resource_provider_registration" "microsoft_apimanagement" {
-  name = "Microsoft.ApiManagement"
-}
-
-resource "azurerm_resource_provider_registration" "microsoft_datafactory" {
-  name = "Microsoft.DataFactory"
-}
-
-resource "azurerm_resource_provider_registration" "microsoft_insights" {
-  name = "microsoft.insights"
-}
