@@ -638,6 +638,27 @@ CHALLENGES = [
         ],
     },
     {
+        "name": "Gatekeeper Chain — Flag-Gated RBAC Privilege Escalation",
+        "category": "Privilege Escalation",
+        "description": (
+            "You start with an Azure AD account that has no access to anything. A "
+            "self-service 'gatekeeper' app grants you a real Azure role each time you "
+            "submit a correct flag, and each new role unlocks the next resource where "
+            "the next flag hides. Climb the ladder — public blob → Reader → App "
+            "Configuration → Storage Blob → Key Vault — until you can read the Key "
+            "Vault secret.\n\n"
+            "Deploy with: `cnimbus azure create --app-id gatekeeper_chain`"
+        ),
+        "value": 100,
+        "type": "standard",
+        "flag": "CUMULONIMBUS{G4t3k33p3r_RBAC_Pr1v3sc_Ch41n}",
+        "tags": ["Azure", "Privilege Escalation", "Chained", "RBAC", "Key Vault"],
+        "hints": [
+            {"content": "Start unauthenticated: read the public welcome.txt blob for the first flag and the gatekeeper URL. Submit a flag with `curl -X POST <gatekeeper-url>/unlock -d '{\"flag\":\"...\"}'` — it grants your account a real role (wait 1-2 min for RBAC to propagate).", "cost": 25},
+            {"content": "The ladder: flag0 → Reader (read resource-group tags) → App Configuration Data Reader (`az appconfig kv list --auth-mode login`) → Storage Blob Data Reader (read private vault-notes/notes.txt) → Key Vault Secrets User (`az keyvault secret show`).", "cost": 50},
+        ],
+    },
+    {
         "name": "Secrets Chain — Plaintext Credentials End to End",
         "category": "Credential Exposure",
         "description": (

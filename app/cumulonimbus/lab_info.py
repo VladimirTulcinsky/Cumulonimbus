@@ -124,6 +124,12 @@ AZURE_LAB_INFO = {
         "summary": "An Azure Function App exposes an HTTP endpoint that fetches arbitrary user-supplied URLs without validation. The function carries a managed identity with access to a private storage account, turning the SSRF into a credential-theft path.",
         "objective": "Capture the flag by abusing the server-side request forgery to obtain a managed identity token and read a private blob.",
     },
+    "gatekeeper_chain": {
+        "name": "Gatekeeper Chain -- Flag-Gated RBAC Privilege Escalation",
+        "category": "Privilege Escalation / Chained",
+        "summary": "You start with an account that has no access to anything. A self-service 'gatekeeper' app, backed by a privileged managed identity, grants you a real Azure role each time you submit a correct flag. Every new role unlocks one more resource where the next flag hides — a ladder from a public blob up to a Key Vault.",
+        "objective": "Climb the flag-gated RBAC ladder (Reader, App Configuration, Storage Blob, Key Vault) by feeding each flag to the gatekeeper until you can read the Key Vault secret.",
+    },
     "illicit_consent_grant": {
         "name": "Illicit Consent Grant",
         "category": "Identity / OAuth Phishing",
