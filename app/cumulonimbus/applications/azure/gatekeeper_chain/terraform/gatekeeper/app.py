@@ -1,92 +1,103 @@
 import json
 import os
-import uuid
+import subprocess
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+from urllib.parse import parse_qs
 
-import requests
-from azure.identity import ManagedIdentityCredential
-from flask import Flask, jsonify, request
-
-app = Flask(__name__)
-
-# Map of flag -> {label, scope, roleDefinitionId}. Injected as a SECURE env var
-# so it is never returned by the ARM control plane (a player with Reader must
-# not be able to read the flags off the container and skip ahead).
+# Map of flag -> {label, scope, role}. Injected as a SECURE env var so the flags
+# are never returned by the ARM control plane.
 UNLOCKS = json.loads(os.environ.get("UNLOCKS_JSON", "{}"))
 PRINCIPAL_ID = os.environ["ATTACKER_PRINCIPAL_ID"]
-MI_CLIENT_ID = os.environ.get("MI_CLIENT_ID") or None
-ARM = "https://management.azure.com"
-
-_cred = ManagedIdentityCredential(client_id=MI_CLIENT_ID) if MI_CLIENT_ID else ManagedIdentityCredential()
+MI_CLIENT_ID = os.environ.get("MI_CLIENT_ID", "")
 
 
-def _arm_token():
-    return _cred.get_token(f"{ARM}/.default").token
-
-
-def _extract_flag():
-    if request.is_json:
-        return (request.get_json(silent=True) or {}).get("flag", "")
-    return request.form.get("flag") or request.args.get("flag") or ""
-
-
-@app.route("/")
-def index():
-    body = (
-        "Cumulonimbus Gatekeeper\n"
-        "=======================\n"
-        "Submit a flag you have found to unlock the next level of access:\n\n"
-        "  curl -s -X POST <this-url>/unlock \\\n"
-        "       -H 'Content-Type: application/json' \\\n"
-        "       -d '{\"flag\":\"CUMULONIMBUS{...}\"}'\n\n"
-        "A correct flag grants your account a new Azure role. RBAC takes a\n"
-        "minute or two to propagate before the new access works.\n"
-    )
-    return body, 200, {"Content-Type": "text/plain"}
-
-
-@app.route("/unlock", methods=["POST", "GET"])
-def unlock():
-    flag = (_extract_flag() or "").strip()
-    entry = UNLOCKS.get(flag)
-    if not entry:
-        return jsonify({"status": "denied", "message": "Incorrect or unknown flag."}), 403
-
-    try:
-        token = _arm_token()
-    except Exception as exc:  # noqa: BLE001
-        return jsonify({"status": "error", "message": f"token acquisition failed: {exc}"}), 500
-
-    ra_id = str(uuid.uuid4())
-    url = (
-        f"{ARM}{entry['scope']}/providers/Microsoft.Authorization/"
-        f"roleAssignments/{ra_id}?api-version=2022-04-01"
-    )
-    payload = {
-        "properties": {
-            "roleDefinitionId": entry["roleDefinitionId"],
-            "principalId": PRINCIPAL_ID,
-            "principalType": "User",
-        }
-    }
-    resp = requests.put(
-        url,
-        headers={"Authorization": f"Bearer {token}", "Content-Type": "application/json"},
-        json=payload,
-        timeout=30,
+def _az(args):
+    return subprocess.run(
+        ["az"] + args + ["--only-show-errors", "-o", "json"],
+        capture_output=True, text=True,
     )
 
-    if resp.status_code in (200, 201):
-        return jsonify(
-            {
-                "status": "granted",
-                "unlocked": entry["label"],
-                "note": "Access granted. RBAC can take 1-2 minutes to propagate before it works.",
-            }
-        )
-    if resp.status_code == 409 or "RoleAssignmentExists" in resp.text:
-        return jsonify({"status": "already-granted", "unlocked": entry["label"]})
-    return jsonify({"status": "error", "code": resp.status_code, "detail": resp.text[:500]}), 502
+
+def _login():
+    cmd = ["login", "--identity"]
+    if MI_CLIENT_ID:
+        cmd += ["--username", MI_CLIENT_ID]
+    return _az(cmd)
+
+
+def _grant(entry):
+    args = [
+        "role", "assignment", "create",
+        "--assignee-object-id", PRINCIPAL_ID,
+        "--assignee-principal-type", "User",
+        "--role", entry["role"],
+        "--scope", entry["scope"],
+    ]
+    res = _az(args)
+    out = (res.stderr or "") + (res.stdout or "")
+    if res.returncode == 0:
+        return "granted", ""
+    if "already exists" in out.lower() or "RoleAssignmentExists" in out:
+        return "already-granted", ""
+    # Token may have lapsed — re-login once and retry.
+    _login()
+    res = _az(args)
+    out = (res.stderr or "") + (res.stdout or "")
+    if res.returncode == 0:
+        return "granted", ""
+    if "already exists" in out.lower() or "RoleAssignmentExists" in out:
+        return "already-granted", ""
+    return "error", out[:500]
+
+
+class Handler(BaseHTTPRequestHandler):
+    def _send(self, code, obj):
+        data = json.dumps(obj).encode()
+        self.send_response(code)
+        self.send_header("Content-Type", "application/json")
+        self.send_header("Content-Length", str(len(data)))
+        self.end_headers()
+        self.wfile.write(data)
+
+    def do_GET(self):
+        self._send(200, {
+            "service": "Cumulonimbus Gatekeeper",
+            "usage": "POST /unlock with JSON {\"flag\": \"CUMULONIMBUS{...}\"}",
+            "note": "A correct flag grants your account a real Azure role. RBAC takes 1-2 minutes to propagate.",
+        })
+
+    def do_POST(self):
+        if not self.path.startswith("/unlock"):
+            self._send(404, {"status": "not-found"})
+            return
+        length = int(self.headers.get("Content-Length", 0) or 0)
+        raw = self.rfile.read(length).decode() if length else ""
+        flag = ""
+        if raw:
+            try:
+                flag = (json.loads(raw) or {}).get("flag", "")
+            except Exception:
+                flag = parse_qs(raw).get("flag", [""])[0]
+        flag = (flag or "").strip()
+
+        entry = UNLOCKS.get(flag)
+        if not entry:
+            self._send(403, {"status": "denied", "message": "Incorrect or unknown flag."})
+            return
+
+        status, detail = _grant(entry)
+        if status == "granted":
+            self._send(200, {"status": "granted", "unlocked": entry["label"],
+                             "note": "Access granted. RBAC can take 1-2 minutes to propagate before it works."})
+        elif status == "already-granted":
+            self._send(200, {"status": "already-granted", "unlocked": entry["label"]})
+        else:
+            self._send(502, {"status": "error", "detail": detail})
+
+    def log_message(self, *args):
+        pass
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=80)
+    _login()
+    ThreadingHTTPServer(("0.0.0.0", 80), Handler).serve_forever()
