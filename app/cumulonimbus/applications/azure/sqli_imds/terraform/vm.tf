@@ -77,6 +77,10 @@ resource "azurerm_linux_virtual_machine" "sqli_imds" {
 
   network_interface_ids = [azurerm_network_interface.sqli_imds.id]
 
+  tags = {
+    cumulonimbus = "lab"
+  }
+
   admin_ssh_key {
     username   = "azureuser"
     public_key = file("./../../../../.data/.ssh/${var.app_id}.pub")

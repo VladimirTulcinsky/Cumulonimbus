@@ -76,6 +76,10 @@ resource "azurerm_windows_virtual_machine" "ptp" {
   admin_password        = random_password.attacker.result
   network_interface_ids = [azurerm_network_interface.ptp.id]
 
+  tags = {
+    cumulonimbus = "lab"
+  }
+
   os_disk {
     caching              = "ReadWrite"
     storage_account_type = "Premium_LRS"
