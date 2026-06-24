@@ -184,6 +184,12 @@ AZURE_LAB_INFO = {
         "summary": "A production Azure Storage account has containers configured with anonymous public access at the container and blob levels. A publicly readable config file leaks the path to a sensitive blob meant to stay hidden.",
         "objective": "Capture the flag by enumerating the public storage account, following the leaked path, and fetching the hidden blob.",
     },
+    "secrets_chain": {
+        "name": "Secrets Chain -- Sequential Plaintext Credential Path",
+        "category": "Credential Exposure / Chained",
+        "summary": "One sequential lab that consolidates the 'plaintext credentials in an Azure resource' scenarios into a single attack path. Starting from an anonymous web visitor, each leaked secret unlocks or names the next resource — a SAS token, a service principal, an App Configuration store, a Data Factory connection string, a Container Instance, and finally a Key Vault.",
+        "objective": "Follow the chain of leaked plaintext credentials from the public portal all the way to the Key Vault secret that holds the flag.",
+    },
     "shared_key_auth": {
         "name": "Shared Key Authorization",
         "category": "Storage / Function App / Key Vault",

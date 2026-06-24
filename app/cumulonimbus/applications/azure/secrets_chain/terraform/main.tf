@@ -1,0 +1,51 @@
+terraform {
+  required_providers {
+    azurerm = {
+      source  = "hashicorp/azurerm"
+      version = "~> 3.116"
+    }
+    azuread = {
+      source  = "hashicorp/azuread"
+      version = "~> 2.40"
+    }
+    random = {
+      source  = "hashicorp/random"
+      version = "3.5.1"
+    }
+    time = {
+      source  = "hashicorp/time"
+      version = "~> 0.9"
+    }
+  }
+}
+
+provider "azurerm" {
+  features {}
+
+  skip_provider_registration = true
+
+  subscription_id = var.subscription_id
+  client_id       = var.client_id
+  client_secret   = var.client_secret
+  tenant_id       = var.tenant_id
+}
+
+provider "azuread" {
+  client_id     = var.client_id
+  client_secret = var.client_secret
+  tenant_id     = var.tenant_id
+}
+
+# The chain walks through several resource namespaces. Register the ones that
+# may not be enabled yet on a fresh subscription so the lab is self-contained.
+resource "azurerm_resource_provider_registration" "microsoft_appconfiguration" {
+  name = "Microsoft.AppConfiguration"
+}
+
+resource "azurerm_resource_provider_registration" "microsoft_datafactory" {
+  name = "Microsoft.DataFactory"
+}
+
+resource "azurerm_resource_provider_registration" "microsoft_containerinstance" {
+  name = "Microsoft.ContainerInstance"
+}

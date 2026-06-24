@@ -638,6 +638,27 @@ CHALLENGES = [
         ],
     },
     {
+        "name": "Secrets Chain — Plaintext Credentials End to End",
+        "category": "Credential Exposure",
+        "description": (
+            "A sequential lab that strings the 'plaintext credentials in a resource' "
+            "scenarios into one attack path. Start as an anonymous visitor to a portal "
+            "website whose app.js leaks a SAS token, then follow each leaked secret to "
+            "the next resource: SAS → service principal → App Configuration → Data "
+            "Factory storage key → Container Instance → Key Vault. The flag is the Key "
+            "Vault secret at the end of the chain.\n\n"
+            "Deploy with: `cnimbus azure create --app-id secrets_chain`"
+        ),
+        "value": 100,
+        "type": "standard",
+        "flag": "CUMULONIMBUS{Pl41nt3xt_Cr3d_Ch41n_2_K3yV4ult}",
+        "tags": ["Azure", "Credential Exposure", "Chained", "SAS", "Key Vault"],
+        "hints": [
+            {"content": "Step 1 needs no credentials: read the portal website's app.js — it hardcodes a SAS token. Use it to list the account's containers and read the private 'onboarding' blob (service principal creds).", "cost": 25},
+            {"content": "After `az login --service-principal`, follow the trail: resource-group tag → App Configuration (`az appconfig kv list`) → Data Factory linked-service connection string (storage key) → private 'runtime' blob → Container Instance env vars → `az keyvault secret show`.", "cost": 50},
+        ],
+    },
+    {
         "name": "ACR Image Secrets — Leaked Admin Creds",
         "category": "Containers",
         "description": (
