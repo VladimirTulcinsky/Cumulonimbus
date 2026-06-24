@@ -11,7 +11,6 @@ one tenant/account without their resources colliding.
 
 import getpass
 import ipaddress
-import json
 import os
 import shutil
 import subprocess
@@ -210,7 +209,7 @@ def _do_create(provider):
     print(f"\nStarting '{app_id}'{namespacing}. This provisions real cloud "
           "infrastructure and may incur charges.")
     print("Note: any VM in this lab auto-shuts down (deallocates) daily at 23:59 "
-          "UTC to limit cost; use 'Start / stop a lab VM' to bring it back up.")
+          "UTC to limit cost; restart it with `az vm start` if you need it again.")
     if not _confirm("Continue?", default=True):
         print("Cancelled.")
         return
@@ -328,7 +327,7 @@ def _ensure_ctfd_ssh_key():
         return f.read().strip(), None
 
 
-def _do_ctfd(provider):
+def _deploy_ctfd(provider):
     """Deploy the persistent, shared CTFd scoreboard on Azure — a singleton VM
     created by the ctfd/azure Terraform that stays up independently of this
     container. (There is no local docker-compose option anymore.)"""
@@ -538,9 +537,9 @@ def _az_sp_login(env):
     return None
 
 
-def _do_vm_power(provider):
-    """Start or stop (deallocate) a lab VM. Lab VMs auto-deallocate daily at
-    23:59 UTC to save cost; use this to start one back up, or stop one early."""
+def _do_ctfd(provider):
+    """Start or stop the CTFd scoreboard VM (the singleton in resource group
+    cumulonimbus-ctfd). If it isn't deployed yet, offer to deploy it."""
     print()
     if not os.environ.get("AZURE_CLIENT_ID"):
         print("  Authenticate to Azure first (the Authenticate menu option).")
@@ -549,31 +548,26 @@ def _do_vm_power(provider):
         print("  The Azure CLI (az) was not found.")
         return
 
-    print("  Reminder: lab VMs auto-shut down (deallocate) every day at 23:59 UTC.")
     env = _az_sp_env()
     err = _az_sp_login(env)
     if err:
         print(f"  az login failed: {err}")
         return
     try:
-        listing = subprocess.run(
-            ["az", "vm", "list", "-d",
-             "--query", "[?tags.cumulonimbus].{name:name,rg:resourceGroup,power:powerState}", "-o", "json"],
+        show = subprocess.run(
+            ["az", "vm", "show", "-d", "-g", _CTFD_RG, "-n", "ctfd-vm",
+             "--query", "powerState", "-o", "tsv"],
             env=env, capture_output=True, text=True,
         )
-        if listing.returncode != 0:
-            print("  Could not list VMs: " + (listing.stderr or "").strip())
+        if show.returncode != 0:
+            print("  No CTFd scoreboard is deployed yet.")
+            if _confirm("Deploy one now?", default=True):
+                _deploy_ctfd(provider)
             return
-        vms = json.loads(listing.stdout or "[]")
-        if not vms:
-            print("  No Cumulonimbus VMs found in the subscription.")
-            return
-        labels = [f"{v['name']}  ({v['rg']})  [{v.get('power', '?')}]" for v in vms]
-        choice = _choose("Pick a VM", labels, allow_back=True)
-        if choice is None:
-            return
-        vm = vms[labels.index(choice)]
-        action = _choose(f"{vm['name']} — action?",
+
+        power = (show.stdout or "").strip() or "unknown"
+        print(f"  CTFd scoreboard is currently: {power}")
+        action = _choose("Action",
                          ["Start", "Stop (deallocate — stops compute billing)"],
                          allow_back=True)
         if action is None:
@@ -582,14 +576,14 @@ def _do_vm_power(provider):
             cmd, verb = ["az", "vm", "start"], "Starting"
         else:
             cmd, verb = ["az", "vm", "deallocate"], "Deallocating"
-        cmd += ["-g", vm["rg"], "-n", vm["name"]]
-        print(f"  {verb} {vm['name']} … (this can take a minute)")
+        cmd += ["-g", _CTFD_RG, "-n", "ctfd-vm"]
+        print(f"  {verb} the CTFd scoreboard … (this can take a minute)")
         result = subprocess.run(cmd, env=env, stdout=subprocess.DEVNULL,
                                 stderr=subprocess.PIPE, text=True)
         if result.returncode != 0:
             print("  Failed: " + (result.stderr or "").strip())
         else:
-            print("  Done.")
+            print("  Done. (Started VMs are billed; deallocate when not in use.)")
     finally:
         try:
             subprocess.run(["az", "logout"], env=env,
@@ -618,9 +612,8 @@ _ACTIONS = [
     ("Get a hint", _do_hint),
     ("Submit a flag", _do_validate),
     ("Browse labs / get lab info", _do_list),
-    ("Start the CTFd scoreboard (Azure)", _do_ctfd),
+    ("Start / stop the CTFd scoreboard", _do_ctfd),
     ("Set CTFd scoreboard access (CIDR)", _do_ctfd_cidr),
-    ("Start / stop a lab VM", _do_vm_power),
     ("Destroy a lab", _do_destroy),
     ("Set / change my session name", _do_session_name),
 ]
