@@ -109,14 +109,14 @@ resource "azurerm_role_assignment" "attacker_vm_contributor" {
   principal_id         = azuread_user.attacker.object_id
 }
 
-# Cost control: auto-deallocate this VM daily (Azure stops compute billing
+# Cost control: auto-deallocate this VM daily at 23:59 UTC (Azure stops compute billing
 # when a VM is deallocated). Change daily_recurrence_time/timezone to suit;
 # restart the VM from the portal or `az vm start` when you need it again.
 resource "azurerm_dev_test_global_vm_shutdown_schedule" "vm" {
   virtual_machine_id    = azurerm_linux_virtual_machine.vm.id
   location              = azurerm_linux_virtual_machine.vm.location
   enabled               = true
-  daily_recurrence_time = "1900"
+  daily_recurrence_time = "2359"
   timezone              = "UTC"
 
   notification_settings {

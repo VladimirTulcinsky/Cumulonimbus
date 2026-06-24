@@ -75,14 +75,14 @@ resource "azurerm_role_assignment" "mi_storage_reader" {
   principal_id         = azurerm_linux_virtual_machine.managed_identity_abuse.identity[0].principal_id
 }
 
-# Cost control: auto-deallocate this VM daily (Azure stops compute billing
+# Cost control: auto-deallocate this VM daily at 23:59 UTC (Azure stops compute billing
 # when a VM is deallocated). Change daily_recurrence_time/timezone to suit;
 # restart the VM from the portal or `az vm start` when you need it again.
 resource "azurerm_dev_test_global_vm_shutdown_schedule" "managed_identity_abuse" {
   virtual_machine_id    = azurerm_linux_virtual_machine.managed_identity_abuse.id
   location              = azurerm_linux_virtual_machine.managed_identity_abuse.location
   enabled               = true
-  daily_recurrence_time = "1900"
+  daily_recurrence_time = "2359"
   timezone              = "UTC"
 
   notification_settings {

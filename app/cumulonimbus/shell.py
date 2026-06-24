@@ -11,6 +11,7 @@ one tenant/account without their resources colliding.
 
 import getpass
 import ipaddress
+import json
 import os
 import shutil
 import subprocess
@@ -208,6 +209,8 @@ def _do_create(provider):
     namespacing = f" (namespaced as '{suffix}')" if suffix else ""
     print(f"\nStarting '{app_id}'{namespacing}. This provisions real cloud "
           "infrastructure and may incur charges.")
+    print("Note: any VM in this lab auto-shuts down (deallocates) daily at 23:59 "
+          "UTC to limit cost; use 'Start / stop a lab VM' to bring it back up.")
     if not _confirm("Continue?", default=True):
         print("Cancelled.")
         return
@@ -505,6 +508,96 @@ def _apply_ctfd_nsg_cidr(cidr):
             pass
 
 
+def _az_sp_env():
+    """A copy of the environment pointing az at an isolated config dir, so admin
+    actions here don't disturb any `az login` you use for a lab."""
+    env = os.environ.copy()
+    env["AZURE_CONFIG_DIR"] = os.path.join(global_variables.ROOT_DIR, ".data", ".azure-admin")
+    return env
+
+
+def _az_sp_login(env):
+    """Log az in as the configured service principal. Returns an error string, or
+    None on success."""
+    try:
+        login = subprocess.run(
+            ["az", "login", "--service-principal",
+             "-u", os.environ["AZURE_CLIENT_ID"],
+             "-p", os.environ["AZURE_CLIENT_SECRET"],
+             "--tenant", os.environ["AZURE_TENANT_ID"]],
+            env=env, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE, text=True,
+        )
+    except FileNotFoundError:
+        return "the Azure CLI (az) was not found"
+    if login.returncode != 0:
+        return (login.stderr or "az login failed").strip()
+    subscription = os.environ.get("AZURE_SUBSCRIPTION_ID")
+    if subscription:
+        subprocess.run(["az", "account", "set", "--subscription", subscription],
+                       env=env, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    return None
+
+
+def _do_vm_power(provider):
+    """Start or stop (deallocate) a lab VM. Lab VMs auto-deallocate daily at
+    23:59 UTC to save cost; use this to start one back up, or stop one early."""
+    print()
+    if not os.environ.get("AZURE_CLIENT_ID"):
+        print("  Authenticate to Azure first (the Authenticate menu option).")
+        return
+    if shutil.which("az") is None:
+        print("  The Azure CLI (az) was not found.")
+        return
+
+    print("  Reminder: lab VMs auto-shut down (deallocate) every day at 23:59 UTC.")
+    env = _az_sp_env()
+    err = _az_sp_login(env)
+    if err:
+        print(f"  az login failed: {err}")
+        return
+    try:
+        listing = subprocess.run(
+            ["az", "vm", "list", "-d",
+             "--query", "[].{name:name,rg:resourceGroup,power:powerState}", "-o", "json"],
+            env=env, capture_output=True, text=True,
+        )
+        if listing.returncode != 0:
+            print("  Could not list VMs: " + (listing.stderr or "").strip())
+            return
+        vms = json.loads(listing.stdout or "[]")
+        if not vms:
+            print("  No VMs found in the subscription.")
+            return
+        labels = [f"{v['name']}  ({v['rg']})  [{v.get('power', '?')}]" for v in vms]
+        choice = _choose("Pick a VM", labels, allow_back=True)
+        if choice is None:
+            return
+        vm = vms[labels.index(choice)]
+        action = _choose(f"{vm['name']} — action?",
+                         ["Start", "Stop (deallocate — stops compute billing)"],
+                         allow_back=True)
+        if action is None:
+            return
+        if action == "Start":
+            cmd, verb = ["az", "vm", "start"], "Starting"
+        else:
+            cmd, verb = ["az", "vm", "deallocate"], "Deallocating"
+        cmd += ["-g", vm["rg"], "-n", vm["name"]]
+        print(f"  {verb} {vm['name']} … (this can take a minute)")
+        result = subprocess.run(cmd, env=env, stdout=subprocess.DEVNULL,
+                                stderr=subprocess.PIPE, text=True)
+        if result.returncode != 0:
+            print("  Failed: " + (result.stderr or "").strip())
+        else:
+            print("  Done.")
+    finally:
+        try:
+            subprocess.run(["az", "logout"], env=env,
+                           stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        except Exception:
+            pass
+
+
 def _print_aws_wip():
     print()
     print("  " + "-" * 56)
@@ -527,6 +620,7 @@ _ACTIONS = [
     ("Browse labs / get lab info", _do_list),
     ("Start the CTFd scoreboard (Azure)", _do_ctfd),
     ("Set CTFd scoreboard access (CIDR)", _do_ctfd_cidr),
+    ("Start / stop a lab VM", _do_vm_power),
     ("Destroy a lab", _do_destroy),
     ("Set / change my session name", _do_session_name),
 ]

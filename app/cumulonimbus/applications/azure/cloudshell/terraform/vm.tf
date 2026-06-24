@@ -107,14 +107,14 @@ resource "azurerm_virtual_machine_extension" "setup_vm" {
 
 
 
-# Cost control: auto-deallocate this VM daily (Azure stops compute billing
+# Cost control: auto-deallocate this VM daily at 23:59 UTC (Azure stops compute billing
 # when a VM is deallocated). Change daily_recurrence_time/timezone to suit;
 # restart the VM from the portal or `az vm start` when you need it again.
 resource "azurerm_dev_test_global_vm_shutdown_schedule" "vm_cs" {
   virtual_machine_id    = azurerm_windows_virtual_machine.vm_cs.id
   location              = azurerm_windows_virtual_machine.vm_cs.location
   enabled               = true
-  daily_recurrence_time = "1900"
+  daily_recurrence_time = "2359"
   timezone              = "UTC"
 
   notification_settings {
