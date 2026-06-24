@@ -125,10 +125,10 @@ AZURE_LAB_INFO = {
         "objective": "Capture the flag by abusing the server-side request forgery to obtain a managed identity token and read a private blob.",
     },
     "gatekeeper_chain": {
-        "name": "Gatekeeper Chain -- Flag-Gated RBAC Privilege Escalation",
+        "name": "Gatekeeper Chain -- Flag-Gated RBAC Over the Plaintext-Credential Scenarios",
         "category": "Privilege Escalation / Chained",
-        "summary": "You start with an account that has no access to anything. A self-service 'gatekeeper' app, backed by a privileged managed identity, grants you a real Azure role each time you submit a correct flag. Every new role unlocks one more resource where the next flag hides — a ladder from a public blob up to a Key Vault.",
-        "objective": "Climb the flag-gated RBAC ladder (Reader, App Configuration, Storage Blob, Key Vault) by feeding each flag to the gatekeeper until you can read the Key Vault secret.",
+        "summary": "Consolidates the individual plaintext-credential scenarios into one flag-gated ladder. You start with no access; a self-service 'gatekeeper' app, backed by a privileged managed identity, grants you a real Azure role (scoped to one resource) each time you submit the previous stage's flag. The stages are the real scenarios: APIM named value, App Configuration, Container Instance env, Data Factory linked service, Monitor action group, ending at a Key Vault.",
+        "objective": "Climb the flag-gated ladder through each plaintext-credential service by feeding every flag to the gatekeeper until you can read the Key Vault secret.",
     },
     "illicit_consent_grant": {
         "name": "Illicit Consent Grant",

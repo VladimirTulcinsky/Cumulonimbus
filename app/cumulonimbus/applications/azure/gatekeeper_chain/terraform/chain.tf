@@ -1,17 +1,21 @@
 ###############################################################################
-# gatekeeper_chain — a flag-gated privilege-escalation ladder.
+# gatekeeper_chain — a flag-gated privilege-escalation ladder whose stages are
+# the real "plaintext credential in an Azure resource" scenarios, merged into
+# one lab. The attacker starts with NO access; a "gatekeeper" app grants a real
+# Azure role (scoped to ONE resource at a time) in exchange for the previous
+# stage's flag, so each unlock opens exactly the next scenario:
 #
-# The attacker starts with NO Azure access. A "gatekeeper" app (a container
-# with a privileged managed identity) grants real RBAC when fed a correct flag:
+#   public blob   (bootstrap flag)        --submit--> Reader on the APIM service
+#   APIM named value (Reader)             --submit--> App Configuration Data Reader
+#   App Configuration (Data Reader)       --submit--> Reader on the Container Instance
+#   Container Instance env (Reader)       --submit--> Reader on the Data Factory
+#   Data Factory linked service (Reader)  --submit--> Reader on the Monitor action group
+#   Monitor action group (Reader)         --submit--> Key Vault Secrets User
+#   Key Vault secret (Secrets User)                  the CTFd flag
 #
-#   public blob (flag0, anonymous)   --submit flag0--> Reader on the RG
-#   RG tag       (flag1, Reader)     --submit flag1--> App Config Data Reader
-#   App Config   (flag2, Data Reader)--submit flag2--> Storage Blob Data Reader
-#   private blob (flag3, Blob Reader)--submit flag3--> Key Vault Secrets User
-#   Key Vault    (FLAG, Secrets User)                 the CTFd flag
-#
-# Each unlock is a live role assignment created by the gatekeeper's managed
-# identity (which holds User Access Administrator on the resource group).
+# Access is scoped per-resource (not RG-wide Reader) precisely because most of
+# these scenarios are Reader-readable — without per-resource scoping a single
+# Reader grant would expose every stage at once and defeat the ladder.
 ###############################################################################
 
 data "azuread_client_config" "current" {}
@@ -27,30 +31,38 @@ locals {
 
   rg_name      = "cumulonimbus-${var.app_id}-${random_id.suffix.hex}"
   sa_name      = substr("cngkch${local.base}", 0, 24)
+  apim_name    = substr("cngk-apim-${local.base}", 0, 50)
   appconf_name = substr("cngk-conf-${local.base}", 0, 50)
-  aci_name     = "cngk-gatekeeper-${random_id.suffix.hex}"
+  aci_app_name = "cngk-app-${random_id.suffix.hex}"
+  adf_name     = substr("cngk-adf-${local.base}", 0, 63)
+  ag_name      = "cngk-ag-${random_id.suffix.hex}"
+  gk_name      = "cngk-gatekeeper-${random_id.suffix.hex}"
   kv_name      = substr("cngkkv${local.base}", 0, 24)
   kv_secret    = "app-flag"
 
-  # Progression tokens (submitted to the gatekeeper). The final flag lives in
-  # the Key Vault and is the one submitted to CTFd.
-  flag0 = "CUMULONIMBUS{unlock_1_reader_access}"
-  flag1 = "CUMULONIMBUS{unlock_2_appconfig_reader}"
-  flag2 = "CUMULONIMBUS{unlock_3_blob_reader}"
-  flag3 = "CUMULONIMBUS{unlock_4_keyvault_user}"
+  # Stage flags: the bootstrap token plus the *real* flags from the flat labs
+  # this lab consolidates. The final flag lives in the Key Vault (the one
+  # submitted to CTFd).
+  flag_bootstrap = "CUMULONIMBUS{unlock_apim_reader}"
+  flag_apim      = "CUMULONIMBUS{AP1M_N4m3d_V4lu3_Pl41nt3xt}"
+  flag_appconfig = "CUMULONIMBUS{App_C0nf1g_D4t4_R34d3r_Enum}"
+  flag_container = "CUMULONIMBUS{C0nt41n3r_1nst4nc3_Pl41nt3xt_Env}"
+  flag_adf       = "CUMULONIMBUS{ADF_L1nk3d_S3rv1c3_Cl34rt3xt_K3y}"
+  flag_monitor   = "CUMULONIMBUS{Monit0r_W3bh00k_T0k3n_3xp0s3d}"
 
   # Built-in role definition IDs (stable GUIDs).
   role_reader  = "/subscriptions/${var.subscription_id}/providers/Microsoft.Authorization/roleDefinitions/acdd72a7-3385-48ef-bd42-f606fba81ae7"
   role_appconf = "/subscriptions/${var.subscription_id}/providers/Microsoft.Authorization/roleDefinitions/516239f1-63e1-4d78-a4de-a74fb236a071"
-  role_blob    = "/subscriptions/${var.subscription_id}/providers/Microsoft.Authorization/roleDefinitions/2a2b9908-6ea1-4ae2-8e65-a410df84e7d1"
   role_kv      = "/subscriptions/${var.subscription_id}/providers/Microsoft.Authorization/roleDefinitions/4633458b-17de-408a-b874-0445c86b69e6"
 
-  # flag -> what the gatekeeper grants the attacker on success.
+  # flag -> what the gatekeeper grants the attacker (scoped to the NEXT resource).
   unlocks = {
-    (local.flag0) = { label = "Reader on the resource group", scope = azurerm_resource_group.rg.id, roleDefinitionId = local.role_reader }
-    (local.flag1) = { label = "App Configuration Data Reader", scope = azurerm_app_configuration.conf.id, roleDefinitionId = local.role_appconf }
-    (local.flag2) = { label = "Storage Blob Data Reader", scope = azurerm_storage_account.sa.id, roleDefinitionId = local.role_blob }
-    (local.flag3) = { label = "Key Vault Secrets User", scope = azurerm_key_vault.chain.id, roleDefinitionId = local.role_kv }
+    (local.flag_bootstrap) = { label = "Reader on the APIM service", scope = azurerm_api_management.apim.id, roleDefinitionId = local.role_reader }
+    (local.flag_apim)      = { label = "App Configuration Data Reader", scope = azurerm_app_configuration.conf.id, roleDefinitionId = local.role_appconf }
+    (local.flag_appconfig) = { label = "Reader on the Container Instance", scope = azurerm_container_group.app.id, roleDefinitionId = local.role_reader }
+    (local.flag_container) = { label = "Reader on the Data Factory", scope = azurerm_data_factory.adf.id, roleDefinitionId = local.role_reader }
+    (local.flag_adf)       = { label = "Reader on the Monitor action group", scope = azurerm_monitor_action_group.ag.id, roleDefinitionId = local.role_reader }
+    (local.flag_monitor)   = { label = "Key Vault Secrets User", scope = azurerm_key_vault.chain.id, roleDefinitionId = local.role_kv }
   }
 }
 
@@ -58,19 +70,17 @@ resource "azurerm_resource_group" "rg" {
   name     = local.rg_name
   location = var.location
 
-  # Stage 1 (needs Reader): the flag and a pointer to the App Configuration
-  # store are recorded in resource-group tags.
   tags = {
-    app_id          = var.app_id
-    managed         = "terraform"
-    "stage1-flag"   = local.flag1
-    "config-store"  = local.appconf_name
-    "stage1-note"   = "submit stage1-flag to the gatekeeper to unlock app configuration access"
+    app_id  = var.app_id
+    managed = "terraform"
   }
 
   depends_on = [
+    azurerm_resource_provider_registration.microsoft_apimanagement,
     azurerm_resource_provider_registration.microsoft_appconfiguration,
     azurerm_resource_provider_registration.microsoft_containerinstance,
+    azurerm_resource_provider_registration.microsoft_datafactory,
+    azurerm_resource_provider_registration.microsoft_insights,
   ]
 }
 
@@ -89,8 +99,8 @@ resource "azurerm_user_assigned_identity" "gatekeeper" {
   location            = azurerm_resource_group.rg.location
 }
 
-# This is what lets the gatekeeper hand out roles. Creating it requires the
-# DEPLOYER to be Owner (or User Access Administrator) on the subscription.
+# What lets the gatekeeper hand out roles. Creating it requires the DEPLOYER to
+# be Owner (or User Access Administrator) on the subscription.
 resource "azurerm_role_assignment" "gatekeeper_uaa" {
   scope                = azurerm_resource_group.rg.id
   role_definition_name = "User Access Administrator"
@@ -98,7 +108,7 @@ resource "azurerm_role_assignment" "gatekeeper_uaa" {
 }
 
 ###############################################################################
-# Stage 0 — public blob with the first flag (no Azure auth required)
+# Bootstrap — public blob with the first flag (no Azure auth required)
 ###############################################################################
 resource "azurerm_storage_account" "sa" {
   name                            = local.sa_name
@@ -128,41 +138,57 @@ resource "azurerm_storage_blob" "welcome" {
   source_content         = <<-EOF
     Cumulonimbus — Gatekeeper Challenge
 
-    Your first flag (submit it to the gatekeeper to gain Reader access):
-      ${local.flag0}
+    Resource group : ${local.rg_name}
 
-    The gatekeeper URL is in your lab output. Submit a flag with:
+    Your bootstrap flag (submit it to the gatekeeper to gain Reader on the API
+    Management service "${local.apim_name}"):
+      ${local.flag_bootstrap}
+
+    Submit a flag:
       curl -s -X POST <gatekeeper-url>/unlock -H 'Content-Type: application/json' -d '{"flag":"<flag>"}'
-  EOF
-}
 
-# Stage 4 — private blob (needs Storage Blob Data Reader) with flag3 + the
-# coordinates of the Key Vault.
-resource "azurerm_storage_container" "vault_notes" {
-  name                  = "vault-notes"
-  storage_account_name  = azurerm_storage_account.sa.name
-  container_access_type = "private"
-}
-
-resource "azurerm_storage_blob" "vault_notes" {
-  name                   = "notes.txt"
-  storage_account_name   = azurerm_storage_account.sa.name
-  storage_container_name = azurerm_storage_container.vault_notes.name
-  type                   = "Block"
-  source_content         = <<-EOF
-    Key Vault access notes
-    ----------------------
-    Submit this flag to the gatekeeper to unlock Key Vault access:
-      ${local.flag3}
-
-    Then read the secret:
-      Key Vault name : ${local.kv_name}
-      Secret name    : ${local.kv_secret}
+    Then log in as the attacker and read the next stage. Each stage's value is
+    the flag that unlocks the following one.
   EOF
 }
 
 ###############################################################################
-# Stage 2 — App Configuration (needs App Config Data Reader)
+# Stage 1 — APIM named value (Reader on the APIM service)
+###############################################################################
+resource "azurerm_api_management" "apim" {
+  name                = local.apim_name
+  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg.name
+  publisher_name      = "Cumulonimbus Lab"
+  publisher_email     = "lab@cumulonimbus.local"
+  sku_name            = "Consumption_0"
+
+  tags = {
+    app_id  = var.app_id
+    managed = "terraform"
+  }
+}
+
+resource "azurerm_api_management_named_value" "flag" {
+  name                = "flag-key"
+  resource_group_name = azurerm_resource_group.rg.name
+  api_management_name = azurerm_api_management.apim.name
+  display_name        = "flag-key"
+  value               = local.flag_apim
+  secret              = false
+}
+
+resource "azurerm_api_management_named_value" "next_hop" {
+  name                = "next-hop"
+  resource_group_name = azurerm_resource_group.rg.name
+  api_management_name = azurerm_api_management.apim.name
+  display_name        = "next-hop"
+  value               = "Submit flag-key to the gatekeeper, then enumerate App Configuration store ${local.appconf_name}."
+  secret              = false
+}
+
+###############################################################################
+# Stage 2 — App Configuration (App Configuration Data Reader)
 ###############################################################################
 resource "azurerm_app_configuration" "conf" {
   name                = local.appconf_name
@@ -177,7 +203,6 @@ resource "azurerm_app_configuration" "conf" {
   }
 }
 
-# The deployer needs data-plane access to write the key-values.
 resource "azurerm_role_assignment" "deployer_appconf_owner" {
   scope                = azurerm_app_configuration.conf.id
   role_definition_name = "App Configuration Data Owner"
@@ -196,33 +221,117 @@ resource "azurerm_app_configuration_key" "env" {
   depends_on             = [time_sleep.appconf_rbac]
 }
 
-resource "azurerm_app_configuration_key" "stage2_flag" {
+resource "azurerm_app_configuration_key" "flag" {
   configuration_store_id = azurerm_app_configuration.conf.id
-  key                    = "secrets/next-unlock"
-  value                  = local.flag2
+  key                    = "secrets/api-key"
+  value                  = local.flag_appconfig
   depends_on             = [time_sleep.appconf_rbac]
 }
 
-resource "azurerm_app_configuration_key" "stage2_note" {
+resource "azurerm_app_configuration_key" "next_hop" {
   configuration_store_id = azurerm_app_configuration.conf.id
-  key                    = "secrets/note"
-  value                  = "Submit secrets/next-unlock to the gatekeeper to unlock blob access on storage account ${local.sa_name} (container vault-notes)."
+  key                    = "secrets/next-hop"
+  value                  = "Submit secrets/api-key to the gatekeeper, then read the Container Instance ${local.aci_app_name}."
   depends_on             = [time_sleep.appconf_rbac]
+}
+
+###############################################################################
+# Stage 3 — Container Instance plaintext env vars (Reader on the container)
+###############################################################################
+resource "azurerm_container_group" "app" {
+  name                = local.aci_app_name
+  resource_group_name = azurerm_resource_group.rg.name
+  location            = azurerm_resource_group.rg.location
+  ip_address_type     = "None"
+  os_type             = "Linux"
+  restart_policy      = "Never"
+
+  container {
+    name   = "app"
+    image  = "alpine:3.18"
+    cpu    = "0.5"
+    memory = "0.5"
+
+    commands = ["sh", "-c", "echo Starting application && sleep 3600"]
+
+    environment_variables = {
+      "APP_VERSION" = "2.4.1"
+      "ENVIRONMENT" = "production"
+      "SECRET_FLAG" = local.flag_container
+      "NEXT_HOP"    = "Submit SECRET_FLAG to the gatekeeper, then read Data Factory ${local.adf_name} linked service DataLakeConnection."
+    }
+
+    secure_environment_variables = {}
+
+    ports {
+      port     = 8080
+      protocol = "TCP"
+    }
+  }
+
+  tags = {
+    app_id  = var.app_id
+    managed = "terraform"
+  }
+}
+
+###############################################################################
+# Stage 4 — Data Factory linked service cleartext key (Reader on the factory)
+###############################################################################
+resource "azurerm_data_factory" "adf" {
+  name                = local.adf_name
+  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg.name
+
+  tags = {
+    app_id  = var.app_id
+    managed = "terraform"
+  }
+}
+
+resource "azurerm_data_factory_linked_service_azure_blob_storage" "data" {
+  name              = "DataLakeConnection"
+  data_factory_id   = azurerm_data_factory.adf.id
+  description       = "Primary data lake connection. Next: submit the AccountKey to the gatekeeper, then read Monitor action group ${local.ag_name}."
+  connection_string = "DefaultEndpointsProtocol=https;AccountName=cumulonimbusdata;AccountKey=${local.flag_adf};EndpointSuffix=core.windows.net"
+}
+
+###############################################################################
+# Stage 5 — Monitor action group webhook token (Reader on the action group)
+###############################################################################
+resource "azurerm_monitor_action_group" "ag" {
+  name                = local.ag_name
+  resource_group_name = azurerm_resource_group.rg.name
+  short_name          = "cnimbus"
+
+  webhook_receiver {
+    name        = "security-alerts"
+    service_uri = "https://webhook.cumulonimbus.local/alerts?token=${local.flag_monitor}"
+  }
+
+  webhook_receiver {
+    name        = "vault-pointer"
+    service_uri = "https://notes.cumulonimbus.local/?next=keyvault&vault=${local.kv_name}&secret=${local.kv_secret}"
+  }
+
+  tags = {
+    app_id  = var.app_id
+    managed = "terraform"
+  }
 }
 
 ###############################################################################
 # The gatekeeper — a container that grants RBAC in exchange for a correct flag.
-# Runs python:3.12-slim, decodes app.py from a (secure) env var, installs deps,
-# and serves on port 80. UNLOCKS_JSON and the app are SECURE env vars so the
-# flags are never returned by `az container show`.
+# python:3.12-slim, app injected via a SECURE env var (flags never returned by
+# the control plane), serves on port 80.
 ###############################################################################
 resource "azurerm_container_group" "gatekeeper" {
-  name                = local.aci_name
+  name                = local.gk_name
   resource_group_name = azurerm_resource_group.rg.name
   location            = azurerm_resource_group.rg.location
   os_type             = "Linux"
   ip_address_type     = "Public"
-  dns_name_label      = local.aci_name
+  dns_name_label      = local.gk_name
   restart_policy      = "Always"
 
   identity {
@@ -262,6 +371,5 @@ resource "azurerm_container_group" "gatekeeper" {
     managed = "terraform"
   }
 
-  # The identity must hold User Access Administrator before it can grant roles.
   depends_on = [azurerm_role_assignment.gatekeeper_uaa]
 }

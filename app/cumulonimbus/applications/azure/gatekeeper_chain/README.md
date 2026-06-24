@@ -1,88 +1,116 @@
-# Gatekeeper Chain — Flag-Gated RBAC Privilege Escalation
+# Gatekeeper Chain — Flag-Gated RBAC Over the Plaintext-Credential Scenarios
 
 **Provider:** Azure | **Category:** Privilege Escalation / Chained
 
 ## Scenario
 
+This lab consolidates the individual "plaintext credentials in an Azure
+resource" scenarios into a **single flag-gated privilege-escalation ladder**.
+
 You start with an Azure AD account that has **no access to anything**. A
-self-service "gatekeeper" app grants real Azure roles in exchange for proof that
-you've completed the previous step: submit a correct flag and it adds the next
-role to your account. Each new role lets you read one more resource, where you
-find the next flag — a privilege-escalation ladder that ends at a Key Vault
-secret.
+self-service "gatekeeper" app grants you a real Azure role in exchange for the
+previous stage's flag — and crucially, each grant is **scoped to exactly one
+resource**, so you can only ever read the next scenario, not all of them at once.
+Submit a flag, gain access to the next service, read its plaintext credential
+(which is the next flag), submit that, and climb until you reach the Key Vault.
 
 The gatekeeper is a container with a **User Access Administrator** managed
-identity, so the role grants it hands out are genuine — you really do gain new
-RBAC on your own principal at each step.
+identity, so the role grants are genuine.
 
-## Attack Path
+## The ladder
 
 ```
-Stage 0  public blob (anonymous)         --submit flag--> Reader on resource group
-Stage 1  resource-group tags (Reader)    --submit flag--> App Configuration Data Reader
-Stage 2  App Configuration (Data Reader) --submit flag--> Storage Blob Data Reader
-Stage 3  private blob (Blob Data Reader)  --submit flag--> Key Vault Secrets User
-Stage 4  Key Vault secret (Secrets User)                 the flag
+Bootstrap   public blob (anonymous)            --submit--> Reader on the APIM service
+Stage 1     APIM named value (Reader)          --submit--> App Configuration Data Reader
+Stage 2     App Configuration (Data Reader)    --submit--> Reader on the Container Instance
+Stage 3     Container Instance env (Reader)    --submit--> Reader on the Data Factory
+Stage 4     Data Factory linked service (Reader)--submit--> Reader on the Monitor action group
+Stage 5     Monitor action group (Reader)      --submit--> Key Vault Secrets User
+Final       Key Vault secret (Secrets User)               the flag
 ```
+
+Each stage is one of the standalone labs' mechanisms (`apim_named_value`,
+`app_configuration_secrets`, `container_instance_env`,
+`data_factory_linked_service`, `monitor_action_group`) reusing their original
+flags, wired together so the credential you read is the key to the next door.
 
 ## Walkthrough
 
 The deploy prints the attacker credentials, the gatekeeper URL, and the public
 starting blob.
 
-> First boot takes a few minutes (the gatekeeper installs its dependencies), and
-> each granted role takes **1–2 minutes** to propagate before it works. If a step
-> says "authorization failed", wait and retry.
+> APIM (Consumption tier) and the gatekeeper's first boot add a few minutes to
+> the deploy. Each granted role also takes **1–2 minutes** to propagate. If a
+> step says "authorization failed", wait and retry — it's RBAC catching up.
 
-### Stage 0 — get the first flag (no credentials needed)
+### Bootstrap — first flag (no credentials needed)
 
 ```bash
 curl -s "https://<storage-account>.blob.core.windows.net/public/welcome.txt"
 ```
 
-### Unlock — submit the flag to the gatekeeper
+Submit it to the gatekeeper, then log in as the attacker (once):
 
 ```bash
-GK="<gatekeeper-url>"     # e.g. http://cngk-gatekeeper-xxxx.westeurope.azurecontainer.io
+GK="<gatekeeper-url>"
 curl -s -X POST "$GK/unlock" -H 'Content-Type: application/json' \
-  -d '{"flag":"CUMULONIMBUS{unlock_1_reader_access}"}'
-# {"status":"granted","unlocked":"Reader on the resource group", ...}
-```
+  -d '{"flag":"CUMULONIMBUS{unlock_apim_reader}"}'
 
-Now log in as the attacker (do this once; the new roles attach to this account):
-
-```bash
 az login --username <attacker_upn> --password <attacker_password>
 ```
 
-### Stage 1 — Reader: read the resource-group tags
+### Stage 1 — APIM named value (Reader on the APIM service)
 
 ```bash
-az group show --name <resource_group_name> --query tags
+az apim nv show -g <rg> --service-name <apim-name> --named-value-id flag-key --query value -o tsv
+# the `next-hop` named value points to the App Configuration store
 ```
 
-The tags contain the next flag and name the App Configuration store. Submit that
-flag to the gatekeeper to unlock **App Configuration Data Reader**.
+Submit that flag → unlocks **App Configuration Data Reader**.
 
-### Stage 2 — App Configuration Data Reader
+### Stage 2 — App Configuration (Data Reader)
 
 ```bash
 az appconfig kv list --name <config-store> --auth-mode login --all -o table
 ```
 
-Find the next flag, submit it, and unlock **Storage Blob Data Reader**.
+`secrets/api-key` is the flag; `secrets/next-hop` names the Container Instance.
+Submit the flag → unlocks **Reader on the Container Instance**.
 
-### Stage 3 — Storage Blob Data Reader: read the private note
+### Stage 3 — Container Instance env vars (Reader)
 
 ```bash
-az storage blob download --account-name <storage-account> --auth-mode login \
-  -c vault-notes -n notes.txt -f - 2>/dev/null
+az container show -g <rg> -n <container-group> \
+  --query "containers[0].environmentVariables"
 ```
 
-This gives the next flag and the Key Vault coordinates. Submit it to unlock
-**Key Vault Secrets User**.
+`SECRET_FLAG` is the flag; `NEXT_HOP` names the Data Factory. Submit → unlocks
+**Reader on the Data Factory**.
 
-### Stage 4 — Key Vault Secrets User: read the flag
+### Stage 4 — Data Factory linked service (Reader)
+
+```bash
+az extension add --name datafactory 2>/dev/null
+az datafactory linked-service show -g <rg> --factory-name <adf-name> \
+  --name DataLakeConnection --query properties.typeProperties.connectionString
+```
+
+The `AccountKey=` in the connection string is the flag; the `description` names
+the Monitor action group. Submit → unlocks **Reader on the Monitor action
+group**.
+
+### Stage 5 — Monitor action group webhook token (Reader)
+
+```bash
+az monitor action-group show -g <rg> -n <action-group> \
+  --query "webhookReceivers"
+```
+
+The `security-alerts` webhook URL contains the flag in its `token=` parameter;
+the `vault-pointer` webhook names the Key Vault and secret. Submit the flag →
+unlocks **Key Vault Secrets User**.
+
+### Final — Key Vault secret
 
 ```bash
 az keyvault secret show --vault-name <key-vault> --name app-flag --query value -o tsv
@@ -100,14 +128,13 @@ deploy will fail at that step.
 
 ## How to Fix in Production
 
-- Don't expose a self-service endpoint that can assign roles; if you must,
-  authenticate callers and scope grants tightly with approval workflows (PIM).
-- Don't give an internet-facing workload's identity **User Access
-  Administrator** / **Owner** — that lets a compromise of the workload escalate
-  arbitrarily. Grant the minimum data-plane role it actually needs.
-- Don't leave secrets/flags in public blobs, resource tags, App Configuration
-  key-values, or non-secure storage. Use Key Vault references and private
-  networking.
+- Don't expose a self-service endpoint that can assign roles; gate any such flow
+  behind authentication and approval (PIM), and never give an internet-facing
+  workload **User Access Administrator** / **Owner**.
+- The per-stage lessons are the standalone labs': don't store secrets in APIM
+  non-secret named values, App Configuration key-values, container env vars,
+  Data Factory inline connection strings, or Monitor webhook URLs. Use Key Vault
+  references and mark sensitive values as secret.
 
 ## MITRE ATT&CK Mapping
 
