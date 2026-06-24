@@ -54,19 +54,19 @@ locals {
   flag_adf       = "CUMULONIMBUS{ADF_L1nk3d_S3rv1c3_Cl34rt3xt_K3y}"
   flag_monitor   = "CUMULONIMBUS{Monit0r_W3bh00k_T0k3n_3xp0s3d}"
 
-  # Built-in role definition IDs (stable GUIDs).
-  role_reader  = "/subscriptions/${var.subscription_id}/providers/Microsoft.Authorization/roleDefinitions/acdd72a7-3385-48ef-bd42-f606fba81ae7"
-  role_appconf = "/subscriptions/${var.subscription_id}/providers/Microsoft.Authorization/roleDefinitions/516239f1-63e1-4d78-a4de-a74fb236a071"
-  role_kv      = "/subscriptions/${var.subscription_id}/providers/Microsoft.Authorization/roleDefinitions/4633458b-17de-408a-b874-0445c86b69e6"
+  # Built-in role definition GUIDs (passed to `az role assignment create --role`).
+  role_reader  = "acdd72a7-3385-48ef-bd42-f606fba81ae7"
+  role_appconf = "516239f1-63e1-4d78-a4de-a74fb236a071"
+  role_kv      = "4633458b-17de-408a-b874-0445c86b69e6"
 
   # flag -> what the gatekeeper grants the attacker (scoped to the NEXT resource).
   unlocks = {
-    (local.flag_bootstrap) = { label = "Reader on the Container Instance", scope = azurerm_container_group.app.id, roleDefinitionId = local.role_reader }
-    (local.flag_container) = { label = "Reader on the Data Factory", scope = azurerm_data_factory.adf.id, roleDefinitionId = local.role_reader }
-    (local.flag_adf)       = { label = "App Configuration Data Reader", scope = azurerm_app_configuration.conf.id, roleDefinitionId = local.role_appconf }
-    (local.flag_appconfig) = { label = "Reader on the Monitor action group", scope = azurerm_monitor_action_group.ag.id, roleDefinitionId = local.role_reader }
-    (local.flag_monitor)   = { label = "Reader on the APIM service", scope = azurerm_api_management.apim.id, roleDefinitionId = local.role_reader }
-    (local.flag_apim)      = { label = "Key Vault Secrets User", scope = azurerm_key_vault.chain.id, roleDefinitionId = local.role_kv }
+    (local.flag_bootstrap) = { label = "Reader on the Container Instance", scope = azurerm_container_group.app.id, role = local.role_reader }
+    (local.flag_container) = { label = "Reader on the Data Factory", scope = azurerm_data_factory.adf.id, role = local.role_reader }
+    (local.flag_adf)       = { label = "App Configuration Data Reader", scope = azurerm_app_configuration.conf.id, role = local.role_appconf }
+    (local.flag_appconfig) = { label = "Reader on the Monitor action group", scope = azurerm_monitor_action_group.ag.id, role = local.role_reader }
+    (local.flag_monitor)   = { label = "Reader on the APIM service", scope = azurerm_api_management.apim.id, role = local.role_reader }
+    (local.flag_apim)      = { label = "Key Vault Secrets User", scope = azurerm_key_vault.chain.id, role = local.role_kv }
   }
 }
 
@@ -342,14 +342,18 @@ resource "azurerm_container_group" "gatekeeper" {
   }
 
   container {
-    name   = "gatekeeper"
-    image  = "python:3.12-slim"
+    name = "gatekeeper"
+    # Microsoft Container Registry image (not Docker Hub, no pull rate limits).
+    # It ships Python AND the az CLI, so the gatekeeper needs no pip install:
+    # the app uses only the Python stdlib and shells out to `az` for the role
+    # grant (az handles ACI managed-identity auth via `az login --identity`).
+    image  = "mcr.microsoft.com/azure-cli:latest"
     cpu    = "1.0"
     memory = "1.5"
 
     commands = [
       "sh", "-c",
-      "echo \"$APP_B64\" | base64 -d > /app.py && pip install --quiet --no-cache-dir flask requests azure-identity && python /app.py",
+      "echo \"$APP_B64\" | base64 -d > /app.py && python3 /app.py",
     ]
 
     ports {
