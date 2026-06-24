@@ -17,7 +17,7 @@ runcmd:
   # seed the Azure CTFd instance. Runs as one fail-fast script so a bad clone or
   # missing ctfd/ surfaces in cloud-init status instead of silently doing nothing.
   - |
-    set -euo pipefail
+    set -eu
     rm -rf /opt/cumulonimbus
     git clone --branch "${git_ref}" "${repo_url}" /opt/cumulonimbus
     if [ ! -d /opt/cumulonimbus/ctfd ]; then
