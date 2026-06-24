@@ -48,6 +48,7 @@
 | [`app_service_env_vars`](app/cumulonimbus/applications/azure/app_service_env_vars/README.md) | Web / Secrets |
 | [`container_instance_env`](app/cumulonimbus/applications/azure/container_instance_env/README.md) | Containers / Secrets |
 | [`container_app_env_vars`](app/cumulonimbus/applications/azure/container_app_env_vars/README.md) | Containers / Secrets |
+| [`acr_image_secrets`](app/cumulonimbus/applications/azure/acr_image_secrets/README.md) | Containers / Secrets |
 | [`resource_group_tags`](app/cumulonimbus/applications/azure/resource_group_tags/README.md) | Identity / Secrets |
 | [`app_configuration_secrets`](app/cumulonimbus/applications/azure/app_configuration_secrets/README.md) | Configuration / Secrets |
 | [`vm_extension_settings`](app/cumulonimbus/applications/azure/vm_extension_settings/README.md) | Compute / Secrets |

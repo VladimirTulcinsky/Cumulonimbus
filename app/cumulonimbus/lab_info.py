@@ -16,6 +16,12 @@ AZURE_LAB_INFO = {
         "summary": "An admin removed a user as owner of an app registration but forgot the underlying service principal, which holds powerful directory permissions. Lingering ownership lets the user mint new credentials and escalate.",
         "objective": "Capture the flag by leveraging leftover service principal ownership to authenticate as a privileged identity and join an admin group.",
     },
+    "acr_image_secrets": {
+        "name": "ACR Image Secrets -- Leaked Admin Creds to Image Layers",
+        "category": "Containers / Secrets",
+        "summary": "A private Azure Container Registry has its admin account enabled, and those credentials were left in a resource's tags where any Reader can find them. The image they unlock was built carelessly, with a secret embedded in a layer and only 'deleted' later — so it still ships inside the image.",
+        "objective": "Use the leaked registry admin credentials to pull the image, then recover the flag that hides in a deleted image layer (the obvious runtime config is a decoy).",
+    },
     "apim_named_value": {
         "name": "APIM Named Value -- Plaintext Secret Exposure",
         "category": "Credentials in Files",
