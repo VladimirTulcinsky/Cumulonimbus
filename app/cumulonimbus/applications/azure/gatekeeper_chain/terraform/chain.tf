@@ -5,17 +5,21 @@
 # Azure role (scoped to ONE resource at a time) in exchange for the previous
 # stage's flag, so each unlock opens exactly the next scenario:
 #
-#   public blob   (bootstrap flag)        --submit--> Reader on the APIM service
-#   APIM named value (Reader)             --submit--> App Configuration Data Reader
-#   App Configuration (Data Reader)       --submit--> Reader on the Container Instance
+#   public blob   (bootstrap flag)        --submit--> Reader on the Container Instance
 #   Container Instance env (Reader)       --submit--> Reader on the Data Factory
-#   Data Factory linked service (Reader)  --submit--> Reader on the Monitor action group
-#   Monitor action group (Reader)         --submit--> Key Vault Secrets User
+#   Data Factory linked service (Reader)  --submit--> App Configuration Data Reader
+#   App Configuration (Data Reader)       --submit--> Reader on the Monitor action group
+#   Monitor action group (Reader)         --submit--> Reader on the APIM service
+#   APIM named value (Reader)             --submit--> Key Vault Secrets User
 #   Key Vault secret (Secrets User)                  the CTFd flag
 #
 # Access is scoped per-resource (not RG-wide Reader) precisely because most of
 # these scenarios are Reader-readable — without per-resource scoping a single
 # Reader grant would expose every stage at once and defeat the ladder.
+#
+# APIM is deliberately the LAST scenario before the vault: it is the slowest
+# resource to provision, so placing it late gives it the most time to be ready
+# before a player reaches it.
 ###############################################################################
 
 data "azuread_client_config" "current" {}
@@ -43,7 +47,7 @@ locals {
   # Stage flags: the bootstrap token plus the *real* flags from the flat labs
   # this lab consolidates. The final flag lives in the Key Vault (the one
   # submitted to CTFd).
-  flag_bootstrap = "CUMULONIMBUS{unlock_apim_reader}"
+  flag_bootstrap = "CUMULONIMBUS{g4t3k33p3r_b00tstr4p}"
   flag_apim      = "CUMULONIMBUS{AP1M_N4m3d_V4lu3_Pl41nt3xt}"
   flag_appconfig = "CUMULONIMBUS{App_C0nf1g_D4t4_R34d3r_Enum}"
   flag_container = "CUMULONIMBUS{C0nt41n3r_1nst4nc3_Pl41nt3xt_Env}"
@@ -57,12 +61,12 @@ locals {
 
   # flag -> what the gatekeeper grants the attacker (scoped to the NEXT resource).
   unlocks = {
-    (local.flag_bootstrap) = { label = "Reader on the APIM service", scope = azurerm_api_management.apim.id, roleDefinitionId = local.role_reader }
-    (local.flag_apim)      = { label = "App Configuration Data Reader", scope = azurerm_app_configuration.conf.id, roleDefinitionId = local.role_appconf }
-    (local.flag_appconfig) = { label = "Reader on the Container Instance", scope = azurerm_container_group.app.id, roleDefinitionId = local.role_reader }
+    (local.flag_bootstrap) = { label = "Reader on the Container Instance", scope = azurerm_container_group.app.id, roleDefinitionId = local.role_reader }
     (local.flag_container) = { label = "Reader on the Data Factory", scope = azurerm_data_factory.adf.id, roleDefinitionId = local.role_reader }
-    (local.flag_adf)       = { label = "Reader on the Monitor action group", scope = azurerm_monitor_action_group.ag.id, roleDefinitionId = local.role_reader }
-    (local.flag_monitor)   = { label = "Key Vault Secrets User", scope = azurerm_key_vault.chain.id, roleDefinitionId = local.role_kv }
+    (local.flag_adf)       = { label = "App Configuration Data Reader", scope = azurerm_app_configuration.conf.id, roleDefinitionId = local.role_appconf }
+    (local.flag_appconfig) = { label = "Reader on the Monitor action group", scope = azurerm_monitor_action_group.ag.id, roleDefinitionId = local.role_reader }
+    (local.flag_monitor)   = { label = "Reader on the APIM service", scope = azurerm_api_management.apim.id, roleDefinitionId = local.role_reader }
+    (local.flag_apim)      = { label = "Key Vault Secrets User", scope = azurerm_key_vault.chain.id, roleDefinitionId = local.role_kv }
   }
 }
 
@@ -140,8 +144,8 @@ resource "azurerm_storage_blob" "welcome" {
 
     Resource group : ${local.rg_name}
 
-    Your bootstrap flag (submit it to the gatekeeper to gain Reader on the API
-    Management service "${local.apim_name}"):
+    Your bootstrap flag (submit it to the gatekeeper to gain Reader on the
+    Container Instance "${local.aci_app_name}"):
       ${local.flag_bootstrap}
 
     Submit a flag:
@@ -183,7 +187,7 @@ resource "azurerm_api_management_named_value" "next_hop" {
   resource_group_name = azurerm_resource_group.rg.name
   api_management_name = azurerm_api_management.apim.name
   display_name        = "next-hop"
-  value               = "Submit flag-key to the gatekeeper, then enumerate App Configuration store ${local.appconf_name}."
+  value               = "Submit flag-key to the gatekeeper, then read Key Vault ${local.kv_name} secret ${local.kv_secret}."
   secret              = false
 }
 
@@ -231,7 +235,7 @@ resource "azurerm_app_configuration_key" "flag" {
 resource "azurerm_app_configuration_key" "next_hop" {
   configuration_store_id = azurerm_app_configuration.conf.id
   key                    = "secrets/next-hop"
-  value                  = "Submit secrets/api-key to the gatekeeper, then read the Container Instance ${local.aci_app_name}."
+  value                  = "Submit secrets/api-key to the gatekeeper, then read the Monitor action group ${local.ag_name}."
   depends_on             = [time_sleep.appconf_rbac]
 }
 
@@ -292,7 +296,7 @@ resource "azurerm_data_factory" "adf" {
 resource "azurerm_data_factory_linked_service_azure_blob_storage" "data" {
   name              = "DataLakeConnection"
   data_factory_id   = azurerm_data_factory.adf.id
-  description       = "Primary data lake connection. Next: submit the AccountKey to the gatekeeper, then read Monitor action group ${local.ag_name}."
+  description       = "Primary data lake connection. Next: submit the AccountKey to the gatekeeper, then enumerate App Configuration store ${local.appconf_name}."
   connection_string = "DefaultEndpointsProtocol=https;AccountName=cumulonimbusdata;AccountKey=${local.flag_adf};EndpointSuffix=core.windows.net"
 }
 
@@ -310,8 +314,8 @@ resource "azurerm_monitor_action_group" "ag" {
   }
 
   webhook_receiver {
-    name        = "vault-pointer"
-    service_uri = "https://notes.cumulonimbus.local/?next=keyvault&vault=${local.kv_name}&secret=${local.kv_secret}"
+    name        = "apim-pointer"
+    service_uri = "https://notes.cumulonimbus.local/?next=apim&service=${local.apim_name}&namedValue=flag-key"
   }
 
   tags = {
