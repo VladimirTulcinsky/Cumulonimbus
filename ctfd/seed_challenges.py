@@ -638,6 +638,27 @@ CHALLENGES = [
         ],
     },
     {
+        "name": "ACR Image Secrets — Leaked Admin Creds",
+        "category": "Containers",
+        "description": (
+            "A private Azure Container Registry has its admin account enabled, and the "
+            "credentials were left in a storage account's resource tags — readable by any "
+            "Reader on the resource group. Use them to pull the application image, then "
+            "recover the secret baked into it. The obvious config file in the running "
+            "container is a decoy; the real flag was written into an image layer and only "
+            "'deleted' in a later step, so it still ships inside the image.\n\n"
+            "Deploy with: `cnimbus azure create --app-id acr_image_secrets`"
+        ),
+        "value": 100,
+        "type": "standard",
+        "flag": "CUMULONIMBUS{4CR_Adm1n_Cr3ds_2_D3l3t3d_L4y3r_S3cr3t}",
+        "tags": ["Azure", "ACR", "Containers", "Secrets", "Images"],
+        "hints": [
+            {"content": "You only have Reader, so `az acr credential show` is denied — but the admin user/password were left in a storage account's tags. Check `az resource show ... --query tags`.", "cost": 25},
+            {"content": "After `docker login` + `docker pull`, the runtime config (/app/config/app.config) is a rotated decoy. Recover the real DEPLOY_TOKEN from the deleted layer with `docker history --no-trunc` or `docker save` + grep.", "cost": 50},
+        ],
+    },
+    {
         "name": "SQS Queue — Public Resource Policy",
         "category": "Messaging",
         "description": (
