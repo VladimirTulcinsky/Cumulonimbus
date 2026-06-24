@@ -51,6 +51,7 @@
 | [`acr_image_secrets`](app/cumulonimbus/applications/azure/acr_image_secrets/README.md) | Containers / Secrets |
 | [`resource_group_tags`](app/cumulonimbus/applications/azure/resource_group_tags/README.md) | Identity / Secrets |
 | [`secrets_chain`](app/cumulonimbus/applications/azure/secrets_chain/README.md) | Credential Exposure / Chained |
+| [`gatekeeper_chain`](app/cumulonimbus/applications/azure/gatekeeper_chain/README.md) | Privilege Escalation / Chained |
 | [`app_configuration_secrets`](app/cumulonimbus/applications/azure/app_configuration_secrets/README.md) | Configuration / Secrets |
 | [`vm_extension_settings`](app/cumulonimbus/applications/azure/vm_extension_settings/README.md) | Compute / Secrets |
 | [`apim_named_value`](app/cumulonimbus/applications/azure/apim_named_value/README.md) | API Management / Secrets |

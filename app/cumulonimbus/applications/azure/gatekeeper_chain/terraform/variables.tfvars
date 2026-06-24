@@ -1,0 +1,7 @@
+client_id          = ""
+client_secret      = ""
+tenant_id          = ""
+subscription_id    = ""
+attacker_public_ip = "0.0.0.0"
+app_id             = "gatekeeper_chain"
+app_name           = "cumulonimbus"
