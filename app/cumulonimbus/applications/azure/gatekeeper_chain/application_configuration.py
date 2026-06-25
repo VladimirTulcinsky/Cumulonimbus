@@ -24,13 +24,14 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
         pass
 
     def pretty_print_tf_output(self, app_id, output):
+        gatekeeper_url = output.get('gatekeeper_url', {}).get('value', 'N/A')
         print("###############################################")
         print("#             Required Information            #")
         print("###############################################")
         print(f"  Attacker UPN        : {output.get('attacker_upn', {}).get('value', 'N/A')}")
         print(f"  Attacker password   : {output.get('attacker_password', {}).get('value', 'N/A')}")
         print(f"  Resource group      : {output.get('resource_group_name', {}).get('value', 'N/A')}")
-        print(f"  Gatekeeper URL      : {output.get('gatekeeper_url', {}).get('value', 'N/A')}")
+        print(f"  Gatekeeper URL      : {gatekeeper_url}")
         print(f"  Gatekeeper IP       : {output.get('gatekeeper_ip', {}).get('value', 'N/A')}")
         print(f"  Start here          : {output.get('start_here', {}).get('value', 'N/A')}")
         print("\nThis is a FLAG-GATED privilege-escalation ladder over the real")
@@ -40,7 +41,7 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
         print("  public blob -> ACR image -> Container Instance -> Data Factory")
         print("  -> App Configuration -> Monitor action group -> APIM -> Key Vault")
         print("\nSubmit a flag:")
-        print("  curl -s -X POST <gatekeeper-url>/unlock \\")
+        print(f"  curl -s -X POST {gatekeeper_url}/unlock \\")
         print("       -H 'Content-Type: application/json' -d '{\"flag\":\"CUMULONIMBUS{...}\"}'")
         print("\nNOTE: the gatekeeper takes a couple of minutes on first boot, and each")
         print("granted role takes 1-2 minutes to propagate.")
