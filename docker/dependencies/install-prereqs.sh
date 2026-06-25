@@ -41,6 +41,14 @@ unzip -q /tmp/terraform.zip -d /usr/local/bin/
 rm /tmp/terraform.zip
 chmod +x /usr/local/bin/terraform
 
+# crane — pull and inspect OCI/Docker images from a registry WITHOUT a Docker
+# daemon (the acr image lab dissects images via AcrPull; this container has no
+# Docker). Single static binary.
+wget -q "https://github.com/google/go-containerregistry/releases/latest/download/go-containerregistry_Linux_x86_64.tar.gz" -O /tmp/crane.tar.gz \
+  && tar -xzf /tmp/crane.tar.gz -C /usr/local/bin crane \
+  && rm -f /tmp/crane.tar.gz \
+  && chmod +x /usr/local/bin/crane
+
 
   
 

