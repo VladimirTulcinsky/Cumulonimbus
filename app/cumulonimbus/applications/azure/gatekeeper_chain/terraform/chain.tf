@@ -150,9 +150,11 @@ resource "azurerm_storage_blob" "welcome" {
     Submit a flag:
       curl -s -X POST <gatekeeper-url>/unlock -H 'Content-Type: application/json' -d '{"flag":"<flag>"}'
 
-    Then log in as the attacker and pull the image to inspect it:
-      az acr login --name ${local.acr_name}
-      docker pull ${local.acr_name}.azurecr.io/${local.image_ref}
+    Then log in as the attacker and inspect the image (no Docker needed — use
+    crane, pre-installed in this container):
+      TOKEN=$(az acr login -n ${local.acr_name} --expose-token --query accessToken -o tsv)
+      crane auth login ${local.acr_name}.azurecr.io -u 00000000-0000-0000-0000-000000000000 -p "$TOKEN"
+      crane config ${local.acr_name}.azurecr.io/${local.image_ref} | grep -ao 'CUMULONIMBUS{[^}]*}'
 
     Each stage's value is the flag that unlocks the following one.
   EOF
