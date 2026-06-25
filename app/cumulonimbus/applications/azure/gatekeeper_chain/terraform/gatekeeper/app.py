@@ -1,61 +1,108 @@
 import json
 import os
-import subprocess
+import re
+import urllib.error
+import urllib.parse
+import urllib.request
+import uuid
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
-from urllib.parse import parse_qs
 
-# Map of flag -> {label, scope, role}. Injected as a SECURE env var so the flags
-# are never returned by the ARM control plane.
+# Map of flag -> {label, scope, roles:[guid,...]}. Injected as a SECURE env var
+# so the flags are never returned by the ARM control plane.
 UNLOCKS = json.loads(os.environ.get("UNLOCKS_JSON", "{}"))
 PRINCIPAL_ID = os.environ["ATTACKER_PRINCIPAL_ID"]
 MI_CLIENT_ID = os.environ.get("MI_CLIENT_ID", "")
 
-
-def _az(args):
-    return subprocess.run(
-        ["az"] + args + ["--only-show-errors", "-o", "json"],
-        capture_output=True, text=True,
-    )
+ARM = "https://management.azure.com"
+RESOURCE = "https://management.azure.com/"
 
 
-def _login():
-    cmd = ["login", "--identity"]
+def _http(method, url, headers=None, data=None, timeout=20):
+    req = urllib.request.Request(url, data=data, method=method, headers=headers or {})
+    try:
+        with urllib.request.urlopen(req, timeout=timeout) as resp:
+            return resp.status, resp.read().decode()
+    except urllib.error.HTTPError as exc:
+        return exc.code, exc.read().decode()
+
+
+def get_token():
+    """Fetch an ARM token from the container's managed identity.
+
+    Tries the App Service-style IDENTITY_ENDPOINT first (set on some hosts),
+    then falls back to the IMDS endpoint used by VMs / AKS / ACI. Raises with a
+    detailed message if both fail, so the cause is visible in the HTTP response.
+    """
+    errors = []
+
+    endpoint = os.environ.get("IDENTITY_ENDPOINT")
+    header = os.environ.get("IDENTITY_HEADER")
+    if endpoint and header:
+        params = {"resource": RESOURCE, "api-version": "2019-08-01"}
+        if MI_CLIENT_ID:
+            params["client_id"] = MI_CLIENT_ID
+        url = endpoint + "?" + urllib.parse.urlencode(params)
+        try:
+            code, body = _http("GET", url, {"X-IDENTITY-HEADER": header})
+            if code == 200:
+                return json.loads(body)["access_token"]
+            errors.append("IDENTITY_ENDPOINT %s: %s" % (code, body[:200]))
+        except Exception as exc:  # noqa: BLE001
+            errors.append("IDENTITY_ENDPOINT error: %s" % exc)
+
+    params = {"resource": RESOURCE, "api-version": "2018-02-01"}
     if MI_CLIENT_ID:
-        cmd += ["--username", MI_CLIENT_ID]
-    return _az(cmd)
+        params["client_id"] = MI_CLIENT_ID
+    url = "http://169.254.169.254/metadata/identity/oauth2/token?" + urllib.parse.urlencode(params)
+    try:
+        code, body = _http("GET", url, {"Metadata": "true"})
+        if code == 200:
+            return json.loads(body)["access_token"]
+        errors.append("IMDS %s: %s" % (code, body[:200]))
+    except Exception as exc:  # noqa: BLE001
+        errors.append("IMDS error: %s" % exc)
+
+    raise RuntimeError("token acquisition failed: " + "; ".join(errors))
 
 
-def _grant_one(role, scope):
-    args = [
-        "role", "assignment", "create",
-        "--assignee-object-id", PRINCIPAL_ID,
-        "--assignee-principal-type", "User",
-        "--role", role,
-        "--scope", scope,
-    ]
-    res = _az(args)
-    out = (res.stderr or "") + (res.stdout or "")
-    if res.returncode == 0:
+def _role_definition_id(scope, role_guid):
+    match = re.search(r"/subscriptions/([^/]+)/", scope)
+    subscription = match.group(1) if match else ""
+    return "/subscriptions/%s/providers/Microsoft.Authorization/roleDefinitions/%s" % (subscription, role_guid)
+
+
+def _grant_one(token, role_guid, scope):
+    assignment_id = str(uuid.uuid4())
+    url = "%s%s/providers/Microsoft.Authorization/roleAssignments/%s?api-version=2022-04-01" % (ARM, scope, assignment_id)
+    payload = json.dumps({
+        "properties": {
+            "roleDefinitionId": _role_definition_id(scope, role_guid),
+            "principalId": PRINCIPAL_ID,
+            "principalType": "User",
+        }
+    }).encode()
+    code, resp = _http(
+        "PUT", url,
+        {"Authorization": "Bearer " + token, "Content-Type": "application/json"},
+        payload, timeout=30,
+    )
+    if code in (200, 201):
         return "granted", ""
-    if "already exists" in out.lower() or "RoleAssignmentExists" in out:
+    if code == 409 or "RoleAssignmentExists" in resp:
         return "already-granted", ""
-    # Token may have lapsed — re-login once and retry.
-    _login()
-    res = _az(args)
-    out = (res.stderr or "") + (res.stdout or "")
-    if res.returncode == 0:
-        return "granted", ""
-    if "already exists" in out.lower() or "RoleAssignmentExists" in out:
-        return "already-granted", ""
-    return "error", out[:500]
+    return "error", "%s: %s" % (code, resp[:300])
 
 
-def _grant(entry):
-    # An unlock may grant one or more roles (all scoped to the same resource).
+def grant(entry):
+    try:
+        token = get_token()
+    except Exception as exc:  # noqa: BLE001
+        return "error", str(exc)
+
     roles = entry.get("roles") or ([entry["role"]] if entry.get("role") else [])
     statuses = []
-    for role in roles:
-        status, detail = _grant_one(role, entry["scope"])
+    for role_guid in roles:
+        status, detail = _grant_one(token, role_guid, entry["scope"])
         if status == "error":
             return "error", detail
         statuses.append(status)
@@ -90,8 +137,8 @@ class Handler(BaseHTTPRequestHandler):
         if raw:
             try:
                 flag = (json.loads(raw) or {}).get("flag", "")
-            except Exception:
-                flag = parse_qs(raw).get("flag", [""])[0]
+            except Exception:  # noqa: BLE001
+                flag = urllib.parse.parse_qs(raw).get("flag", [""])[0]
         flag = (flag or "").strip()
 
         entry = UNLOCKS.get(flag)
@@ -99,7 +146,7 @@ class Handler(BaseHTTPRequestHandler):
             self._send(403, {"status": "denied", "message": "Incorrect or unknown flag."})
             return
 
-        status, detail = _grant(entry)
+        status, detail = grant(entry)
         if status == "granted":
             self._send(200, {"status": "granted", "unlocked": entry["label"],
                              "note": "Access granted. RBAC can take 1-2 minutes to propagate before it works."})
@@ -113,5 +160,4 @@ class Handler(BaseHTTPRequestHandler):
 
 
 if __name__ == "__main__":
-    _login()
     ThreadingHTTPServer(("0.0.0.0", 80), Handler).serve_forever()

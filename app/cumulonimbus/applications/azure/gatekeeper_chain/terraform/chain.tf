@@ -354,9 +354,9 @@ resource "azurerm_container_group" "gatekeeper" {
   container {
     name = "gatekeeper"
     # Microsoft Container Registry image (not Docker Hub, no pull rate limits).
-    # It ships Python AND the az CLI, so the gatekeeper needs no pip install:
-    # the app uses only the Python stdlib and shells out to `az` for the role
-    # grant (az handles ACI managed-identity auth via `az login --identity`).
+    # Used purely as a reliable Python host: the app uses only the Python stdlib
+    # (no pip install) — it fetches a managed-identity token from the container's
+    # identity endpoint and creates role assignments via the ARM REST API.
     image  = "mcr.microsoft.com/azure-cli:latest"
     cpu    = "1.0"
     memory = "1.5"
