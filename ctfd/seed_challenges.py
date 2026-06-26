@@ -642,6 +642,28 @@ CHALLENGES = [
         ],
     },
     {
+        "name": "Gatekeeper Chain 2 — Flag-Gated RBAC Privilege Escalation",
+        "category": "Privilege Escalation",
+        "description": (
+            "Companion to Gatekeeper Chain over a second set of plaintext-credential "
+            "scenarios. You start with no access; the gatekeeper grants a real Azure role "
+            "(scoped to one resource or resource group) each time you submit the previous "
+            "stage's flag. Climb through — public blob → resource-group tags → ARM "
+            "deployment history → policy assignment metadata → Container App → Logic App → "
+            "Deployment Script → App Service → Event Grid → Key Vault — until you can read "
+            "the Key Vault secret.\n\n"
+            "Deploy with: `cnimbus azure create --app-id gatekeeper_chain_2`"
+        ),
+        "value": 100,
+        "type": "standard",
+        "flag": "CUMULONIMBUS{G4t3k33p3r_Ch41n_2_RBAC_Pr1v3sc}",
+        "tags": ["Azure", "Privilege Escalation", "Chained", "RBAC", "Key Vault"],
+        "hints": [
+            {"content": "Start unauthenticated: read the public welcome.txt blob for the bootstrap flag and the gatekeeper URL. Submit a flag with `curl -X POST <gatekeeper-url>/unlock -d '{\"flag\":\"...\"}'` — it grants your account a real role scoped to the next resource (wait 1-2 min for RBAC to propagate).", "cost": 25},
+            {"content": "The ladder: resource-group tags (`az group show --query tags`) → ARM deployment history (`az deployment group show`) → policy metadata (`az policy assignment list`) → Container App (`az containerapp show`) → Logic App → Deployment Script (`az deployment-scripts show`) → App Service (`az webapp config appsettings list`, Website Contributor) → Event Grid (`az eventgrid event-subscription show --include-full-endpoint-url`, EventGrid Contributor) → Key Vault.", "cost": 50},
+        ],
+    },
+    {
         "name": "ACR Image Secrets — Leaked Admin Creds",
         "category": "Containers",
         "description": (
