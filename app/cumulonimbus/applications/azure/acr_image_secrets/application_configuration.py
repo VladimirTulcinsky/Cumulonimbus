@@ -14,8 +14,8 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
     def get_hints(self) -> dict:
         return {
             1: "The resource group holds a private Azure Container Registry. You only have Reader, so you cannot list the registry's credentials directly — but someone may have left them somewhere a Reader can read. Inspect resource tags.",
-            2: "The storage account's tags leak the registry admin username and password (`az resource show --ids <sa-id>` or `az tag list`). Use them to authenticate: `docker login <login-server> -u <user> -p <password>`, then `docker pull <login-server>/cumulonimbus/app:latest`.",
-            3: "Running the image reveals /app/config/app.config with an OLD rotated token (a decoy). The real secret was written into an image layer and 'deleted' in a later step — recover it with `docker history --no-trunc <image>` or by extracting the layers (`docker save`). The flag is the DEPLOY_TOKEN value.",
+            2: "The storage account's tags leak the registry admin username and password (`az resource show --ids <sa-id>` or `az tag list`). This container has no Docker, so authenticate with `crane` (pre-installed): `crane auth login <login-server> -u <user> -p <password>`, then inspect `<login-server>/cumulonimbus/app:latest`.",
+            3: "The flattened filesystem has /app/config/app.config with an OLD rotated token (a decoy): `crane export <img> - | grep -ao 'CUMULONIMBUS{[^}]*}'`. The real secret was written into a layer and 'deleted' later — recover it from the image history: `crane config <img> | grep -ao 'CUMULONIMBUS{[^}]*}'`. The flag is the DEPLOY_TOKEN value. (Docker works too if you have it: `docker history --no-trunc` / `docker save`.)",
         }
 
     def configure_application(self, **kwargs):
