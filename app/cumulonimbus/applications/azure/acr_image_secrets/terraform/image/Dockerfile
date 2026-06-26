@@ -11,7 +11,10 @@
 #
 # Lesson: deleting a secret in a later Dockerfile step does NOT remove it from
 # the image — every layer is retained and shippable.
-FROM alpine:3.18
+#
+# Built FROM a Microsoft Container Registry base so `az acr build` never pulls
+# from Docker Hub (which rate-limits anonymous pulls).
+FROM mcr.microsoft.com/cbl-mariner/base/core:2.0
 
 LABEL org.opencontainers.image.title="cumulonimbus-app"
 LABEL maintainer="platform-team@example.com"
