@@ -15,7 +15,7 @@ embedded at build time and then "removed" in a later layer. Deleting a file in a
 later Dockerfile step does **not** remove it from the image — every layer is
 retained and ships with the image.
 
-Unlike the `container_app_env_vars` lab (where the secret sits in the **ARM
+Unlike the plaintext-env-var scenarios (where the secret sits in the **ARM
 control plane** and you just `az ... show` it), here you must actually **pull and
 dissect a container image**.
 

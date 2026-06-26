@@ -36,7 +36,7 @@
 > AWS.
 
 <details>
-<summary><strong>🔵 Azure Labs — 34 challenges</strong></summary>
+<summary><strong>🔵 Azure Labs — 24 challenges</strong></summary>
 
 <br>
 
@@ -45,15 +45,10 @@
 | [`sa_public_access`](app/cumulonimbus/applications/azure/sa_public_access/README.md) | Storage Misconfiguration |
 | [`blob_sas_abuse`](app/cumulonimbus/applications/azure/blob_sas_abuse/README.md) | Storage / Credential Exposure |
 | [`device_code_phishing`](app/cumulonimbus/applications/azure/device_code_phishing/README.md) | Identity / OAuth Phishing |
-| [`app_service_env_vars`](app/cumulonimbus/applications/azure/app_service_env_vars/README.md) | Web / Secrets |
-| [`container_app_env_vars`](app/cumulonimbus/applications/azure/container_app_env_vars/README.md) | Containers / Secrets |
 | [`acr_image_secrets`](app/cumulonimbus/applications/azure/acr_image_secrets/README.md) | Containers / Secrets |
-| [`resource_group_tags`](app/cumulonimbus/applications/azure/resource_group_tags/README.md) | Identity / Secrets |
 | [`gatekeeper_chain`](app/cumulonimbus/applications/azure/gatekeeper_chain/README.md) | Privilege Escalation / Chained |
 | [`gatekeeper_chain_2`](app/cumulonimbus/applications/azure/gatekeeper_chain_2/README.md) | Privilege Escalation / Chained |
 | [`vm_extension_settings`](app/cumulonimbus/applications/azure/vm_extension_settings/README.md) | Compute / Secrets |
-| [`deployment_script`](app/cumulonimbus/applications/azure/deployment_script/README.md) | IaC / Data Exposure |
-| [`policy_assignment_metadata`](app/cumulonimbus/applications/azure/policy_assignment_metadata/README.md) | Governance / Secrets |
 | [`cloudshell`](app/cumulonimbus/applications/azure/cloudshell/README.md) | Storage / RBAC |
 | [`illicit_consent_grant`](app/cumulonimbus/applications/azure/illicit_consent_grant/README.md) | Identity / OAuth Phishing |
 | [`managed_identity_abuse`](app/cumulonimbus/applications/azure/managed_identity_abuse/README.md) | Compute / IMDS |
@@ -61,12 +56,9 @@
 | [`automation_account`](app/cumulonimbus/applications/azure/automation_account/README.md) | Automation / Managed Identity |
 | [`function_ssrf`](app/cumulonimbus/applications/azure/function_ssrf/README.md) | Serverless / SSRF / IMDS |
 | [`terraform_state_exposure`](app/cumulonimbus/applications/azure/terraform_state_exposure/README.md) | Storage / Secrets in State |
-| [`arm_deployment_history`](app/cumulonimbus/applications/azure/arm_deployment_history/README.md) | ARM / Credential Exposure |
 | [`exposed_app_registration`](app/cumulonimbus/applications/azure/exposed_app_registration/README.md) | Identity / Credential Exposure |
 | [`storage_account_keys`](app/cumulonimbus/applications/azure/storage_account_keys/README.md) | Storage / Privilege Escalation |
 | [`vm_run_command`](app/cumulonimbus/applications/azure/vm_run_command/README.md) | Compute / Privilege Escalation |
-| [`eventgrid_webhook_token`](app/cumulonimbus/applications/azure/eventgrid_webhook_token/README.md) | Integration / Secrets |
-| [`logic_app_credentials`](app/cumulonimbus/applications/azure/logic_app_credentials/README.md) | Integration / Secrets |
 | [`sqli_imds`](app/cumulonimbus/applications/azure/sqli_imds/README.md) | Compute / SQL Injection / IMDS |
 | [`dynamic_groups_abuse`](app/cumulonimbus/applications/azure/dynamic_groups_abuse/README.md) | Identity / Privilege Escalation |
 | [`add_sp_credentials`](app/cumulonimbus/applications/azure/add_sp_credentials/README.md) | Identity / Privilege Escalation |

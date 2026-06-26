@@ -245,25 +245,6 @@ CHALLENGES = [
         ],
     },
     {
-        "name": "ARM Deployment History Exposure",
-        "category": "Infrastructure",
-        "description": (
-            "An ARM template was deployed with an admin API key passed as a plain 'string' "
-            "parameter instead of 'secureString'. Azure retains full deployment history in "
-            "the resource group. Any Reader can retrieve all parameter values from past "
-            "deployments — including secrets that were never marked secure.\n\n"
-            "Deploy with: `cnimbus azure create --app-id arm_deployment_history`"
-        ),
-        "value": 100,
-        "type": "standard",
-        "flag": "CUMULONIMBUS{4RM_D3pl0yment_H1st0ry_Pl41nt3xt}",
-        "tags": ["Azure", "ARM", "Deployment History", "Credential Exposure"],
-        "hints": [
-            {"content": "Run az deployment group list --resource-group <rg> to see past deployments.", "cost": 0},
-            {"content": "az deployment group show --name app-infra-v1 --query properties.parameters reveals all parameter values including plaintext string types.", "cost": 25},
-        ],
-    },
-    {
         "name": "Exposed App Registration Client Secret",
         "category": "Identity",
         "description": (
@@ -476,24 +457,6 @@ CHALLENGES = [
         ],
     },
     {
-        "name": "App Service Environment Variables",
-        "category": "Web",
-        "description": (
-            "A team deployed an Azure App Service and stored credentials in Application "
-            "Settings. Website Contributor includes `Microsoft.Web/sites/config/list` which "
-            "returns all app settings in plaintext. List the settings and find the flag.\n\n"
-            "Deploy with: `cnimbus azure create --app-id app_service_env_vars`"
-        ),
-        "value": 100,
-        "type": "standard",
-        "flag": "CUMULONIMBUS{App_S3rv1c3_Env_V4rs_3xp0s3d}",
-        "tags": ["Azure", "App Service", "Secrets", "Configuration"],
-        "hints": [
-            {"content": "Use `az webapp config appsettings list --name <app> --resource-group <rg>` with your attacker credentials.", "cost": 25},
-            {"content": "Look for the SECRET_FLAG key in the app settings output.", "cost": 50},
-        ],
-    },
-    {
         "name": "Lambda Function URL — No Auth",
         "category": "Serverless",
         "description": (
@@ -527,24 +490,6 @@ CHALLENGES = [
         "hints": [
             {"content": "Use `aws cognito-identity get-id` with the identity pool ID to get an IdentityId without logging in.", "cost": 25},
             {"content": "Exchange the IdentityId for temporary STS credentials via `get-credentials-for-identity`, then use them to read the S3 flag object.", "cost": 50},
-        ],
-    },
-    {
-        "name": "Logic App — Hardcoded Credentials",
-        "category": "Integration",
-        "description": (
-            "An Azure Logic App sends hourly notifications with a bearer token hardcoded in "
-            "the HTTP action headers. Any identity with Reader on the resource group can "
-            "retrieve the full workflow definition — including the Authorization header.\n\n"
-            "Deploy with: `cnimbus azure create --app-id logic_app_credentials`"
-        ),
-        "value": 100,
-        "type": "standard",
-        "flag": "CUMULONIMBUS{L0g1c_App_H4rdcod3d_Cr3d3nt14ls}",
-        "tags": ["Azure", "Logic App", "Secrets", "Integration"],
-        "hints": [
-            {"content": "Use `az logic workflow show` to retrieve the workflow JSON definition.", "cost": 25},
-            {"content": "Inspect the `actions` section for the HTTP action headers — the Authorization value contains the flag.", "cost": 50},
         ],
     },
     {
@@ -722,42 +667,6 @@ CHALLENGES = [
         ],
     },
     {
-        "name": "Resource Group Tags — Credentials in Metadata",
-        "category": "Governance",
-        "description": (
-            "A platform team stored a service principal secret as an Azure resource group "
-            "tag. Tags are visible to any Reader on the resource. Enumerate the "
-            "subscription's resource groups and find the flag in the tags.\n\n"
-            "Deploy with: `cnimbus azure create --app-id resource_group_tags`"
-        ),
-        "value": 100,
-        "type": "standard",
-        "flag": "CUMULONIMBUS{S3cr3t_1n_R3s0urc3_Gr0up_T4gs}",
-        "tags": ["Azure", "Tags", "Identity", "Secrets"],
-        "hints": [
-            {"content": "Use `az group list` to find the cumulonimbus resource group, then `az group show --name <rg> --query tags`.", "cost": 25},
-            {"content": "The `service-principal-secret` tag contains the flag.", "cost": 50},
-        ],
-    },
-    {
-        "name": "Event Grid — Webhook Token Exposure",
-        "category": "Integration",
-        "description": (
-            "An Event Grid subscription uses a secret token embedded in the webhook URL "
-            "as a query parameter. The full URL is returned by the ARM API to any Reader. "
-            "Find the subscription and extract the token from the webhook URL.\n\n"
-            "Deploy with: `cnimbus azure create --app-id eventgrid_webhook_token`"
-        ),
-        "value": 100,
-        "type": "standard",
-        "flag": "CUMULONIMBUS{3v3ntGr1d_W3bh00k_T0k3n_3xp0s3d}",
-        "tags": ["Azure", "Event Grid", "Webhook", "Secrets"],
-        "hints": [
-            {"content": "Use `az eventgrid event-subscription list --source-resource-id <topic-id>` to find subscriptions.", "cost": 25},
-            {"content": "Run `az eventgrid event-subscription show --query \"destination.endpointUrl\"` — the `token` query parameter contains the flag.", "cost": 50},
-        ],
-    },
-    {
         "name": "CodeBuild — Plaintext Environment Variables",
         "category": "CI-CD",
         "description": (
@@ -851,24 +760,6 @@ CHALLENGES = [
         ],
     },
     {
-        "name": "Container App Env Vars",
-        "category": "Containers",
-        "description": (
-            "A developer stored a secret flag directly in an Azure Container App's environment variables. "
-            "The attacker has Reader on the resource group. "
-            "Inspect the Container App definition to find the flag.\n\n"
-            "Deploy with: `cnimbus azure create --app-id container_app_env_vars`"
-        ),
-        "value": 100,
-        "type": "standard",
-        "flag": "CUMULONIMBUS{C0nt41n3r_App_Env_V4rs_3xp0s3d}",
-        "tags": ["Azure", "Container Apps", "Environment Variables", "Secrets"],
-        "hints": [
-            {"content": "Use `az containerapp list --resource-group <rg>` to find the Container App name.", "cost": 25},
-            {"content": "Run `az containerapp show --name <name> --resource-group <rg> --query 'properties.template.containers[0].env'`.", "cost": 50},
-        ],
-    },
-    {
         "name": "DynamoDB Scan",
         "category": "Database",
         "description": (
@@ -902,42 +793,6 @@ CHALLENGES = [
         "hints": [
             {"content": "Use `aws kinesis list-streams` then `aws kinesis get-shard-iterator --shard-iterator-type TRIM_HORIZON` to get a starting iterator.", "cost": 25},
             {"content": "Run `aws kinesis get-records --shard-iterator <iterator>` and base64-decode the `Data` field: `echo '<data>' | base64 -d`.", "cost": 50},
-        ],
-    },
-    {
-        "name": "Deployment Script",
-        "category": "Infrastructure",
-        "description": (
-            "An Azure Deployment Script ran during infrastructure provisioning and wrote sensitive data to its outputs. "
-            "The outputs are persisted in the ARM resource definition. "
-            "The attacker has Reader on the resource group. Read the script outputs to retrieve the flag.\n\n"
-            "Deploy with: `cnimbus azure create --app-id deployment_script`"
-        ),
-        "value": 100,
-        "type": "standard",
-        "flag": "CUMULONIMBUS{D3pl0ym3nt_Scr1pt_0utput_3xp0s3d}",
-        "tags": ["Azure", "Deployment Script", "IaC", "Data Exposure"],
-        "hints": [
-            {"content": "Use `az deployment-scripts list --resource-group <rg>` to find the deployment script.", "cost": 25},
-            {"content": "Run `az deployment-scripts show --name <name> --resource-group <rg> --query outputs`.", "cost": 50},
-        ],
-    },
-    {
-        "name": "Policy Assignment Metadata",
-        "category": "Governance",
-        "description": (
-            "The platform team stored an internal reference token in an Azure Policy assignment's metadata field. "
-            "Policy assignment metadata is plaintext and readable by any Reader. "
-            "List policy assignments in the resource group and inspect the metadata to find the flag.\n\n"
-            "Deploy with: `cnimbus azure create --app-id policy_assignment_metadata`"
-        ),
-        "value": 100,
-        "type": "standard",
-        "flag": "CUMULONIMBUS{P0l1cy_M3t4d4t4_S3cr3t_3xp0s3d}",
-        "tags": ["Azure", "Policy", "Governance", "Secrets"],
-        "hints": [
-            {"content": "Use `az policy assignment list --resource-group <rg>` to list assignments scoped to the resource group.", "cost": 25},
-            {"content": "Inspect the metadata field: `az policy assignment show --name <name> --resource-group <rg> --query metadata`.", "cost": 50},
         ],
     },
     {
