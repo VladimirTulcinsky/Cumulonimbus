@@ -13,6 +13,8 @@
 #   APIM named value (Reader)             --submit--> Key Vault Secrets User
 #   Key Vault secret (Secrets User)                  the CTFd flag
 #
+# (The container-image-secrets scenario lives in its own lab, acr_image_secrets.)
+#
 # Access is scoped per-resource (not RG-wide Reader) precisely because most of
 # these scenarios are Reader-readable — without per-resource scoping a single
 # Reader grant would expose every stage at once and defeat the ladder.
@@ -35,8 +37,6 @@ locals {
 
   rg_name      = "cumulonimbus-${var.app_id}-${random_id.suffix.hex}"
   sa_name      = substr("cngkch${local.base}", 0, 24)
-  acr_name     = substr("cngkacr${local.base}", 0, 50)
-  image_ref    = "cumulonimbus/app:latest"
   apim_name    = substr("cngk-apim-${local.base}", 0, 50)
   appconf_name = substr("cngk-conf-${local.base}", 0, 50)
   aci_app_name = "cngk-app-${random_id.suffix.hex}"
@@ -50,25 +50,21 @@ locals {
   # this lab consolidates. The final flag lives in the Key Vault (the one
   # submitted to CTFd).
   flag_bootstrap = "CUMULONIMBUS{g4t3k33p3r_b00tstr4p}"
-  flag_acr       = "CUMULONIMBUS{4CR_1m4g3_L4y3r_S3cr3t_Ch41n}"
   flag_apim      = "CUMULONIMBUS{AP1M_N4m3d_V4lu3_Pl41nt3xt}"
   flag_appconfig = "CUMULONIMBUS{App_C0nf1g_D4t4_R34d3r_Enum}"
   flag_container = "CUMULONIMBUS{C0nt41n3r_1nst4nc3_Pl41nt3xt_Env}"
   flag_adf       = "CUMULONIMBUS{ADF_L1nk3d_S3rv1c3_Cl34rt3xt_K3y}"
   flag_monitor   = "CUMULONIMBUS{Monit0r_W3bh00k_T0k3n_3xp0s3d}"
 
-  # Built-in role definition GUIDs (passed to `az role assignment create --role`).
+  # Built-in role definition GUIDs.
   role_reader  = "acdd72a7-3385-48ef-bd42-f606fba81ae7"
   role_appconf = "516239f1-63e1-4d78-a4de-a74fb236a071"
-  role_acrpull = "7f951dda-4ed3-4680-a7ca-43fe172d538d"
   role_kv      = "4633458b-17de-408a-b874-0445c86b69e6"
 
   # flag -> what the gatekeeper grants the attacker (one or more roles, scoped to
-  # the NEXT resource). The ACR stage needs AcrPull (to pull) plus Reader (so
-  # `az acr login` can resolve the registry).
+  # the NEXT resource).
   unlocks = {
-    (local.flag_bootstrap) = { label = "AcrPull + Reader on the Container Registry", scope = azurerm_container_registry.acr.id, roles = [local.role_acrpull, local.role_reader] }
-    (local.flag_acr)       = { label = "Reader on the Container Instance", scope = azurerm_container_group.app.id, roles = [local.role_reader] }
+    (local.flag_bootstrap) = { label = "Reader on the Container Instance", scope = azurerm_container_group.app.id, roles = [local.role_reader] }
     (local.flag_container) = { label = "Reader on the Data Factory", scope = azurerm_data_factory.adf.id, roles = [local.role_reader] }
     (local.flag_adf)       = { label = "App Configuration Data Reader", scope = azurerm_app_configuration.conf.id, roles = [local.role_appconf] }
     (local.flag_appconfig) = { label = "Reader on the Monitor action group", scope = azurerm_monitor_action_group.ag.id, roles = [local.role_reader] }
@@ -143,20 +139,15 @@ resource "azurerm_storage_blob" "welcome" {
 
     Resource group : ${local.rg_name}
 
-    Your bootstrap flag (submit it to the gatekeeper to gain pull access to the
-    private container registry "${local.acr_name}"):
+    Your bootstrap flag (submit it to the gatekeeper to gain Reader on the
+    Container Instance "${local.aci_app_name}"):
       ${local.flag_bootstrap}
 
     Submit a flag:
       curl -s -X POST <gatekeeper-url>/unlock -H 'Content-Type: application/json' -d '{"flag":"<flag>"}'
 
-    Then log in as the attacker and inspect the image (no Docker needed — use
-    crane, pre-installed in this container):
-      TOKEN=$(az acr login -n ${local.acr_name} --expose-token --query accessToken -o tsv)
-      crane auth login ${local.acr_name}.azurecr.io -u 00000000-0000-0000-0000-000000000000 -p "$TOKEN"
-      crane config ${local.acr_name}.azurecr.io/${local.image_ref} | grep -ao 'CUMULONIMBUS{[^}]*}'
-
-    Each stage's value is the flag that unlocks the following one.
+    Then log in as the attacker and read the next stage. Each stage's value is
+    the flag that unlocks the following one.
   EOF
 }
 

