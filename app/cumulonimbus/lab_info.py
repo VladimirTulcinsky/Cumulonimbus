@@ -22,18 +22,6 @@ AZURE_LAB_INFO = {
         "summary": "A private Azure Container Registry has its admin account enabled, and those credentials were left in a resource's tags where any Reader can find them. The image they unlock was built carelessly, with a secret embedded in a layer and only 'deleted' later — so it still ships inside the image.",
         "objective": "Use the leaked registry admin credentials to pull the image, then recover the flag that hides in a deleted image layer (the obvious runtime config is a decoy).",
     },
-    "app_service_env_vars": {
-        "name": "App Service Environment Variables -- Secret Exposure",
-        "category": "Web / Secrets",
-        "summary": "A web app on Azure App Service keeps credentials directly in its Application Settings. Any identity with config-list rights can pull every setting in plaintext through the ARM API rather than the app runtime.",
-        "objective": "Retrieve the flag from the App Service application settings using management-plane access.",
-    },
-    "arm_deployment_history": {
-        "name": "ARM Deployment History Secret Exposure",
-        "category": "ARM / Credential Exposure",
-        "summary": "An ARM template passed a secret as a plain string parameter instead of a secureString. Azure retains every deployment's parameter values in resource group history indefinitely, exposing the credential to anyone with Reader.",
-        "objective": "Retrieve the flag from the resource group's ARM deployment history.",
-    },
     "automation_account": {
         "name": "Automation Account Runbook Abuse",
         "category": "Automation / Managed Identity",
@@ -52,18 +40,6 @@ AZURE_LAB_INFO = {
         "summary": "Azure Cloud Shell persists a user's home directory as a disk image in a file share. Weak RBAC on the storage account lets an attacker download and mount the image to extract credentials and other sensitive data.",
         "objective": "Capture the flag by downloading and mounting the Cloud Shell disk image and using the credentials it contains.",
     },
-    "container_app_env_vars": {
-        "name": "Container App Env Vars -- Secrets in Environment Variables",
-        "category": "Containers / Secrets",
-        "summary": "An Azure Container App stores a sensitive value directly in its environment variables, which are exposed in the resource definition and visible to anyone with Reader access on the resource group.",
-        "objective": "Read the Container App definition to find the flag stored in an environment variable.",
-    },
-    "deployment_script": {
-        "name": "Deployment Script -- Sensitive Data in Script Outputs",
-        "category": "IaC / Data Exposure",
-        "summary": "An Azure Deployment Script wrote sensitive data to its outputs during provisioning. Those outputs persist in the resource definition and are readable by anyone with Reader access on the resource group.",
-        "objective": "Retrieve the Deployment Script outputs to find the flag.",
-    },
     "device_code_phishing": {
         "name": "Device Code Phishing",
         "category": "Identity / OAuth Phishing",
@@ -75,12 +51,6 @@ AZURE_LAB_INFO = {
         "category": "Identity / Privilege Escalation",
         "summary": "Entra ID dynamic security groups assign membership from user attributes. An attacker with rights to edit their own account attributes can satisfy a group's rule and inherit the permissions that group holds.",
         "objective": "Capture the flag by self-assigning into a privileged dynamic group and reading its Key Vault secret.",
-    },
-    "eventgrid_webhook_token": {
-        "name": "Event Grid -- Webhook Token Exposure via ARM",
-        "category": "Integration / Secrets",
-        "summary": "An Event Grid subscription authenticates its webhook by embedding a secret token in the destination URL as a query parameter. The full URL is stored in the subscription definition and returned by the ARM API to any Reader.",
-        "objective": "Retrieve the flag from the webhook token embedded in the Event Grid subscription's endpoint URL.",
     },
     "exposed_app_registration": {
         "name": "Exposed App Registration Client Secret",
@@ -124,12 +94,6 @@ AZURE_LAB_INFO = {
         "summary": "An Azure Key Vault runs in legacy access-policy mode with an overly permissive policy that accidentally grants a low-privilege user read access to secrets, while public network access remains enabled.",
         "objective": "Retrieve the flag by discovering the vault and reading the secret exposed through the misconfigured access policy.",
     },
-    "logic_app_credentials": {
-        "name": "Logic App -- Hardcoded Credentials in Workflow Definition",
-        "category": "Integration / Secrets",
-        "summary": "An Azure Logic App workflow hardcodes a bearer token directly in an HTTP action header. Because the full workflow definition is readable by anyone with Reader on the resource group, the embedded secret is exposed in plaintext.",
-        "objective": "Retrieve the flag by reading the Logic App workflow definition and extracting the embedded credential.",
-    },
     "managed_identity_abuse": {
         "name": "Managed Identity Abuse",
         "category": "Compute / IMDS",
@@ -142,23 +106,11 @@ AZURE_LAB_INFO = {
         "summary": "An Azure AD-joined Windows VM caches a victim user's Primary Refresh Token, a long-lived SSO credential. With local admin on the host, an attacker can extract and replay this token to authenticate to the cloud while bypassing MFA.",
         "objective": "Capture the flag by extracting the cached Primary Refresh Token, impersonating the victim, and reading a secret from Key Vault.",
     },
-    "policy_assignment_metadata": {
-        "name": "Policy Assignment Metadata -- Secret in Policy Metadata",
-        "category": "Governance / Secrets",
-        "summary": "An Azure Policy assignment stores an internal reference token in its metadata field. This metadata is unencrypted and fully visible to anyone with Reader access in scope.",
-        "objective": "Retrieve the flag by reading the policy assignment metadata where the token was stored.",
-    },
     "policy_privesc": {
         "name": "Azure Policy Privilege Escalation",
         "category": "Governance / Privilege Escalation",
         "summary": "A user holds a role that appears limited to managing compliance policies but grants write access to initiative definitions. An existing initiative runs with a highly privileged managed identity that can be abused via policy remediation.",
         "objective": "Capture the flag by injecting a malicious deploy policy into a privileged initiative to escalate access and read the protected storage blob.",
-    },
-    "resource_group_tags": {
-        "name": "Resource Group Tags -- Credentials in Metadata",
-        "category": "Identity / Secrets",
-        "summary": "A platform team stored a service principal secret in an Azure resource group tag as an internal note. Resource tags are visible to any identity with Reader, exposing the credential to enumeration.",
-        "objective": "Retrieve the flag by enumerating resource groups and reading the secret embedded in their tags.",
     },
     "sa_public_access": {
         "name": "Storage Account Public Access",
