@@ -89,9 +89,56 @@ crane export $IMG - | grep -ao 'CUMULONIMBUS{[^}]*}' | sort -u
 The `DEPLOY_TOKEN` value (not the `legacy_deploy_token` decoy) is the flag.
 Submit it → unlocks **Reader on the Container Instance**.
 
-> Prefer other tools? `skopeo`, `oras`, or Docker (`az acr login` + `docker
-> pull` + `docker history --no-trunc`) all work the same way if you have them.
-> To pull `crane` yourself: `curl -sL
+#### With Docker instead (on a host that has a daemon)
+
+The Cumulonimbus container has no Docker daemon, but if you run this stage from a
+machine that does, the equivalents are:
+
+| Purpose | crane (in-container) | Docker |
+|---|---|---|
+| Authenticate | `az acr login --expose-token` + `crane auth login` | `az acr login --name <acr>` |
+| Get the image | (implicit) | `docker pull <img>` |
+| Decoy (flattened filesystem) | `crane export <img> -` | `docker run --rm <img> cat /app/config/app.config` |
+| Real flag (image history) | `crane config <img>` | `docker history --no-trunc <img>` |
+
+```bash
+ACR=<acr-name>
+az acr login --name $ACR
+IMG=$ACR.azurecr.io/cumulonimbus/app:latest
+docker pull $IMG
+
+docker run --rm $IMG cat /app/config/app.config        # decoy
+docker history --no-trunc $IMG | grep -i deploy_token  # real flag
+```
+
+If the history shows the command truncated or elided (some BuildKit builds do),
+pull the layers apart — the "deleted" file still lives in its layer's tarball:
+
+```bash
+docker save $IMG -o img.tar && mkdir img && tar -xf img.tar -C img
+grep -rao 'CUMULONIMBUS{[^}]*}' img/   # finds the decoy and /root/.deploy_token
+```
+
+#### What the image history actually is
+
+A Docker/OCI image is a stack of read-only layers plus a **config JSON** that
+includes a `history` array — one entry per build step, recording the instruction
+that produced it (`created_by`), a timestamp, and size. For a shell-form `RUN`,
+`created_by` is the literal command that executed:
+
+```
+/bin/sh -c printf 'DEPLOY_TOKEN=CUMULONIMBUS{...}' > /root/.deploy_token
+```
+
+`docker history` / `crane config` just print that array. This is why an inline
+secret in a `RUN` leaks even after the file is removed: a later `rm` deletes the
+*file* from the final filesystem, but the *command text* (with the secret) is
+permanently recorded in the image's history — and the file itself still exists in
+the earlier layer's blob. Deleting a secret in a Dockerfile does **not** scrub it
+from the image.
+
+> Prefer other tools? `skopeo` and `oras` work the same way. To pull `crane`
+> yourself: `curl -sL
 > https://github.com/google/go-containerregistry/releases/latest/download/go-containerregistry_Linux_x86_64.tar.gz
 > | tar -xz -C /usr/local/bin crane`.
 
@@ -170,6 +217,11 @@ deploy will fail at that step.
   non-secret named values, App Configuration key-values, container env vars,
   Data Factory inline connection strings, or Monitor webhook URLs. Use Key Vault
   references and mark sensitive values as secret.
+- Don't bake secrets into container images. A secret passed inline to a `RUN`
+  persists in the image **history** (the command text) and in the **layer**
+  even if a later step deletes the file — `rm` does not scrub it. Use BuildKit
+  `RUN --mount=type=secret`, multi-stage builds, or runtime injection (Key Vault
+  / mounted secrets), and scan images (trivy, trufflehog) before pushing.
 
 ## MITRE ATT&CK Mapping
 
