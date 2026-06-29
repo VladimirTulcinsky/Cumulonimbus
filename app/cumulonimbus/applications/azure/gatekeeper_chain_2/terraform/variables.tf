@@ -67,3 +67,14 @@ variable "location" {
   description = "Azure region to deploy resources to"
   default     = "West Europe"
 }
+
+# Container Apps run on a managed AKS backend that can hit regional capacity
+# limits (AKSCapacityHeavyUsage). This lets the Container App stage (its
+# environment + Log Analytics workspace) be placed in a different region from
+# the rest of the lab WITHOUT moving everything. Empty = use var.location.
+# Override it without touching the CLI:  export TF_VAR_container_app_location="North Europe"
+variable "container_app_location" {
+  type        = string
+  description = "Region for the Container App environment (empty = same as var.location). Set via TF_VAR_container_app_location to dodge AKS capacity errors."
+  default     = ""
+}
