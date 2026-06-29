@@ -12,14 +12,13 @@
 #   Container App env (Reader)           --submit--> Reader on the Logic App
 #   Logic App workflow (Reader)          --submit--> Reader on the Deployment Script
 #   Deployment Script output (Reader)    --submit--> Website Contributor on the App Service
-#   App Service app settings (Website Contributor) --submit--> EventGrid Contributor on the topic
-#   Event Grid webhook (EventGrid Contributor)     --submit--> Key Vault Secrets User
+#   App Service app settings (Website Contributor) --submit--> Reader on the Event Grid topic
+#   Event Grid topic tags (Reader)                 --submit--> Key Vault Secrets User
 #   Key Vault secret (Secrets User)                the CTFd flag
 #
 # Three scenarios are resource-group-level (tags, deployment history, policy), so
-# each gets its OWN resource group to keep stages isolated. Two need a non-Reader
-# role: App Service app settings (Website Contributor) and the Event Grid full
-# webhook URL (EventGrid Contributor).
+# each gets its OWN resource group to keep stages isolated. One needs a non-Reader
+# role: App Service app settings (Website Contributor, for the config/list action).
 ###############################################################################
 
 data "azuread_client_config" "current" {}
@@ -32,6 +31,42 @@ data "azurerm_policy_definition" "audit_unmanaged_disks" {
 
 resource "random_id" "suffix" {
   byte_length = 4
+}
+
+# Idempotently register the resource providers this lab needs. `az provider
+# register` is a no-op when a provider is already registered, so this works on
+# both fresh subscriptions (where e.g. Microsoft.App is missing) and ones that
+# already have everything — unlike azurerm_resource_provider_registration, which
+# errors when the provider already exists. Every resource group depends on this.
+resource "null_resource" "register_providers" {
+  triggers = {
+    subscription = var.subscription_id
+  }
+
+  provisioner "local-exec" {
+    interpreter = ["/bin/sh", "-c"]
+    environment = {
+      AZ_CLIENT_ID       = var.client_id
+      AZ_CLIENT_SECRET   = var.client_secret
+      AZ_TENANT_ID       = var.tenant_id
+      AZ_SUBSCRIPTION_ID = var.subscription_id
+    }
+    command = <<-EOT
+      set -eu
+      AZURE_CONFIG_DIR="$(mktemp -d)"
+      export AZURE_CONFIG_DIR
+      az login --service-principal -u "$AZ_CLIENT_ID" -p "$AZ_CLIENT_SECRET" --tenant "$AZ_TENANT_ID" >/dev/null
+      if [ -n "$AZ_SUBSCRIPTION_ID" ]; then
+        az account set --subscription "$AZ_SUBSCRIPTION_ID"
+      fi
+      for ns in Microsoft.App Microsoft.OperationalInsights Microsoft.EventGrid \
+                Microsoft.Logic Microsoft.Web Microsoft.ManagedIdentity \
+                Microsoft.KeyVault Microsoft.Storage; do
+        az provider register --namespace "$ns" --wait
+      done
+      az logout >/dev/null 2>&1 || true
+    EOT
+  }
 }
 
 locals {
@@ -70,10 +105,9 @@ locals {
   flag_eventgrid    = "CUMULONIMBUS{3v3ntGr1d_W3bh00k_T0k3n_3xp0s3d}"
 
   # Built-in role definition GUIDs.
-  role_reader    = "acdd72a7-3385-48ef-bd42-f606fba81ae7"
-  role_website   = "de139f84-1756-47ae-9be6-808fbbe84772" # Website Contributor (app settings list)
-  role_eventgrid = "1e241071-0855-49ea-94dc-649edcd759de" # EventGrid Contributor (getFullUrl)
-  role_kv        = "4633458b-17de-408a-b874-0445c86b69e6" # Key Vault Secrets User
+  role_reader  = "acdd72a7-3385-48ef-bd42-f606fba81ae7"
+  role_website = "de139f84-1756-47ae-9be6-808fbbe84772" # Website Contributor (app settings list)
+  role_kv      = "4633458b-17de-408a-b874-0445c86b69e6" # Key Vault Secrets User
 
   # flag -> what the gatekeeper grants the attacker (scoped to the NEXT resource).
   unlocks = {
@@ -84,7 +118,7 @@ locals {
     (local.flag_containerapp) = { label = "Reader on the Logic App", scope = azurerm_logic_app_workflow.app.id, roles = [local.role_reader] }
     (local.flag_logic)        = { label = "Reader on the Deployment Script", scope = azurerm_resource_deployment_script_azure_cli.app.id, roles = [local.role_reader] }
     (local.flag_script)       = { label = "Website Contributor on the App Service", scope = azurerm_linux_web_app.app.id, roles = [local.role_website] }
-    (local.flag_appservice)   = { label = "EventGrid Contributor on the topic", scope = azurerm_eventgrid_topic.app.id, roles = [local.role_eventgrid] }
+    (local.flag_appservice)   = { label = "Reader on the Event Grid topic", scope = azurerm_eventgrid_topic.app.id, roles = [local.role_reader] }
     (local.flag_eventgrid)    = { label = "Key Vault Secrets User", scope = azurerm_key_vault.chain.id, roles = [local.role_kv] }
   }
 }
@@ -94,28 +128,32 @@ locals {
 # dedicated RGs for the resource-group-level scenarios (so each stays isolated).
 ###############################################################################
 resource "azurerm_resource_group" "rg" {
-  name     = local.rg_name
-  location = var.location
-  tags     = { app_id = var.app_id, managed = "terraform" }
+  name       = local.rg_name
+  location   = var.location
+  tags       = { app_id = var.app_id, managed = "terraform" }
+  depends_on = [null_resource.register_providers]
 }
 
 resource "azurerm_resource_group" "deploy" {
-  name     = local.rg_deploy_name
-  location = var.location
-  tags     = { app_id = var.app_id, managed = "terraform" }
+  name       = local.rg_deploy_name
+  location   = var.location
+  tags       = { app_id = var.app_id, managed = "terraform" }
+  depends_on = [null_resource.register_providers]
 }
 
 resource "azurerm_resource_group" "policy" {
-  name     = local.rg_policy_name
-  location = var.location
-  tags     = { app_id = var.app_id, managed = "terraform" }
+  name       = local.rg_policy_name
+  location   = var.location
+  tags       = { app_id = var.app_id, managed = "terraform" }
+  depends_on = [null_resource.register_providers]
 }
 
 # Stage 1 — resource-group tags. The secret (and the pointer to the next stage)
 # live in this RG's tags; a Reader can read them.
 resource "azurerm_resource_group" "tags" {
-  name     = local.rg_tags_name
-  location = var.location
+  name       = local.rg_tags_name
+  location   = var.location
+  depends_on = [null_resource.register_providers]
   tags = {
     app_id         = var.app_id
     managed        = "terraform"
@@ -408,24 +446,15 @@ resource "azurerm_eventgrid_topic" "app" {
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
 
+  # Event Grid performs a mandatory ownership handshake on custom webhook URLs,
+  # so a fake endpoint cannot be attached as a real event subscription (creation
+  # fails endpoint validation). The "configured" webhook URL — with its embedded
+  # auth token — is instead recorded in the topic's tags, readable by any Reader.
   tags = {
-    app_id     = var.app_id
-    managed    = "terraform"
-    "next-hop" = "Read the production-notify subscription's full webhook URL, submit its token to the gatekeeper, then read Key Vault ${local.kv_name} secret ${local.kv_secret}."
-  }
-}
-
-resource "azurerm_eventgrid_event_subscription" "notify" {
-  name  = "production-notify"
-  scope = azurerm_eventgrid_topic.app.id
-
-  webhook_endpoint {
-    url = "https://hooks.internal.example.com/events?token=${local.flag_eventgrid}&source=azure"
-  }
-
-  retry_policy {
-    max_delivery_attempts = 3
-    event_time_to_live    = 1440
+    app_id        = var.app_id
+    managed       = "terraform"
+    "webhook-url" = "https://hooks.internal.example.com/events?token=${local.flag_eventgrid}&source=azure"
+    "next-hop"    = "Submit the token from webhook-url to the gatekeeper, then read Key Vault ${local.kv_name} secret ${local.kv_secret}."
   }
 }
 

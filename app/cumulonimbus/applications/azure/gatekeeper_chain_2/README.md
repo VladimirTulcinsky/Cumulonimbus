@@ -27,20 +27,18 @@ Stage 3     policy assignment metadata (Reader)  --submit--> Reader on the Conta
 Stage 4     Container App env (Reader)           --submit--> Reader on the Logic App
 Stage 5     Logic App workflow (Reader)          --submit--> Reader on the Deployment Script
 Stage 6     Deployment Script output (Reader)    --submit--> Website Contributor on the App Service
-Stage 7     App Service settings (Website Contributor) --submit--> EventGrid Contributor on the topic
-Stage 8     Event Grid webhook (EventGrid Contributor) --submit--> Key Vault Secrets User
+Stage 7     App Service settings (Website Contributor) --submit--> Reader on the Event Grid topic
+Stage 8     Event Grid topic tags (Reader)             --submit--> Key Vault Secrets User
 Final       Key Vault secret (Secrets User)               the flag
 ```
 
 Three scenarios are resource-group-level (tags, deployment history, policy), so
-each lives in its **own resource group** to keep stages isolated. Two need a
+each lives in its **own resource group** to keep stages isolated. One needs a
 non-Reader role: App Service app settings require the `config/list` action
-(**Website Contributor**), and the Event Grid full webhook URL requires
-`getFullUrl` (**EventGrid Contributor**). Each stage is a standalone lab's
-mechanism (`resource_group_tags`, `arm_deployment_history`,
-`policy_assignment_metadata`, `container_app_env_vars`, `logic_app_credentials`,
-`deployment_script`, `app_service_env_vars`, `eventgrid_webhook_token`) reusing
-its flag.
+(**Website Contributor**). Each stage is a standalone lab's mechanism
+(`resource_group_tags`, `arm_deployment_history`, `policy_assignment_metadata`,
+`container_app_env_vars`, `logic_app_credentials`, `deployment_script`,
+`app_service_env_vars`, `eventgrid_webhook_token`) reusing its flag.
 
 ## Walkthrough
 
@@ -123,18 +121,21 @@ az webapp config appsettings list -g <rg> -n <app-service> -o table
 ```
 
 `SECRET_FLAG` is the flag; `NEXT_HOP` names the Event Grid topic. Submit →
-unlocks **EventGrid Contributor on the topic**.
+unlocks **Reader on the Event Grid topic**.
 
-### Stage 8 — Event Grid webhook token (EventGrid Contributor)
+### Stage 8 — Event Grid webhook token (Reader on the topic)
 
 ```bash
-az eventgrid event-subscription show --source-resource-id <topic-id> \
-  --name production-notify --include-full-endpoint-url \
-  --query "destination.endpointUrl"
+az eventgrid topic show -g <rg> -n <topic> --query tags
 ```
 
-The `token=` query parameter is the flag; the topic's `next-hop` tag names the
-Key Vault. Submit → unlocks **Key Vault Secrets User**.
+The `webhook-url` tag holds the configured webhook URL; its `token=` query
+parameter is the flag. The `next-hop` tag names the Key Vault. Submit → unlocks
+**Key Vault Secrets User**.
+
+> Event Grid enforces a webhook ownership handshake on real subscriptions, so a
+> fake endpoint can't be attached — the leaked token lives in the topic's
+> configuration (tags) instead.
 
 ### Final — Key Vault secret
 

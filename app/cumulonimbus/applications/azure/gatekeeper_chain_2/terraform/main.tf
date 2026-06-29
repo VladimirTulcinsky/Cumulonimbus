@@ -16,6 +16,10 @@ terraform {
       source  = "hashicorp/time"
       version = "~> 0.9"
     }
+    null = {
+      source  = "hashicorp/null"
+      version = "~> 3.0"
+    }
   }
 }
 
@@ -36,13 +40,10 @@ provider "azuread" {
   tenant_id     = var.tenant_id
 }
 
-# NOTE: this lab does NOT manage resource-provider registrations. azurerm's
-# `azurerm_resource_provider_registration` always tries to *create* the
-# registration and fails if the provider is already registered on the
-# subscription (the common case). The providers used here
-# (Microsoft.AppConfiguration, ContainerInstance, ApiManagement, DataFactory,
-# microsoft.insights, KeyVault, Storage) are registered on any subscription
-# that has used these services. On a brand-new subscription, register the few
-# that are missing once with, e.g.:
-#   az provider register --namespace Microsoft.ApiManagement --wait
+# Resource-provider registration is handled idempotently by null_resource
+# "register_providers" in chain.tf (it shells out to `az provider register`,
+# which is a no-op when a provider is already registered). This avoids both
+# failure modes: azurerm_resource_provider_registration errors when a provider
+# is ALREADY registered, while a missing registration (e.g. Microsoft.App for
+# Container Apps) fails resource creation with MissingSubscriptionRegistration.
 
