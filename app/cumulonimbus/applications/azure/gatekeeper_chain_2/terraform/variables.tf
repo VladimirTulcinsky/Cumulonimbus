@@ -68,13 +68,14 @@ variable "location" {
   default     = "West Europe"
 }
 
-# Container Apps run on a managed AKS backend that can hit regional capacity
-# limits (AKSCapacityHeavyUsage). This lets the Container App stage (its
-# environment + Log Analytics workspace) be placed in a different region from
-# the rest of the lab WITHOUT moving everything. Empty = use var.location.
-# Override it without touching the CLI:  export TF_VAR_container_app_location="North Europe"
+# Container Apps run on a managed AKS backend that frequently hits regional
+# capacity limits (AKSCapacityHeavyUsage) in West Europe, so the Container App
+# stage (its environment + Log Analytics workspace) defaults to a DIFFERENT
+# region from the rest of the lab. Resources can live in a region other than
+# their resource group's, so this is fine. Change this default to relocate the
+# stage; set it to "" to follow var.location (the rest of the lab's region).
 variable "container_app_location" {
   type        = string
-  description = "Region for the Container App environment (empty = same as var.location). Set via TF_VAR_container_app_location to dodge AKS capacity errors."
-  default     = ""
+  description = "Region for the Container App stage (defaults to North Europe to avoid West Europe AKS capacity errors; \"\" = same as var.location)."
+  default     = "North Europe"
 }

@@ -49,11 +49,11 @@ starting blob.
 > "authorization failed", wait and retry — it's RBAC catching up.
 
 > **Container App region:** the Container App stage runs on a managed AKS backend
-> that occasionally returns `AKSCapacityHeavyUsage` in a busy region. You can move
-> just that stage (its environment + Log Analytics) to another region without
-> moving the rest of the lab:
-> `export TF_VAR_container_app_location="North Europe"` before `cnimbus azure create`.
-> Empty (default) = same region as the rest of the lab.
+> that frequently returns `AKSCapacityHeavyUsage` in West Europe. So that stage
+> (its environment + Log Analytics) **defaults to North Europe** while the rest of
+> the lab stays in `var.location` — resources can live in a region other than
+> their resource group's. To relocate it, change the `container_app_location`
+> default in `terraform/variables.tf` (set it to `""` to follow `var.location`).
 
 ### Bootstrap — first flag (no credentials needed)
 
