@@ -92,6 +92,10 @@ locals {
   kv_name       = substr("cngk2kv${local.base}", 0, 24)
   kv_secret     = "app-flag"
 
+  # The Container App environment (managed AKS backend) can be placed in a
+  # different region to dodge AKS capacity limits; defaults to the lab region.
+  ca_location = var.container_app_location != "" ? var.container_app_location : var.location
+
   # Stage flags reused verbatim from the standalone labs. The final flag lives in
   # the Key Vault (the one submitted to CTFd).
   flag_bootstrap    = "CUMULONIMBUS{g4t3k33p3r2_b00tstr4p}"
@@ -291,7 +295,7 @@ resource "azurerm_resource_group_policy_assignment" "policy" {
 ###############################################################################
 resource "azurerm_log_analytics_workspace" "law" {
   name                = local.law_name
-  location            = azurerm_resource_group.rg.location
+  location            = local.ca_location
   resource_group_name = azurerm_resource_group.rg.name
   sku                 = "PerGB2018"
   retention_in_days   = 30
@@ -300,7 +304,7 @@ resource "azurerm_log_analytics_workspace" "law" {
 
 resource "azurerm_container_app_environment" "cae" {
   name                       = local.cae_name
-  location                   = azurerm_resource_group.rg.location
+  location                   = local.ca_location
   resource_group_name        = azurerm_resource_group.rg.name
   log_analytics_workspace_id = azurerm_log_analytics_workspace.law.id
   tags                       = { app_id = var.app_id }

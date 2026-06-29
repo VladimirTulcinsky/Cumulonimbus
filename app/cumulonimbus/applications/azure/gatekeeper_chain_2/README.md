@@ -48,6 +48,13 @@ starting blob.
 > Each granted role takes **1–2 minutes** to propagate. If a step says
 > "authorization failed", wait and retry — it's RBAC catching up.
 
+> **Container App region:** the Container App stage runs on a managed AKS backend
+> that occasionally returns `AKSCapacityHeavyUsage` in a busy region. You can move
+> just that stage (its environment + Log Analytics) to another region without
+> moving the rest of the lab:
+> `export TF_VAR_container_app_location="North Europe"` before `cnimbus azure create`.
+> Empty (default) = same region as the rest of the lab.
+
 ### Bootstrap — first flag (no credentials needed)
 
 ```bash
