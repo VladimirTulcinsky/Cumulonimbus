@@ -75,14 +75,25 @@ az container show -g <rg> -n <container-group> \
 
 ### Stage 2 — Data Factory linked service (Reader)
 
+Data Factory encrypts the `AccountKey` inside a connection string and won't
+return it (so `typeProperties.connectionString` comes back masked). The leak is
+the key an engineer pasted into the linked service's **description / annotations**
+— those are returned in plaintext:
+
 ```bash
 az extension add --name datafactory 2>/dev/null
 az datafactory linked-service show -g <rg> --factory-name <adf-name> \
-  --name DataLakeConnection --query properties.typeProperties.connectionString
+  --name DataLakeConnection --query "properties.[description, annotations]"
+# (or dump the whole thing and read the description:)
+az datafactory linked-service show -g <rg> --factory-name <adf-name> --name DataLakeConnection
 ```
 
-The `AccountKey=` in the connection string is the flag; the `description` names
-the App Configuration store. Submit → unlocks **App Configuration Data Reader**.
+**In the portal:** open the Data Factory → **Launch Studio** → **Manage** (the
+toolbox icon) → **Linked services** → **DataLakeConnection** — the key is in the
+*Description* field (the connection string's *Account key* box stays masked).
+
+The key value is the flag; the description also names the App Configuration store.
+Submit → unlocks **App Configuration Data Reader**.
 
 ### Stage 3 — App Configuration (Data Reader)
 
