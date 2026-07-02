@@ -1,0 +1,98 @@
+name: Terraform Validate
+
+on:
+  push:
+    paths:
+      - "**.tf"
+      - ".github/workflows/terraform-validate.yml"
+  pull_request:
+    paths:
+      - "**.tf"
+      - ".github/workflows/terraform-validate.yml"
+
+jobs:
+  validate:
+    name: Validate (${{ matrix.app }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        app:
+          - aws/ec2_ssrf
+          - azure/add_sp_credentials
+          - azure/cloudshell
+          - azure/foci
+          - azure/illicit_consent_grant
+          - azure/managed_identity_abuse
+          - azure/sa_public_access
+          - azure/shared_key_auth
+          - azure/keyvault_misconfig
+          - azure/blob_sas_abuse
+          - azure/automation_account
+          - azure/function_ssrf
+          - aws/s3_public_access
+          - aws/iam_privesc
+          - aws/lambda_env_secrets
+          - aws/secrets_manager_enum
+          - aws/ec2_userdata_secrets
+          - aws/ssm_parameter_store
+          - azure/terraform_state_exposure
+          - azure/arm_deployment_history
+          - azure/exposed_app_registration
+          - aws/s3_bucket_versioning
+          - aws/cloudformation_stack
+          - aws/sts_assume_role_any
+          - azure/app_service_env_vars
+          - aws/lambda_function_url
+          - aws/cognito_identity_pool
+          - azure/logic_app_credentials
+          - azure/storage_account_keys
+          - aws/s3_object_public_acl
+          - aws/glue_job_secrets
+          - azure/vm_run_command
+          - azure/container_instance_env
+          - aws/sqs_public_receive
+          - aws/ssm_session_manager
+          - azure/resource_group_tags
+          - azure/eventgrid_webhook_token
+          - aws/codebuild_env_vars
+          - aws/stepfunctions_execution_history
+          - azure/app_configuration_secrets
+          - azure/vm_extension_settings
+          - aws/route53_records
+          - aws/ecs_exec
+          - azure/apim_named_value
+          - azure/container_app_env_vars
+          - aws/dynamodb_scan
+          - aws/kinesis_shard_reader
+          - azure/deployment_script
+          - azure/policy_assignment_metadata
+          - aws/amplify_env_vars
+          - aws/appconfig_deployment
+          - azure/monitor_action_group
+          - azure/data_factory_linked_service
+          - azure/pass_the_prt
+          - azure/policy_privesc
+          - azure/sqli_imds
+          - azure/device_code_phishing
+          - azure/dynamic_groups_abuse
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.9.8"
+
+      - name: Terraform Format Check
+        working-directory: app/cumulonimbus/applications/${{ matrix.app }}/terraform
+        run: terraform fmt -check -recursive
+
+      - name: Terraform Init
+        working-directory: app/cumulonimbus/applications/${{ matrix.app }}/terraform
+        run: terraform init -backend=false
+
+      - name: Terraform Validate
+        working-directory: app/cumulonimbus/applications/${{ matrix.app }}/terraform
+        run: terraform validate

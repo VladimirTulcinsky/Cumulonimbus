@@ -12,8 +12,8 @@ class AzureCredentials:
                  client_id=None, client_secret=None,
                  tenant_id=None, subscription_id=None):
 
-        self.client_id = client_id,
-        self.client_secret = client_secret,
+        self.client_id = client_id
+        self.client_secret = client_secret
         self.tenant_id = tenant_id
         self.subscription_context = subscription_id
 
@@ -25,6 +25,8 @@ class AzureAuthenticationStrategy(AuthenticationStrategy):
                      tenant_id=None,
                      subscription_id=None,
                      client_id=None, client_secret=None,
+                     tenant_domain=None,
+                     region='West Europe',
                      **kargs):
         """
         Implements authentication for Azure 
@@ -57,11 +59,10 @@ class AzureAuthenticationStrategy(AuthenticationStrategy):
                 raise AuthenticationException('Unknown authentication method')
 
             # Try getting token to authenticate, if error trigger AuthenticationException
-            credentials.get_token(
-                "https://management.core.windows.net/.default")
+            credentials.get_token("https://management.azure.com/.default")
 
             self.write_credentials_to_file(
-                client_id, client_secret, tenant_id, subscription_id)
+                client_id, client_secret, tenant_id, subscription_id, tenant_domain, region)
 
             return AzureCredentials(client_id, client_secret, tenant_id, subscription_id)
 
@@ -69,28 +70,41 @@ class AzureAuthenticationStrategy(AuthenticationStrategy):
             raise AuthenticationException(e)
 
     def get_credentials(self):
-        """
-        Returns the credentials object
-        """
+        missing = [k for k in ("AZURE_CLIENT_ID", "AZURE_CLIENT_SECRET", "AZURE_TENANT_ID", "AZURE_SUBSCRIPTION_ID") if not os.environ.get(k)]
+        if missing:
+            print(f"No Azure credentials found. Please authenticate first: cnimbus azure authenticate ...")
+            return None
+        return AzureCredentials(
+            client_id=os.environ["AZURE_CLIENT_ID"],
+            client_secret=os.environ["AZURE_CLIENT_SECRET"],
+            tenant_id=os.environ["AZURE_TENANT_ID"],
+            subscription_id=os.environ["AZURE_SUBSCRIPTION_ID"],
+        )
 
-        print("Getting credentials for Azure")
-        try:
-            client_id = os.environ["AZURE_CLIENT_ID"]
-            client_secret = os.environ["AZURE_CLIENT_SECRET"]
-            tenant_id = os.environ["AZURE_TENANT_ID"]
-            subscription_id = os.environ["AZURE_SUBSCRIPTION_ID"]
-            credentials = self.authenticate(service_principal=True,
-                                            client_id=client_id,
-                                            client_secret=client_secret,
-                                            tenant_id=tenant_id, subscription_id=subscription_id)
-            return credentials
-        except KeyError:
-            print("Are you sure you are authenticated to Azure and every parameter is set? (client_id, client_secret, tenant_id, subscription_id)")
+    def get_tenant_domain(self):
+        return os.environ.get("AZURE_TENANT_DOMAIN", "")
 
-    def write_credentials_to_file(self, client_id, client_secret, tenant_id, subscription_id):
-        f = open(global_variables.PATH_TO_AZURE_CREDENTIALS, "w")
-        f.write("AZURE_CLIENT_ID=" + str(client_id or '') + "\n")
-        f.write("AZURE_CLIENT_SECRET=" + str(client_secret or '') + "\n")
-        f.write("AZURE_TENANT_ID=" + str(tenant_id or '') + "\n")
-        f.write("AZURE_SUBSCRIPTION_ID=" + str(subscription_id or '') + "\n")
-        f.close()
+    def get_location(self):
+        return os.environ.get("AZURE_LOCATION", "West Europe")
+
+    def write_credentials_to_file(self, client_id, client_secret, tenant_id, subscription_id, tenant_domain=None, location='West Europe'):
+        values = {
+            "AZURE_CLIENT_ID": str(client_id or ''),
+            "AZURE_CLIENT_SECRET": str(client_secret or ''),
+            "AZURE_TENANT_ID": str(tenant_id or ''),
+            "AZURE_SUBSCRIPTION_ID": str(subscription_id or ''),
+            "AZURE_TENANT_DOMAIN": str(tenant_domain or ''),
+            "AZURE_LOCATION": str(location or 'West Europe'),
+        }
+        with open(global_variables.PATH_TO_AZURE_CREDENTIALS, "w") as f:
+            for key, value in values.items():
+                f.write(f"{key}={value}\n")
+        os.chmod(global_variables.PATH_TO_AZURE_CREDENTIALS, 0o600)
+
+        # Also populate the current process environment. In the interactive
+        # shell, authenticate and create/destroy run in one process, and the
+        # .env file is only loaded into os.environ once at startup (before it
+        # exists). Without this, get_credentials() and the creation strategy
+        # would not see freshly-entered credentials until the next launch.
+        for key, value in values.items():
+            os.environ[key] = value

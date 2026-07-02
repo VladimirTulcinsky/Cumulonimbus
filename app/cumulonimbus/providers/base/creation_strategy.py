@@ -8,9 +8,6 @@ class CreationStrategy(metaclass=ABCMeta):
 
     @abstractmethod
     def create(self, **kwargs):
-        """
-        TODO:
-        """
         raise NotImplementedError()
 
 

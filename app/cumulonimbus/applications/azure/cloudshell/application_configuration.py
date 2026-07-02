@@ -4,11 +4,25 @@ import os
 
 
 class ApplicationConfiguration(ApplicationConfigurationAbstract):
+    mitre_ttps = [
+        {"id": "T1530", "name": "Data from Cloud Storage", "url": "https://attack.mitre.org/techniques/T1530/"},
+        {"id": "T1552.001", "name": "Unsecured Credentials: Credentials in Files", "url": "https://attack.mitre.org/techniques/T1552/001/"},
+        {"id": "T1078.004", "name": "Valid Accounts: Cloud Accounts", "url": "https://attack.mitre.org/techniques/T1078/004/"},
+    ]
     def configure_application(self, **kwargs):
         """
         Given parameters, this runs code that is required for each vulnerable application to run correctly.
         """
         pass
+    def get_hints(self):
+        return {
+            1: "The storage account has a file share. List the shares and look for the .cloudconsole folder — it contains a Cloud Shell disk image.",
+            2: "Download the .img file using azcopy or az storage file download. The file is named acc_<username>.img.",
+            3: "Mount the image locally: sudo mount -o loop acc_noher.img /mnt/cs  — then search for the flag inside the mounted filesystem.",
+        }
+
+    def get_flag(self):
+        return "CUMULONIMBUS{CSStorageMustBeLockedDown}"
 
     def pretty_print_tf_output(self, app_id, output):
         """
@@ -18,6 +32,8 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
         :param output:                      The output name
         :return:                            The output value
         """
+        if not output:
+            return
         print("###############################################")
         print("#             Required Information            #")
         print("###############################################")
@@ -27,3 +43,4 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
               output["user_name"]["value"])
         print("[3] The password is: " +
               output["user_password"]["value"])
+        self.print_mitre_ttps()

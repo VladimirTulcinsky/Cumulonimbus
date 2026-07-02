@@ -1,18 +1,15 @@
-data "azuread_domains" "aad_domains" {
-  only_default = true
-}
 
 resource "azuread_user" "norightsuser" {
-  user_principal_name = "mriwantconsent@${data.azuread_domains.aad_domains.domains.*.domain_name[0]}"
-  display_name        = "Mr Iwant Consent"
-  mail_nickname       = "mriwantconsent"
+  user_principal_name = "mriwantconsent${local.name_suffix_dash}@${var.tenant_domain}"
+  display_name        = "Mr Iwant Consent${local.name_suffix_dash}"
+  mail_nickname       = "mriwantconsent${local.name_suffix_dash}"
   password            = "IllTakeEverythingYouGiveMe1."
 }
 
 resource "azuread_user" "administrator" {
-  user_principal_name = "mradminconsent@${data.azuread_domains.aad_domains.domains.*.domain_name[0]}"
-  display_name        = "Mr Admin Consent"
-  mail_nickname       = "mradminconsent"
+  user_principal_name = "mradminconsent${local.name_suffix_dash}@${var.tenant_domain}"
+  display_name        = "Mr Admin Consent${local.name_suffix_dash}"
+  mail_nickname       = "mradminconsent${local.name_suffix_dash}"
   password            = "IllGiveYouEverythingYouWant1."
 }
 

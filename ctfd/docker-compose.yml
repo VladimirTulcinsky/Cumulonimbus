@@ -1,0 +1,136 @@
+version: "3.9"
+
+# Two independent CTFd instances — one per cloud provider.
+#
+#   AWS   challenges → http://localhost:8000
+#   Azure challenges → http://localhost:8001
+#
+# Start both:   docker compose up -d
+# AWS only:     docker compose up -d ctfd_aws db_aws cache_aws
+# Azure only:   docker compose up -d ctfd_azure db_azure cache_azure
+
+services:
+
+  # ── AWS ────────────────────────────────────────────────────────────────────
+
+  ctfd_aws:
+    image: ctfd/ctfd:3.7.0
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=mysql+pymysql://ctfd:ctfd@db_aws/ctfd
+      - REDIS_URL=redis://cache_aws:6379
+      - SECRET_KEY=${CTFD_AWS_SECRET_KEY:-change-me-aws}
+      - UPLOAD_FOLDER=/var/uploads
+      - LOG_FOLDER=/var/log/CTFd
+      - ACCESS_LOG=-
+      - ERROR_LOG=-
+      - REVERSE_PROXY=false
+    depends_on:
+      db_aws:
+        condition: service_healthy
+      cache_aws:
+        condition: service_started
+    volumes:
+      - ctfd_aws_logs:/var/log/CTFd
+      - ctfd_aws_uploads:/var/uploads
+    networks:
+      - ctfd_aws_net
+
+  db_aws:
+    image: mariadb:10.11
+    restart: unless-stopped
+    environment:
+      - MYSQL_ROOT_PASSWORD=ctfd_root
+      - MYSQL_USER=ctfd
+      - MYSQL_PASSWORD=ctfd
+      - MYSQL_DATABASE=ctfd
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    volumes:
+      - ctfd_aws_db:/var/lib/mysql
+    networks:
+      - ctfd_aws_net
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uctfd", "-pctfd"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  cache_aws:
+    image: redis:7-alpine
+    restart: unless-stopped
+    volumes:
+      - ctfd_aws_cache:/data
+    networks:
+      - ctfd_aws_net
+
+  # ── Azure ──────────────────────────────────────────────────────────────────
+
+  ctfd_azure:
+    image: ctfd/ctfd:3.7.0
+    restart: unless-stopped
+    ports:
+      - "8001:8000"
+    environment:
+      - DATABASE_URL=mysql+pymysql://ctfd:ctfd@db_azure/ctfd
+      - REDIS_URL=redis://cache_azure:6379
+      - SECRET_KEY=${CTFD_AZURE_SECRET_KEY:-change-me-azure}
+      - UPLOAD_FOLDER=/var/uploads
+      - LOG_FOLDER=/var/log/CTFd
+      - ACCESS_LOG=-
+      - ERROR_LOG=-
+      - REVERSE_PROXY=false
+    depends_on:
+      db_azure:
+        condition: service_healthy
+      cache_azure:
+        condition: service_started
+    volumes:
+      - ctfd_azure_logs:/var/log/CTFd
+      - ctfd_azure_uploads:/var/uploads
+    networks:
+      - ctfd_azure_net
+
+  db_azure:
+    image: mariadb:10.11
+    restart: unless-stopped
+    environment:
+      - MYSQL_ROOT_PASSWORD=ctfd_root
+      - MYSQL_USER=ctfd
+      - MYSQL_PASSWORD=ctfd
+      - MYSQL_DATABASE=ctfd
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    volumes:
+      - ctfd_azure_db:/var/lib/mysql
+    networks:
+      - ctfd_azure_net
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uctfd", "-pctfd"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  cache_azure:
+    image: redis:7-alpine
+    restart: unless-stopped
+    volumes:
+      - ctfd_azure_cache:/data
+    networks:
+      - ctfd_azure_net
+
+volumes:
+  ctfd_aws_logs:
+  ctfd_aws_uploads:
+  ctfd_aws_db:
+  ctfd_aws_cache:
+  ctfd_azure_logs:
+  ctfd_azure_uploads:
+  ctfd_azure_db:
+  ctfd_azure_cache:
+
+networks:
+  ctfd_aws_net:
+    driver: bridge
+  ctfd_azure_net:
+    driver: bridge

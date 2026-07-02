@@ -4,6 +4,12 @@ import os
 
 
 class ApplicationConfiguration(ApplicationConfigurationAbstract):
+    mitre_ttps = [
+        {"id": "T1190", "name": "Exploit Public-Facing Application", "url": "https://attack.mitre.org/techniques/T1190/"},
+        {"id": "T1552.005", "name": "Cloud Instance Metadata API", "url": "https://attack.mitre.org/techniques/T1552/005/"},
+        {"id": "T1078.004", "name": "Valid Accounts: Cloud Accounts", "url": "https://attack.mitre.org/techniques/T1078/004/"},
+        {"id": "T1530", "name": "Data from Cloud Storage", "url": "https://attack.mitre.org/techniques/T1530/"},
+    ]
     def configure_application(self, **kwargs):
         """
         Given parameters, this runs code that is required for each vulnerable application to run correctly.
@@ -23,6 +29,15 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
         print("Key pair for ec2_ssrf located at {}. The keys should only be used for debugging purposes.".format(
             key_pair_path))
         return key_pair_path
+    def get_hints(self):
+        return {
+            1: "The web app fetches any URL you pass to ?url=. Think about what internal endpoints are reachable from inside the EC2 instance.",
+            2: "The EC2 Instance Metadata Service (IMDS) is reachable at http://169.254.169.254/. Try fetching /latest/meta-data/iam/security-credentials/",
+            3: "Fetch http://169.254.169.254/latest/meta-data/iam/security-credentials/<role-name> via the SSRF endpoint to get temporary AWS credentials, then use them with the AWS CLI to access S3.",
+        }
+
+    def get_flag(self):
+        return "CUMULONIMBUS{Th4tW4sCh33sy}"
 
     def pretty_print_tf_output(self, app_id, output):
         """
@@ -32,6 +47,8 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
         :param output:                      The output name
         :return:                            The output value
         """
+        if not output:
+            return
         print("###############################################")
         print("#             Attacker Credentials            #")
         print("###############################################")
@@ -40,3 +57,4 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
         print("[2] aws_secret_access_key:" +
               output["attacker_aws_secret_access_key"]["value"])
         print("These credentials are valid for the application: {}".format(app_id))
+        self.print_mitre_ttps()

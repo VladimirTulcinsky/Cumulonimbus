@@ -1,9 +1,6 @@
-data "azuread_domains" "aad_domains" {
-  only_default = true
-}
 
 resource "azuread_user" "attacker" {
-  user_principal_name = "ska_attacker@${data.azuread_domains.aad_domains.domains.*.domain_name[0]}"
+  user_principal_name = "ska-attacker-${random_integer.ska.result}@${var.tenant_domain}"
   display_name        = "Ska Attacker"
   password            = "IWillAttackSKA1."
 }

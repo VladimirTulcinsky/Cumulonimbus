@@ -4,11 +4,25 @@ import os
 
 
 class ApplicationConfiguration(ApplicationConfigurationAbstract):
+    mitre_ttps = [
+        {"id": "T1528", "name": "Steal Application Access Token", "url": "https://attack.mitre.org/techniques/T1528/"},
+        {"id": "T1566.002", "name": "Phishing: Spearphishing Link", "url": "https://attack.mitre.org/techniques/T1566/002/"},
+        {"id": "T1078.004", "name": "Valid Accounts: Cloud Accounts", "url": "https://attack.mitre.org/techniques/T1078/004/"},
+    ]
     def configure_application(self, **kwargs):
         """
         Given parameters, this runs code that is required for each vulnerable application to run correctly.
         """
         pass
+    def get_hints(self):
+        return {
+            1: "Start the o365-attack-toolkit container and configure template.conf with the application ID and secret output by the lab. The tool generates a phishing URL.",
+            2: "Visit http://127.0.0.1:8080/ and copy the phishing link. Open it in a browser and sign in as the admin user with the provided credentials to simulate consent being granted.",
+            3: "After consent, your redirect URI receives an authorization code. The toolkit exchanges it for tokens stored in a SQLite DB. Dump them with sqlite3 and use the access token to call the Graph API.",
+        }
+
+    def get_flag(self):
+        return "CUMULONIMBUS{1ll1c1t_C0ns3nt_Gr4nt3d}"
 
     def pretty_print_tf_output(self, app_id, output):
         """
@@ -18,6 +32,8 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
         :param output:                      The output name
         :return:                            The output value
         """
+        if not output:
+            return
         print("###############################################")
         print("#             Required Information            #")
         print("###############################################")
@@ -48,3 +64,4 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
             scope = "<The OAuth scopes you want to request to your victim e.g. offline_access contacts.read user.read mail.read mail.send files.readWrite.all files.read files.read.all openid profile AppRoleAssignment.ReadWrite.All>"
             redirecturi = "http://localhost:30662/gettoken" 
             """)
+        self.print_mitre_ttps()

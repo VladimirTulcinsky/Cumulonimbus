@@ -4,11 +4,26 @@ import os
 
 
 class ApplicationConfiguration(ApplicationConfigurationAbstract):
+    mitre_ttps = [
+        {"id": "T1528", "name": "Steal Application Access Token", "url": "https://attack.mitre.org/techniques/T1528/"},
+        {"id": "T1566", "name": "Phishing", "url": "https://attack.mitre.org/techniques/T1566/"},
+        {"id": "T1550.001", "name": "Use Alternate Authentication Material: Application Access Token", "url": "https://attack.mitre.org/techniques/T1550/001/"},
+        {"id": "T1078.004", "name": "Valid Accounts: Cloud Accounts", "url": "https://attack.mitre.org/techniques/T1078/004/"},
+    ]
     def configure_application(self, **kwargs):
         """
         Given parameters, this runs code that is required for each vulnerable application to run correctly.
         """
         pass
+    def get_hints(self):
+        return {
+            1: "After device code phishing, your refresh token is in msal_token_cache.json. A Family Refresh Token can be redeemed by any FOCI client — you are not limited to the Azure CLI client ID.",
+            2: "Use TokenTactics or a manual token request to exchange the refresh token using a different client_id, e.g. Microsoft Office (d3590ed6-52b3-4102-aeff-aad2292ab01c).",
+            3: "With the new token (scoped to a client that has Group.ReadWrite.All), call the Microsoft Graph API to add your user to the administrators group: POST /v1.0/groups/<id>/members/$ref",
+        }
+
+    def get_flag(self):
+        return "CUMULONIMBUS{F4m1ly_R3fr3sh_T0k3n_4bus3d}"
 
     def pretty_print_tf_output(self, app_id, output):
         """
@@ -18,6 +33,8 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
         :param output:                      The output name
         :return:                            The output value
         """
+        if not output:
+            return
         print("###############################################")
         print("#             Required Information            #")
         print("###############################################")
@@ -34,3 +51,4 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
               output["user_password"]["value"])
         print(
             f"""Hint: Now the goal is to escalate your privileges to global admin by adding {output["user_name"]["value"]} to the groups of administrators". Note that the group has no role assignments (e.g. global admin) as this required a P1 license, in a real world scenario this is very likely to occur""")
+        self.print_mitre_ttps()

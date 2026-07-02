@@ -31,12 +31,23 @@ apt-get install -qy \
   vim \
   sqlite3 \
   lsb-release \
+  openssh-client \
 
-apt-get update && apt-get install -y gnupg software-properties-common wget
-wget -qO - https://apt.releases.hashicorp.com/gpg | gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
-echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | tee /etc/apt/sources.list.d/hashicorp.list
-apt-get update
-apt-get install -y terraform
+apt-get install -qy unzip wget
+
+TERRAFORM_VERSION=1.9.8
+wget -q "https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip" -O /tmp/terraform.zip
+unzip -q /tmp/terraform.zip -d /usr/local/bin/
+rm /tmp/terraform.zip
+chmod +x /usr/local/bin/terraform
+
+# crane — pull and inspect OCI/Docker images from a registry WITHOUT a Docker
+# daemon (the acr image lab dissects images via AcrPull; this container has no
+# Docker). Single static binary.
+wget -q "https://github.com/google/go-containerregistry/releases/latest/download/go-containerregistry_Linux_x86_64.tar.gz" -O /tmp/crane.tar.gz \
+  && tar -xzf /tmp/crane.tar.gz -C /usr/local/bin crane \
+  && rm -f /tmp/crane.tar.gz \
+  && chmod +x /usr/local/bin/crane
 
 
   
@@ -45,7 +56,11 @@ pip3 install boto3 \
   python-terraform \
   requests \
   python-dotenv \
-  azure-identity
+  azure-identity \
+  playwright
+
+playwright install-deps chromium
+playwright install chromium
 
 echo -e "\n\nSoftware Pre-reqs Installation Complete!\n\n"
 

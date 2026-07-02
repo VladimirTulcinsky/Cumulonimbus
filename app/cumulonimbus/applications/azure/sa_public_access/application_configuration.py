@@ -4,25 +4,37 @@ import os
 
 
 class ApplicationConfiguration(ApplicationConfigurationAbstract):
+    mitre_ttps = [
+        {"id": "T1619", "name": "Cloud Storage Object Discovery", "url": "https://attack.mitre.org/techniques/T1619/"},
+        {"id": "T1530", "name": "Data from Cloud Storage", "url": "https://attack.mitre.org/techniques/T1530/"},
+    ]
     def configure_application(self, **kwargs):
         """
         Given parameters, this runs code that is required for each vulnerable application to run correctly.
         """
         pass
+    def get_hints(self):
+        return {
+            1: "Real-world storage accounts follow environment naming patterns. Use cloud_enum (https://github.com/initstring/cloud_enum) to discover them: ./cloud_enum.py -k cumulonimbusXXXXprd --disable-aws --disable-gcp. Also try other suffixes: dev, tst, uat, stg.",
+            2: "The 'website' container in the production storage account has 'container' access level — you can list its blobs. Look for a config file.",
+            3: "config.cfg reveals the URL of a second container. That container uses 'blob' access; construct the direct URL to flag.txt and fetch it.",
+        }
+
+    def get_flag(self):
+        return "CUMULONIMBUS{St0r4g3_Acc0unt_4cc355}"
 
     def pretty_print_tf_output(self, app_id, output):
-        """
-        Get the value of a Terraform output.
-
-        :param app_id:                      The application ID
-        :param output:                      The output name
-        :return:                            The output value
-        """
+        if not output:
+            return
+        cid = str(output["cumulonimbus_id"]["value"])
         print("###############################################")
         print("#             Required Information            #")
         print("###############################################")
-        print("[1] This is your entrypoint, open your browser and browse to:" +
-              output["primary_web_endpoint"]["value"])
-        print("As storage accounts must be globally unique, a unique ID will be appended to the storage account name.")
-        print("[2] This is your unique application ID: " +
-              str(output["cumulonimbus_id"]["value"]) + " ==> cumulonimbus" + str(output["cumulonimbus_id"]["value"]))
+        print(f"[1] Entrypoint (static website): {output['primary_web_endpoint']['value']}")
+        print(f"[2] Unique ID  : {cid}")
+        print()
+        print("Enumerate storage accounts with cloud_enum (https://github.com/initstring/cloud_enum):")
+        print(f"  ./cloud_enum.py -k cumulonimbus{cid}prd --disable-aws --disable-gcp")
+        print(f"  # Also try other environments: dev, tst, uat, stg")
+        print(f"  # e.g. ./cloud_enum.py -k cumulonimbus{cid}dev --disable-aws --disable-gcp")
+        self.print_mitre_ttps()

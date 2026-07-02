@@ -21,6 +21,30 @@ class ApplicationConfigurationAbstract(metaclass=ABCMeta):
         """
         raise NotImplementedError()
 
+    def get_flag(self):
+        """
+        Return the flag for this application. Override in each app configuration.
+        Returns None if no flag is configured.
+        """
+        return None
+    def get_hints(self):
+        """
+        Return a dict mapping hint level (int) to hint text.
+        Level 1 is the most gentle nudge; higher levels are more explicit.
+        """
+        return {}
+
+    mitre_ttps = []
+
+    def print_mitre_ttps(self):
+        if not self.mitre_ttps:
+            return
+        print("\n###############################################")
+        print("#         MITRE ATT&CK Techniques            #")
+        print("###############################################")
+        for ttp in self.mitre_ttps:
+            print(f"[{ttp['id']}] {ttp['name']}: {ttp['url']}")
+
 
 class ConfigurationException(Exception):
     def __init__(self, message, errors=None):

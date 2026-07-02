@@ -21,10 +21,9 @@ def get_public_ip():
         response = requests.get("https://api.ipify.org", timeout=5)
         if response.status_code == 200:
             ip = response.text.strip()
-            # change this, used to be different before. CIDR notation for aws
             return {"azure": ip, "aws": ip}
-    except:
-        pass
+    except Exception:
+        print("Warning: could not determine public IP — defaulting to 0.0.0.0. IP-restricted lab rules may not work correctly.")
     return {"azure": "0.0.0.0", "aws": "0.0.0.0"}
 
 
@@ -34,6 +33,11 @@ def __init_general():
 
     global ROOT_DIR
     ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
+
+    # When set, failures print a full traceback. Enabled by the --verbose CLI
+    # flag or the CUMULONIMBUS_VERBOSE environment variable (handy in the shell).
+    global VERBOSE
+    VERBOSE = os.environ.get('CUMULONIMBUS_VERBOSE', '').lower() in ('1', 'true', 'yes')
 
     global ATTACKER_PUBLIC_IP
     ATTACKER_PUBLIC_IP = get_public_ip()

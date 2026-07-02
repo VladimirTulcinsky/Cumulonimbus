@@ -1,5 +1,5 @@
 output "domain_name" {
-  value = data.azuread_domains.aad_domains.domains.*.domain_name[0]
+  value = var.tenant_domain
 }
 
 output "user_name" {
@@ -17,5 +17,9 @@ output "app_registration" {
 
 output "admin_group" {
   value = azuread_group.administrators.display_name
+}
+
+output "key_vault_name" {
+  value = azurerm_key_vault.flag.name
 }
 

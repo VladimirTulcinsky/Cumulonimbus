@@ -1,0 +1,31 @@
+#cloud-config
+# Provisions a persistent shared Azure CTFd scoreboard on first boot.
+package_update: true
+packages:
+  - git
+  - python3-pip
+  - ca-certificates
+  - curl
+
+runcmd:
+  # Install Docker Engine + the compose plugin.
+  - curl -fsSL https://get.docker.com | sh
+  - systemctl enable --now docker
+  # Dependency for the seeding script (setup.py talks to CTFd over HTTP).
+  - pip3 install requests
+  # Clone the repo (the ref MUST contain the ctfd/ directory), then bring up and
+  # seed the Azure CTFd instance. Runs as one fail-fast script so a bad clone or
+  # missing ctfd/ surfaces in cloud-init status instead of silently doing nothing.
+  - |
+    set -eu
+    rm -rf /opt/cumulonimbus
+    git clone --branch "${git_ref}" "${repo_url}" /opt/cumulonimbus
+    if [ ! -d /opt/cumulonimbus/ctfd ]; then
+      echo "ERROR: '${git_ref}' has no ctfd/ directory — set git_ref to a ref that does." >&2
+      exit 1
+    fi
+    cd /opt/cumulonimbus/ctfd
+    # Stable CTFd session signing key so logins survive container/VM restarts.
+    printf 'CTFD_AZURE_SECRET_KEY=%s\n' '${secret_key}' > .env
+    python3 setup.py azure --admin-password '${admin_password}'
+

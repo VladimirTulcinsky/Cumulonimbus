@@ -1,7 +1,7 @@
 data "azuread_client_config" "current" {}
 
 resource "azuread_application" "group-add-app" {
-  display_name = "group-add-app"
+  display_name = "group-add-app${local.name_suffix_dash}"
   owners       = [data.azuread_client_config.current.object_id]
 
 
@@ -32,18 +32,19 @@ resource "azuread_service_principal" "group-add-sp" {
   }
 }
 
-// Had to use this hack as admin consent doesn't exist in Terraform (yet)
-resource "null_resource" "aad_admin_consent" {
-  triggers = merge(
-    [for app in azuread_application.group-add-app.required_resource_access :
-      { for role in app.resource_access :
-        join("_", [app.resource_app_id, role.id]) => role.type
-      }
-    ]...
-  )
+# Grant admin consent for the application permission the SP relies on, the
+# app-only way — no `az`/interactive user token required, so it works with the
+# service principal Cumulonimbus authenticates as. (The old approach shelled out
+# to `az ad app permission admin-consent`, which only works with a signed-in
+# user token, not a service principal.) This grants the same Group.ReadWrite.All
+# permission to the same SP, so the lab's vulnerability is unchanged.
+data "azuread_service_principal" "msgraph" {
+  application_id = "00000003-0000-0000-c000-000000000000" # Microsoft Graph
+}
 
-  provisioner "local-exec" {
-    command = "sleep 30 && az ad app permission admin-consent --id ${azuread_application.group-add-app.application_id}"
-  }
+resource "azuread_app_role_assignment" "group_readwrite_all" {
+  app_role_id         = "62a82d76-70ea-41e2-9197-370581804d09" # Group.ReadWrite.All
+  principal_object_id = azuread_service_principal.group-add-sp.object_id
+  resource_object_id  = data.azuread_service_principal.msgraph.object_id
 }
 

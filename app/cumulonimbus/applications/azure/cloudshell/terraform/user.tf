@@ -1,11 +1,8 @@
-data "azuread_domains" "aad_domains" {
-  only_default = true
-}
 
 resource "azuread_user" "victim" {
-  user_principal_name = "noherback@${data.azuread_domains.aad_domains.domains.*.domain_name[0]}"
-  display_name        = "Noher Back"
-  mail_nickname       = "nback"
+  user_principal_name = "noherback${local.name_suffix_dash}@${var.tenant_domain}"
+  display_name        = "Noher Back${local.name_suffix_dash}"
+  mail_nickname       = "nback${local.name_suffix_dash}"
   password            = "IDontLikeIAMPfff1."
 }
 
@@ -16,7 +13,7 @@ resource "azurerm_role_assignment" "noherback" {
 }
 
 resource "azurerm_role_definition" "vm_admin" {
-  name        = "restricted_vm_user_login"
+  name        = "restricted_vm_user_login${local.name_suffix_dash}"
   scope       = azurerm_resource_group.vm_cs.id
   description = "Restricted role to avoid password resets"
 

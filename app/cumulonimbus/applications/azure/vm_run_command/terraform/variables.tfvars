@@ -1,0 +1,7 @@
+client_id          = ""
+client_secret      = ""
+tenant_id          = ""
+subscription_id    = ""
+attacker_public_ip = "0.0.0.0"
+app_id             = "vm_run_command"
+app_name           = "cumulonimbus"
