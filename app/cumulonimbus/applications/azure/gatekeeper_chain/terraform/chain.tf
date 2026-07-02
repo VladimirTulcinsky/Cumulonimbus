@@ -292,10 +292,16 @@ resource "azurerm_data_factory" "adf" {
 }
 
 resource "azurerm_data_factory_linked_service_azure_blob_storage" "data" {
-  name              = "DataLakeConnection"
-  data_factory_id   = azurerm_data_factory.adf.id
-  description       = "Primary data lake connection. Next: submit the AccountKey to the gatekeeper, then enumerate App Configuration store ${local.appconf_name}."
-  connection_string = "DefaultEndpointsProtocol=https;AccountName=cumulonimbusdata;AccountKey=${local.flag_adf};EndpointSuffix=core.windows.net"
+  name            = "DataLakeConnection"
+  data_factory_id = azurerm_data_factory.adf.id
+  # Data Factory ENCRYPTS the AccountKey in a connection string and never returns
+  # it via the API, so a key embedded there is not readable. The real-world leak
+  # here is an engineer pasting the key into the linked service's DESCRIPTION /
+  # ANNOTATIONS as a note — those ARE returned in plaintext to any Reader.
+  description = "Primary data lake connection. Ops note: storage key for the on-call runbook is ${local.flag_adf} — submit it to the gatekeeper, then enumerate App Configuration store ${local.appconf_name}."
+  annotations = [local.flag_adf]
+  # The connection string itself keeps a (masked-on-read) placeholder key.
+  connection_string = "DefaultEndpointsProtocol=https;AccountName=cumulonimbusdata;AccountKey=cnimbusPlaceholderKeyAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==;EndpointSuffix=core.windows.net"
 }
 
 ###############################################################################
