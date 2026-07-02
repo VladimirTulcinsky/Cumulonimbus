@@ -17,7 +17,7 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
             1: "You start with NO Azure access. Begin unauthenticated: read the public 'welcome.txt' blob (URL is in the lab output) to get your bootstrap flag, the resource group, and the gatekeeper's URL.",
             2: "Submit a flag to the gatekeeper to be GRANTED real Azure access (scoped to exactly the next resource): `curl -X POST <gatekeeper-url>/unlock -H 'Content-Type: application/json' -d '{\"flag\":\"<flag>\"}'`. Wait 1-2 minutes for RBAC to propagate, then read the resource. Each stage's value is the flag that unlocks the next.",
             3: "The ladder walks plaintext-credential scenarios in this order: resource-group tags (`az group show --query tags`) -> ARM deployment history (`az deployment group show --query properties.parameters`) -> policy assignment metadata (`az policy assignment show --query metadata`) -> Container App env (`az containerapp show`) -> Logic App (`az logic workflow show` / REST) -> Deployment Script outputs (`az deployment-scripts show`).",
-            4: "App Service settings need Website Contributor (`az webapp config appsettings list`). The Event Grid stage's leaked webhook token lives in the topic's tags (`az eventgrid topic show --query tags`), readable with Reader. The final unlock grants Key Vault Secrets User: `az keyvault secret show --vault-name <kv> --name app-flag --query value -o tsv` (the vault name/secret are in the Event Grid topic's tags).",
+            4: "App Service settings need Website Contributor (`az webapp config appsettings list`) — SECRET_FLAG is the flag and NEXT_HOP names the Key Vault. Submitting it grants Key Vault Secrets User: `az keyvault secret show --vault-name <kv> --name app-flag --query value -o tsv`.",
         }
 
     def configure_application(self, **kwargs):
@@ -40,7 +40,7 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
         print("role (scoped to one resource) for real:")
         print("  public blob -> resource-group tags -> ARM deployment history")
         print("  -> policy assignment -> Container App -> Logic App -> Deployment Script")
-        print("  -> App Service -> Event Grid -> Key Vault")
+        print("  -> App Service -> Key Vault")
         print("\nSubmit a flag:")
         print(f"  curl -s -X POST {gatekeeper_url}/unlock \\")
         print("       -H 'Content-Type: application/json' -d '{\"flag\":\"CUMULONIMBUS{...}\"}'")

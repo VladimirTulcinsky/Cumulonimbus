@@ -12,8 +12,7 @@
 #   Container App env (Reader)           --submit--> Reader on the Logic App
 #   Logic App workflow (Reader)          --submit--> Reader on the Deployment Script
 #   Deployment Script output (Reader)    --submit--> Website Contributor on the App Service
-#   App Service app settings (Website Contributor) --submit--> Reader on the Event Grid topic
-#   Event Grid topic tags (Reader)                 --submit--> Key Vault Secrets User
+#   App Service app settings (Website Contributor) --submit--> Key Vault Secrets User
 #   Key Vault secret (Secrets User)                the CTFd flag
 #
 # Three scenarios are resource-group-level (tags, deployment history, policy), so
@@ -59,7 +58,7 @@ resource "null_resource" "register_providers" {
       if [ -n "$AZ_SUBSCRIPTION_ID" ]; then
         az account set --subscription "$AZ_SUBSCRIPTION_ID"
       fi
-      for ns in Microsoft.App Microsoft.OperationalInsights Microsoft.EventGrid \
+      for ns in Microsoft.App Microsoft.OperationalInsights \
                 Microsoft.Logic Microsoft.Web Microsoft.ManagedIdentity \
                 Microsoft.KeyVault Microsoft.Storage; do
         az provider register --namespace "$ns" --wait
@@ -87,7 +86,6 @@ locals {
   ds_name       = "cngk2-script-${random_id.suffix.hex}"
   plan_name     = "cngk2-plan-${random_id.suffix.hex}"
   app_name      = "cngk2-app-${random_id.suffix.hex}"
-  eg_topic_name = "cngk2-topic-${random_id.suffix.hex}"
   gk_name       = "cngk2-gatekeeper-${random_id.suffix.hex}"
   kv_name       = substr("cngk2kv${local.base}", 0, 24)
   kv_secret     = "app-flag"
@@ -106,7 +104,6 @@ locals {
   flag_logic        = "CUMULONIMBUS{L0g1c_App_H4rdcod3d_Cr3d3nt14ls}"
   flag_script       = "CUMULONIMBUS{D3pl0ym3nt_Scr1pt_0utput_3xp0s3d}"
   flag_appservice   = "CUMULONIMBUS{App_S3rv1c3_Env_V4rs_3xp0s3d}"
-  flag_eventgrid    = "CUMULONIMBUS{3v3ntGr1d_W3bh00k_T0k3n_3xp0s3d}"
 
   # Built-in role definition GUIDs.
   role_reader  = "acdd72a7-3385-48ef-bd42-f606fba81ae7"
@@ -122,8 +119,7 @@ locals {
     (local.flag_containerapp) = { label = "Reader on the Logic App", scope = azurerm_logic_app_workflow.app.id, roles = [local.role_reader] }
     (local.flag_logic)        = { label = "Reader on the Deployment Script", scope = azurerm_resource_deployment_script_azure_cli.app.id, roles = [local.role_reader] }
     (local.flag_script)       = { label = "Website Contributor on the App Service", scope = azurerm_linux_web_app.app.id, roles = [local.role_website] }
-    (local.flag_appservice)   = { label = "Reader on the Event Grid topic", scope = azurerm_eventgrid_topic.app.id, roles = [local.role_reader] }
-    (local.flag_eventgrid)    = { label = "Key Vault Secrets User", scope = azurerm_key_vault.chain.id, roles = [local.role_kv] }
+    (local.flag_appservice)   = { label = "Key Vault Secrets User", scope = azurerm_key_vault.chain.id, roles = [local.role_kv] }
   }
 }
 
@@ -436,30 +432,10 @@ resource "azurerm_linux_web_app" "app" {
   app_settings = {
     "ENVIRONMENT" = "production"
     "SECRET_FLAG" = local.flag_appservice
-    "NEXT_HOP"    = "Submit SECRET_FLAG to the gatekeeper, then read the Event Grid topic ${local.eg_topic_name}."
+    "NEXT_HOP"    = "Submit SECRET_FLAG to the gatekeeper (grants Key Vault access), then read Key Vault ${local.kv_name} secret ${local.kv_secret}."
   }
 
   tags = { app_id = var.app_id }
-}
-
-###############################################################################
-# Stage 8 — Event Grid webhook token (full URL needs getFullUrl)
-###############################################################################
-resource "azurerm_eventgrid_topic" "app" {
-  name                = local.eg_topic_name
-  location            = azurerm_resource_group.rg.location
-  resource_group_name = azurerm_resource_group.rg.name
-
-  # Event Grid performs a mandatory ownership handshake on custom webhook URLs,
-  # so a fake endpoint cannot be attached as a real event subscription (creation
-  # fails endpoint validation). The "configured" webhook URL — with its embedded
-  # auth token — is instead recorded in the topic's tags, readable by any Reader.
-  tags = {
-    app_id        = var.app_id
-    managed       = "terraform"
-    "webhook-url" = "https://hooks.internal.example.com/events?token=${local.flag_eventgrid}&source=azure"
-    "next-hop"    = "Submit the token from webhook-url to the gatekeeper, then read Key Vault ${local.kv_name} secret ${local.kv_secret}."
-  }
 }
 
 ###############################################################################

@@ -27,8 +27,7 @@ Stage 3     policy assignment metadata (Reader)  --submit--> Reader on the Conta
 Stage 4     Container App env (Reader)           --submit--> Reader on the Logic App
 Stage 5     Logic App workflow (Reader)          --submit--> Reader on the Deployment Script
 Stage 6     Deployment Script output (Reader)    --submit--> Website Contributor on the App Service
-Stage 7     App Service settings (Website Contributor) --submit--> Reader on the Event Grid topic
-Stage 8     Event Grid topic tags (Reader)             --submit--> Key Vault Secrets User
+Stage 7     App Service settings (Website Contributor) --submit--> Key Vault Secrets User
 Final       Key Vault secret (Secrets User)               the flag
 ```
 
@@ -38,7 +37,7 @@ non-Reader role: App Service app settings require the `config/list` action
 (**Website Contributor**). Each stage is a standalone lab's mechanism
 (`resource_group_tags`, `arm_deployment_history`, `policy_assignment_metadata`,
 `container_app_env_vars`, `logic_app_credentials`, `deployment_script`,
-`app_service_env_vars`, `eventgrid_webhook_token`) reusing its flag.
+`app_service_env_vars`) reusing its flag.
 
 ## Walkthrough
 
@@ -127,22 +126,8 @@ Contributor on the App Service**.
 az webapp config appsettings list -g <rg> -n <app-service> -o table
 ```
 
-`SECRET_FLAG` is the flag; `NEXT_HOP` names the Event Grid topic. Submit →
-unlocks **Reader on the Event Grid topic**.
-
-### Stage 8 — Event Grid webhook token (Reader on the topic)
-
-```bash
-az eventgrid topic show -g <rg> -n <topic> --query tags
-```
-
-The `webhook-url` tag holds the configured webhook URL; its `token=` query
-parameter is the flag. The `next-hop` tag names the Key Vault. Submit → unlocks
+`SECRET_FLAG` is the flag; `NEXT_HOP` names the Key Vault. Submit → unlocks
 **Key Vault Secrets User**.
-
-> Event Grid enforces a webhook ownership handshake on real subscriptions, so a
-> fake endpoint can't be attached — the leaked token lives in the topic's
-> configuration (tags) instead.
 
 ### Final — Key Vault secret
 
@@ -166,9 +151,8 @@ role-assignment rights and the deploy will fail at that step.
   internet-facing workload **User Access Administrator** / **Owner**.
 - The per-stage lessons are the standalone labs': don't store secrets in resource
   tags, ARM deployment string parameters, policy metadata, Container App env
-  vars, Logic App action headers, Deployment Script outputs, App Service app
-  settings, or Event Grid webhook URLs. Use Key Vault references and secureString
-  parameters.
+  vars, Logic App action headers, Deployment Script outputs, or App Service app
+  settings. Use Key Vault references and secureString parameters.
 
 ## MITRE ATT&CK Mapping
 

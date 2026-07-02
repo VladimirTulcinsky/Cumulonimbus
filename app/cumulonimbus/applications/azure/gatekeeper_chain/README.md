@@ -20,23 +20,21 @@ identity, so the role grants are genuine.
 ## The ladder
 
 ```
-Bootstrap   public blob (anonymous)            --submit--> Reader on the Container Instance
-Stage 1     Container Instance env (Reader)    --submit--> Reader on the Data Factory
-Stage 2     Data Factory linked service (Reader)--submit--> App Configuration Data Reader
-Stage 3     App Configuration (Data Reader)    --submit--> Reader on the Monitor action group
-Stage 4     Monitor action group (Reader)      --submit--> Reader on the APIM service
-Stage 5     APIM named value (Reader)          --submit--> Key Vault Secrets User
-Final       Key Vault secret (Secrets User)               the flag
+Bootstrap   public blob (anonymous)          --submit--> Reader on the Container Instance
+Stage 1     Container Instance env (Reader)  --submit--> App Configuration Data Reader
+Stage 2     App Configuration (Data Reader)  --submit--> Reader on the Monitor action group
+Stage 3     Monitor action group (Reader)    --submit--> Reader on the APIM service
+Stage 4     APIM named value (Reader)        --submit--> Key Vault Secrets User
+Final       Key Vault secret (Secrets User)             the flag
 ```
 
 APIM is placed last (before the vault) on purpose: it is the slowest resource to
 provision, so it has the most time to be ready before a player reaches it.
 
 Each stage is one of the standalone labs' mechanisms (`container_instance_env`,
-`data_factory_linked_service`, `app_configuration_secrets`,
-`monitor_action_group`, `apim_named_value`) reusing their flags, wired together
-so the credential you read is the key to the next door. (The container-image
-secrets scenario has its own lab, `acr_image_secrets`.)
+`app_configuration_secrets`, `monitor_action_group`, `apim_named_value`) reusing
+their flags, wired together so the credential you read is the key to the next
+door. (The container-image secrets scenario has its own lab, `acr_image_secrets`.)
 
 ## Walkthrough
 
@@ -70,32 +68,10 @@ az container show -g <rg> -n <container-group> \
   --query "containers[0].environmentVariables"
 ```
 
-`SECRET_FLAG` is the flag; `NEXT_HOP` names the Data Factory. Submit → unlocks
-**Reader on the Data Factory**.
+`SECRET_FLAG` is the flag; `NEXT_HOP` names the App Configuration store. Submit →
+unlocks **App Configuration Data Reader**.
 
-### Stage 2 — Data Factory linked service (Reader)
-
-Data Factory encrypts the `AccountKey` inside a connection string and won't
-return it (so `typeProperties.connectionString` comes back masked). The leak is
-the key an engineer pasted into the linked service's **description / annotations**
-— those are returned in plaintext:
-
-```bash
-az extension add --name datafactory 2>/dev/null
-az datafactory linked-service show -g <rg> --factory-name <adf-name> \
-  --name DataLakeConnection --query "properties.[description, annotations]"
-# (or dump the whole thing and read the description:)
-az datafactory linked-service show -g <rg> --factory-name <adf-name> --name DataLakeConnection
-```
-
-**In the portal:** open the Data Factory → **Launch Studio** → **Manage** (the
-toolbox icon) → **Linked services** → **DataLakeConnection** — the key is in the
-*Description* field (the connection string's *Account key* box stays masked).
-
-The key value is the flag; the description also names the App Configuration store.
-Submit → unlocks **App Configuration Data Reader**.
-
-### Stage 3 — App Configuration (Data Reader)
+### Stage 2 — App Configuration (Data Reader)
 
 ```bash
 az appconfig kv list --name <config-store> --auth-mode login --all -o table
@@ -104,7 +80,7 @@ az appconfig kv list --name <config-store> --auth-mode login --all -o table
 `secrets/api-key` is the flag; `secrets/next-hop` names the Monitor action group.
 Submit the flag → unlocks **Reader on the Monitor action group**.
 
-### Stage 4 — Monitor action group webhook token (Reader)
+### Stage 3 — Monitor action group webhook token (Reader)
 
 ```bash
 az monitor action-group show -g <rg> -n <action-group> \
@@ -115,7 +91,7 @@ The `security-alerts` webhook URL contains the flag in its `token=` parameter;
 the `apim-pointer` webhook names the APIM service. Submit the flag → unlocks
 **Reader on the APIM service**.
 
-### Stage 5 — APIM named value (Reader on the APIM service)
+### Stage 4 — APIM named value (Reader on the APIM service)
 
 ```bash
 az apim nv show -g <rg> --service-name <apim-name> --named-value-id flag-key --query value -o tsv
@@ -146,9 +122,9 @@ deploy will fail at that step.
   behind authentication and approval (PIM), and never give an internet-facing
   workload **User Access Administrator** / **Owner**.
 - The per-stage lessons are the standalone labs': don't store secrets in APIM
-  non-secret named values, App Configuration key-values, container env vars,
-  Data Factory inline connection strings, or Monitor webhook URLs. Use Key Vault
-  references and mark sensitive values as secret.
+  non-secret named values, App Configuration key-values, container env vars, or
+  Monitor webhook URLs. Use Key Vault references and mark sensitive values as
+  secret.
 
 ## MITRE ATT&CK Mapping
 

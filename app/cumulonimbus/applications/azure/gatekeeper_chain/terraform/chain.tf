@@ -6,8 +6,7 @@
 # stage's flag, so each unlock opens exactly the next scenario:
 #
 #   public blob   (bootstrap flag)        --submit--> Reader on the Container Instance
-#   Container Instance env (Reader)       --submit--> Reader on the Data Factory
-#   Data Factory linked service (Reader)  --submit--> App Configuration Data Reader
+#   Container Instance env (Reader)       --submit--> App Configuration Data Reader
 #   App Configuration (Data Reader)       --submit--> Reader on the Monitor action group
 #   Monitor action group (Reader)         --submit--> Reader on the APIM service
 #   APIM named value (Reader)             --submit--> Key Vault Secrets User
@@ -40,7 +39,6 @@ locals {
   apim_name    = substr("cngk-apim-${local.base}", 0, 50)
   appconf_name = substr("cngk-conf-${local.base}", 0, 50)
   aci_app_name = "cngk-app-${random_id.suffix.hex}"
-  adf_name     = substr("cngk-adf-${local.base}", 0, 63)
   ag_name      = "cngk-ag-${random_id.suffix.hex}"
   gk_name      = "cngk-gatekeeper-${random_id.suffix.hex}"
   kv_name      = substr("cngkkv${local.base}", 0, 24)
@@ -53,7 +51,6 @@ locals {
   flag_apim      = "CUMULONIMBUS{AP1M_N4m3d_V4lu3_Pl41nt3xt}"
   flag_appconfig = "CUMULONIMBUS{App_C0nf1g_D4t4_R34d3r_Enum}"
   flag_container = "CUMULONIMBUS{C0nt41n3r_1nst4nc3_Pl41nt3xt_Env}"
-  flag_adf       = "CUMULONIMBUS{ADF_L1nk3d_S3rv1c3_Cl34rt3xt_K3y}"
   flag_monitor   = "CUMULONIMBUS{Monit0r_W3bh00k_T0k3n_3xp0s3d}"
 
   # Built-in role definition GUIDs.
@@ -65,8 +62,7 @@ locals {
   # the NEXT resource).
   unlocks = {
     (local.flag_bootstrap) = { label = "Reader on the Container Instance", scope = azurerm_container_group.app.id, roles = [local.role_reader] }
-    (local.flag_container) = { label = "Reader on the Data Factory", scope = azurerm_data_factory.adf.id, roles = [local.role_reader] }
-    (local.flag_adf)       = { label = "App Configuration Data Reader", scope = azurerm_app_configuration.conf.id, roles = [local.role_appconf] }
+    (local.flag_container) = { label = "App Configuration Data Reader", scope = azurerm_app_configuration.conf.id, roles = [local.role_appconf] }
     (local.flag_appconfig) = { label = "Reader on the Monitor action group", scope = azurerm_monitor_action_group.ag.id, roles = [local.role_reader] }
     (local.flag_monitor)   = { label = "Reader on the APIM service", scope = azurerm_api_management.apim.id, roles = [local.role_reader] }
     (local.flag_apim)      = { label = "Key Vault Secrets User", scope = azurerm_key_vault.chain.id, roles = [local.role_kv] }
@@ -260,7 +256,7 @@ resource "azurerm_container_group" "app" {
       "APP_VERSION" = "2.4.1"
       "ENVIRONMENT" = "production"
       "SECRET_FLAG" = local.flag_container
-      "NEXT_HOP"    = "Submit SECRET_FLAG to the gatekeeper, then read Data Factory ${local.adf_name} linked service DataLakeConnection."
+      "NEXT_HOP"    = "Submit SECRET_FLAG to the gatekeeper, then enumerate App Configuration store ${local.appconf_name}."
     }
 
     secure_environment_variables = {}
@@ -278,34 +274,7 @@ resource "azurerm_container_group" "app" {
 }
 
 ###############################################################################
-# Stage 4 — Data Factory linked service cleartext key (Reader on the factory)
-###############################################################################
-resource "azurerm_data_factory" "adf" {
-  name                = local.adf_name
-  location            = azurerm_resource_group.rg.location
-  resource_group_name = azurerm_resource_group.rg.name
-
-  tags = {
-    app_id  = var.app_id
-    managed = "terraform"
-  }
-}
-
-resource "azurerm_data_factory_linked_service_azure_blob_storage" "data" {
-  name            = "DataLakeConnection"
-  data_factory_id = azurerm_data_factory.adf.id
-  # Data Factory ENCRYPTS the AccountKey in a connection string and never returns
-  # it via the API, so a key embedded there is not readable. The real-world leak
-  # here is an engineer pasting the key into the linked service's DESCRIPTION /
-  # ANNOTATIONS as a note — those ARE returned in plaintext to any Reader.
-  description = "Primary data lake connection. Ops note: storage key for the on-call runbook is ${local.flag_adf} — submit it to the gatekeeper, then enumerate App Configuration store ${local.appconf_name}."
-  annotations = [local.flag_adf]
-  # The connection string itself keeps a (masked-on-read) placeholder key.
-  connection_string = "DefaultEndpointsProtocol=https;AccountName=cumulonimbusdata;AccountKey=cnimbusPlaceholderKeyAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==;EndpointSuffix=core.windows.net"
-}
-
-###############################################################################
-# Stage 5 — Monitor action group webhook token (Reader on the action group)
+# Stage 4 — Monitor action group webhook token (Reader on the action group)
 ###############################################################################
 resource "azurerm_monitor_action_group" "ag" {
   name                = local.ag_name
