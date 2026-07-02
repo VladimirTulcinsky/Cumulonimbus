@@ -572,8 +572,8 @@ CHALLENGES = [
             "You start with an Azure AD account that has no access to anything. A "
             "self-service 'gatekeeper' app grants you a real Azure role (scoped to one "
             "resource) each time you submit the previous stage's flag. Climb through the "
-            "real scenarios — public blob → Container Instance → Data Factory → "
-            "App Configuration → Monitor action group → APIM named value → Key Vault — "
+            "real scenarios — public blob → Container Instance → App Configuration → "
+            "Monitor action group → APIM named value → Key Vault — "
             "until you can read the Key Vault secret.\n\n"
             "Deploy with: `cnimbus azure create --app-id gatekeeper_chain`"
         ),
@@ -583,7 +583,7 @@ CHALLENGES = [
         "tags": ["Azure", "Privilege Escalation", "Chained", "RBAC", "Key Vault"],
         "hints": [
             {"content": "Start unauthenticated: read the public welcome.txt blob for the bootstrap flag and the gatekeeper URL. Submit a flag with `curl -X POST <gatekeeper-url>/unlock -d '{\"flag\":\"...\"}'` — it grants your account a real role scoped to the next resource (wait 1-2 min for RBAC to propagate).", "cost": 25},
-            {"content": "The ladder walks the real scenarios: Container Instance env (`az container show`) → Data Factory linked service (`az datafactory linked-service show`) → App Configuration (`az appconfig kv list --auth-mode login`) → Monitor action group (`az monitor action-group show`) → APIM named value (`az apim nv show`) → Key Vault (`az keyvault secret show`).", "cost": 50},
+            {"content": "The ladder walks the real scenarios: Container Instance env (`az container show`) → App Configuration (`az appconfig kv list --auth-mode login`) → Monitor action group (`az monitor action-group show`) → APIM named value (`az apim nv show`) → Key Vault (`az keyvault secret show`).", "cost": 50},
         ],
     },
     {
@@ -595,7 +595,7 @@ CHALLENGES = [
             "(scoped to one resource or resource group) each time you submit the previous "
             "stage's flag. Climb through — public blob → resource-group tags → ARM "
             "deployment history → policy assignment metadata → Container App → Logic App → "
-            "Deployment Script → App Service → Event Grid → Key Vault — until you can read "
+            "Deployment Script → App Service → Key Vault — until you can read "
             "the Key Vault secret.\n\n"
             "Deploy with: `cnimbus azure create --app-id gatekeeper_chain_2`"
         ),
@@ -605,7 +605,7 @@ CHALLENGES = [
         "tags": ["Azure", "Privilege Escalation", "Chained", "RBAC", "Key Vault"],
         "hints": [
             {"content": "Start unauthenticated: read the public welcome.txt blob for the bootstrap flag and the gatekeeper URL. Submit a flag with `curl -X POST <gatekeeper-url>/unlock -d '{\"flag\":\"...\"}'` — it grants your account a real role scoped to the next resource (wait 1-2 min for RBAC to propagate).", "cost": 25},
-            {"content": "The ladder: resource-group tags (`az group show --query tags`) → ARM deployment history (`az deployment group show`) → policy metadata (`az policy assignment list`) → Container App (`az containerapp show`) → Logic App → Deployment Script (`az deployment-scripts show`) → App Service (`az webapp config appsettings list`, Website Contributor) → Event Grid (`az eventgrid event-subscription show --include-full-endpoint-url`, EventGrid Contributor) → Key Vault.", "cost": 50},
+            {"content": "The ladder: resource-group tags (`az group show --query tags`) → ARM deployment history (`az deployment group show`) → policy metadata (`az policy assignment list`) → Container App (`az containerapp show`) → Logic App → Deployment Script (`az deployment-scripts show`) → App Service (`az webapp config appsettings list`, Website Contributor) → Key Vault.", "cost": 50},
         ],
     },
     {
