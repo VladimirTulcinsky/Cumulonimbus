@@ -103,7 +103,7 @@ AZURE_LAB_INFO = {
     "pass_the_prt": {
         "name": "Pass-the-PRT: Lateral Movement to the Cloud",
         "category": "Identity / PRT Abuse / MFA Bypass",
-        "summary": "An Azure AD-joined Windows VM caches a victim user's Primary Refresh Token, a long-lived SSO credential. With local admin on the host, an attacker can extract and replay this token to authenticate to the cloud while bypassing MFA.",
+        "summary": "An Azure AD-joined Windows VM caches a victim user's Primary Refresh Token, a long-lived SSO credential. With local admin on the host, an attacker can extract and replay this token to authenticate to the cloud as the victim, with no password or MFA prompt.",
         "objective": "Capture the flag by extracting the cached Primary Refresh Token, impersonating the victim, and reading a secret from Key Vault.",
     },
     "policy_privesc": {

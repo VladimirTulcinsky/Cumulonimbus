@@ -129,10 +129,10 @@ resource "azurerm_virtual_machine_extension" "setup" {
   depends_on = [azurerm_virtual_machine_extension.aad_login]
 }
 
-# Configure autologon for the victim user so their PRT is seeded into LSASS
-# automatically on first boot — no interactive login required from the player.
-# azurerm_virtual_machine_run_command supports multi-line scripts and Terraform
-# interpolations cleanly, unlike CSE which requires UTF-16LE base64 encoding.
+# Configure a one-time autologon for the victim user so their PRT is seeded
+# into LSASS automatically, with no interactive login from the player.
+# azurerm_virtual_machine_run_command supports multi-line scripts and script
+# parameters, unlike CSE which requires UTF-16LE base64 encoding.
 resource "azurerm_virtual_machine_run_command" "seed_prt" {
   name               = "seed-prt"
   location           = azurerm_resource_group.ptp.location
@@ -140,21 +140,73 @@ resource "azurerm_virtual_machine_run_command" "seed_prt" {
 
   source {
     script = <<-PS
+      param([string]$VictimUpn, [string]$VictimPassword)
+      if (-not $VictimUpn -or -not $VictimPassword) { throw 'VictimUpn/VictimPassword parameters were not received.' }
+      $dir = 'C:\ProgramData\PrtSeed'
       $r = 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon'
       Set-ItemProperty $r -Name AutoAdminLogon    -Value '1'
-      Set-ItemProperty $r -Name DefaultUserName   -Value 'AzureAD\${azuread_user.victim.user_principal_name}'
+      Set-ItemProperty $r -Name DefaultUserName   -Value "AzureAD\$VictimUpn"
       Set-ItemProperty $r -Name DefaultDomainName -Value ''
-      Set-ItemProperty $r -Name DefaultPassword   -Value '${random_password.victim.result}'
+      Set-ItemProperty $r -Name DefaultPassword   -Value $VictimPassword
       Set-ItemProperty $r -Name AutoLogonCount    -Value '1'
       $a = New-ScheduledTaskAction -Execute 'shutdown.exe' -Argument '/r /t 60 /f'
       $t = New-ScheduledTaskTrigger -Once -At ((Get-Date).AddMinutes(2))
       $p = New-ScheduledTaskPrincipal -UserId 'SYSTEM' -RunLevel Highest
       Register-ScheduledTask -Force -TaskName 'PrtSeed' -Action $a -Trigger $t -Principal $p
+
+      # Cleanup after the victim's autologon: remove the autologon configuration
+      # (Windows normally clears DefaultPassword itself once AutoLogonCount is
+      # used up; this makes it explicit) and remove the seeding tasks. The
+      # script below holds no secrets.
+      New-Item -ItemType Directory -Path $dir -Force | Out-Null
+      @(
+        "`$r = 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon'"
+        "Remove-ItemProperty `$r -Name DefaultPassword -ErrorAction SilentlyContinue"
+        "Remove-ItemProperty `$r -Name AutoLogonCount -ErrorAction SilentlyContinue"
+        "Set-ItemProperty `$r -Name AutoAdminLogon -Value '0'"
+        "Unregister-ScheduledTask -TaskName 'PrtSeed' -Confirm:`$false -ErrorAction SilentlyContinue"
+        "Unregister-ScheduledTask -TaskName 'PrtSeedCleanup' -Confirm:`$false -ErrorAction SilentlyContinue"
+        "Remove-Item '$dir' -Recurse -Force -ErrorAction SilentlyContinue"
+      ) | Set-Content -Path "$dir\cleanup.ps1" -Encoding UTF8
+      $ca = New-ScheduledTaskAction -Execute 'powershell.exe' -Argument "-NoProfile -ExecutionPolicy Bypass -File $dir\cleanup.ps1"
+      $ct = New-ScheduledTaskTrigger -AtStartup
+      $ct.Delay = 'PT3M'
+      Register-ScheduledTask -Force -TaskName 'PrtSeedCleanup' -Action $ca -Trigger $ct -Principal $p
+
       Start-ScheduledTask -TaskName 'PrtSeed'
     PS
   }
 
+  # The victim's password is passed as a protected parameter, so it never
+  # appears in the script text that the Run Command handler stores on the VM.
+  # Protected parameters are encrypted with the VM's CRP certificate. A local
+  # admin can still decrypt them (see the vm_extension_settings lab), but that
+  # is a separate, much harder technique than reading a plaintext script.
+  parameter {
+    name  = "VictimUpn"
+    value = azuread_user.victim.user_principal_name
+  }
+
+  protected_parameter {
+    name  = "VictimPassword"
+    value = random_password.victim.result
+  }
+
+  # Re-seed on every apply. A PRT only lives in LSASS while the victim's
+  # session exists, so any VM restart or deallocation (including the nightly
+  # auto-shutdown below) removes it. Start the VM, then re-run
+  # `cnimbus azure create --app-id pass_the_prt` to log the victim on again.
+  lifecycle {
+    replace_triggered_by = [null_resource.seed_prt_trigger]
+  }
+
   depends_on = [azurerm_virtual_machine_extension.setup]
+}
+
+resource "null_resource" "seed_prt_trigger" {
+  triggers = {
+    run = timestamp()
+  }
 }
 
 # Cost control: auto-deallocate this VM daily at 23:59 UTC (Azure stops compute billing

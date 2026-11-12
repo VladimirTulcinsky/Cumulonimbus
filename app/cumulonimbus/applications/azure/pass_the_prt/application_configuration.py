@@ -35,5 +35,6 @@ class ApplicationConfiguration(ApplicationConfigurationAbstract):
         pw = output.get('attacker_password', {}).get('value', '<attacker_password>')
         print(f"\nWait ~10 min after deploy (autologon seeds the victim's PRT on first boot), then RDP as local admin:")
         print(f"  xfreerdp3 /v:{ip} /u:attacker /p:{pw} /d:. /cert:ignore")
+        print("If the VM is stopped or restarted, the victim's PRT is gone: start the VM and re-run this create command to re-seed it.")
         print(f"Goal  : Extract the victim's PRT with Mimikatz, forge a browser cookie, read the Key Vault flag.")
         self.print_mitre_ttps()
