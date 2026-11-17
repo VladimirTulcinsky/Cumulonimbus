@@ -46,4 +46,11 @@ if ! command -v az >/dev/null 2>&1; then
 fi
 
 az --version | head -n 1 || true
+
+# `az --version` creates ~/.azure (config, command index, version check) on
+# first run. It holds no credentials, but it trips the image credential check in
+# the Docker publish workflow and should not ship in the image. The CLI
+# recreates it at runtime when needed.
+rm -rf /root/.azure
+
 echo -e "\n\nAzure CLI Installation Complete!\n\n"
