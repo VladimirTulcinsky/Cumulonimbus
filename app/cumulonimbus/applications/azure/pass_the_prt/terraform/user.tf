@@ -1,8 +1,17 @@
+locals {
+  victim_upn = "ptp-victim-${random_id.suffix.hex}@${var.tenant_domain}"
+}
+
 resource "azuread_user" "victim" {
-  user_principal_name   = "ptp-victim-${random_id.suffix.hex}@${var.tenant_domain}"
+  user_principal_name   = local.victim_upn
   display_name          = "PTP Victim ${random_id.suffix.hex}"
   password              = random_password.victim.result
   force_password_change = false
+
+  # Destroy order: Terraform deletes this user first, and only then does the
+  # Graph cleanup below run. The other way round, the cleanup deleted the user
+  # first and the azuread provider failed on destroy with "User was not found".
+  depends_on = [null_resource.victim_user_cleanup]
 }
 
 # Allows the victim to RDP into the Azure AD-joined VM using their Entra credentials.
@@ -13,11 +22,15 @@ resource "azurerm_role_assignment" "victim_vm_login" {
   principal_id         = azuread_user.victim.object_id
 }
 
-# Safety net: force-delete the Entra ID user via Graph API on destroy.
+# Safety net: force-delete the Entra ID user via Graph API on destroy, in case
+# Terraform's own deletion of azuread_user.victim did not happen. It runs after
+# that deletion (see depends_on on the user), so normally it finds nothing and
+# prints "User already deleted". The UPN is built from the same inputs rather
+# than read from the user, which would create a dependency cycle.
 # Uses SP credentials directly so no az CLI authentication is required.
 resource "null_resource" "victim_user_cleanup" {
   triggers = {
-    upn           = azuread_user.victim.user_principal_name
+    upn           = local.victim_upn
     tenant_id     = var.tenant_id
     client_id     = var.client_id
     client_secret = var.client_secret
@@ -65,9 +78,4 @@ except urllib.error.HTTPError as e:
 PYEOF
     EOF
   }
-
-  depends_on = [
-    azurerm_role_assignment.victim_vm_login,
-    azurerm_role_assignment.victim_kv_secrets_user,
-  ]
 }
