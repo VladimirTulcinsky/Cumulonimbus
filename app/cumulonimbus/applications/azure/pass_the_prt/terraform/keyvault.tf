@@ -26,7 +26,16 @@ resource "azurerm_key_vault_secret" "flag" {
   key_vault_id = azurerm_key_vault.ptp.id
 }
 
-# Only the victim user can read the flag — not the attacker's local account
+# Only the victim user can read the flag, not the attacker's local account.
+# Reader (control plane) makes the vault visible to the victim in the Azure
+# portal; Key Vault Secrets User (data plane) lets them list the secrets and
+# show the flag's value there.
+resource "azurerm_role_assignment" "victim_kv_reader" {
+  scope                = azurerm_key_vault.ptp.id
+  role_definition_name = "Reader"
+  principal_id         = azuread_user.victim.object_id
+}
+
 resource "azurerm_role_assignment" "victim_kv_secrets_user" {
   scope                = azurerm_key_vault.ptp.id
   role_definition_name = "Key Vault Secrets User"
